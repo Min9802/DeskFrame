@@ -22,5 +22,9 @@ The project is under development and could have bugs.
 
 ## 📜 License
 
-This project is licensed under the MIT License.\
-The project is built using [WPF UI](https://github.com/lepoco/wpfui), which is licensed under the [MIT License](https://github.com/lepoco/wpfui/blob/main/LICENSE).
+This project is licensed under the MIT License.
+
+## 🌟Credits
+- [WPF UI](https://github.com/lepoco/wpfui) - [MIT License](https://github.com/lepoco/wpfui/blob/main/LICENSE)
+- [WindowsCommunityToolkit](https://github.com/CommunityToolkit/WindowsCommunityToolkit) - [MIT License](https://github.com/CommunityToolkit/WindowsCommunityToolkit?tab=License-1-ov-file#License-1-ov-file)
+- [SVG.NET](https://github.com/svg-net/SVG) - [MS-PL license](https://github.com/svg-net/SVG?tab=MS-PL-1-ov-file#readme)
