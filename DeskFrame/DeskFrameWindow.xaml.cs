@@ -30,9 +30,10 @@ using MessageBox = Wpf.Ui.Controls.MessageBox;
 using System.Windows.Data;
 using System.Text.RegularExpressions;
 using System.Collections;
+using Windows.Foundation.Collections;
 namespace DeskFrame
 {
-    public partial class DeskFrameWindow : Window
+    public partial class DeskFrameWindow : System.Windows.Window
     {
         ShellContextMenu scm = new ShellContextMenu();
         public Instance Instance { get; set; }
@@ -45,6 +46,19 @@ namespace DeskFrame
         private double _originalHeight;
         private ICollectionView _collectionView;
         private CancellationTokenSource _cts = new CancellationTokenSource();
+
+        private IntPtr WndProc(IntPtr hWnd, int msg, IntPtr wParam, IntPtr lParam, ref bool handled)
+        {
+            if (!(HwndSource.FromHwnd(hWnd).RootVisual is System.Windows.Window rootVisual))
+                return IntPtr.Zero;
+            if (msg == 70)
+            {
+                Interop.WINDOWPOS structure = Marshal.PtrToStructure<Interop.WINDOWPOS>(lParam);
+                structure.flags |= 4U;
+                Marshal.StructureToPtr<Interop.WINDOWPOS>(structure, lParam, false);
+            }
+            return IntPtr.Zero;
+        }
 
         private void SetAsDesktopChild()
         {
@@ -63,6 +77,19 @@ namespace DeskFrame
                     break;
                 }
             }
+        }
+        public void SetAsToolWindow()
+        {
+            WindowInteropHelper windowInteropHelper = new WindowInteropHelper(this);
+            IntPtr dwNewLong = new IntPtr(((long)Interop.GetWindowLong(windowInteropHelper.Handle, Interop.GWL_EXSTYLE).ToInt32() | 128L) & 4294705151L);
+            Interop.SetWindowLong((nint)new HandleRef(this, windowInteropHelper.Handle), Interop.GWL_EXSTYLE, dwNewLong);
+        }
+        public void SetNoActivate()
+        {
+            IntPtr hwnd = new WindowInteropHelper(this).Handle;
+            IntPtr style = Interop.GetWindowLong(hwnd, Interop.GWL_EXSTYLE);
+            IntPtr newStyle = new IntPtr(style.ToInt64() | Interop.WS_EX_NOACTIVATE);
+            Interop.SetWindowLong(hwnd, Interop.GWL_EXSTYLE, newStyle);
         }
         private void Window_KeyDown(object sender, System.Windows.Input.KeyEventArgs e)
         {
@@ -129,26 +156,22 @@ namespace DeskFrame
             }
         }
 
-        protected override void OnActivated(EventArgs e)
-        {
-            KeepWindowBehind();
-            Debug.WriteLine("OnActivated hide");
-            return;
-        }
-
         protected override void OnSourceInitialized(EventArgs e)
         {
             base.OnSourceInitialized(e);
             IntPtr hwnd = new WindowInteropHelper(this).Handle;
-            int exStyle = Interop.GetWindowLong(hwnd, Interop.GWL_EXSTYLE);
+            int exStyle = (int)Interop.GetWindowLong(hwnd, Interop.GWL_EXSTYLE);
             Interop.SetWindowLong(hwnd, Interop.GWL_EXSTYLE, exStyle | Interop.WS_EX_NOACTIVATE);
+            KeepWindowBehind();
+            SetAsDesktopChild();
+            SetNoActivate();
+            SetAsToolWindow();
+            HwndSource source = HwndSource.FromHwnd(new WindowInteropHelper(this).Handle);
+            source.AddHook(WndProc);
         }
         public DeskFrameWindow(Instance instance)
         {
-            KeepWindowBehind();
             InitializeComponent();
-
-
 
             this.Loaded += MainWindow_Loaded;
             this.SourceInitialized += MainWindow_SourceInitialized!;
@@ -173,7 +196,6 @@ namespace DeskFrame
             {
                 this.Height = instance.Height;
             }
-            SetAsDesktopChild();
 
             _checkForChages = true;
             FileItems = new ObservableCollection<FileItem>();
@@ -325,9 +347,15 @@ namespace DeskFrame
         {
             IntPtr HWND_BOTTOM = new IntPtr(1);
             var hwnd = new System.Windows.Interop.WindowInteropHelper(this).Handle;
-            Interop.SetWindowPos(hwnd, HWND_BOTTOM, 0, 0, 0, 0, Interop.SWP_NOACTIVATE | Interop.SWP_NOMOVE | Interop.SWP_NOSIZE);
+            Interop.SetWindowPos(hwnd, HWND_BOTTOM, 0, 0, 0, 0, Interop.SWP_NOREDRAW | Interop.SWP_NOACTIVATE | Interop.SWP_NOMOVE | Interop.SWP_NOSIZE);
         }
-
+        //public void KeepWindowBehind()
+        //{
+        //    bool keepOnBottom = this._keepOnBottom;
+        //    this._keepOnBottom = false;
+        //    Interop.SetWindowPos(new WindowInteropHelper(this).Handle, 1, 0, 0, 0, 0, 19U);
+        //    this._keepOnBottom = keepOnBottom;
+        //}
 
 
         private async void LoadFiles(string path)

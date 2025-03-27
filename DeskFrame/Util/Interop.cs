@@ -10,15 +10,47 @@ namespace DeskFrame.Util
 {
     public static class Interop
     {
-
-        [DllImport("user32.dll", SetLastError = true)]
-        public static extern int GetWindowLong(IntPtr hWnd, int nIndex);
-
-        [DllImport("user32.dll", SetLastError = true)]
-        public static extern int SetWindowLong(IntPtr hWnd, int nIndex, int dwNewLong);
+        public struct WINDOWPOS
+        {
+            public IntPtr hwnd;
+            public IntPtr hwndInsertAfter;
+            public uint x;
+            public uint y;
+            public uint cx;
+            public uint cy;
+            public uint flags;
+        }
 
         public const int GWL_EXSTYLE = -20;
         public const int WS_EX_NOACTIVATE = 0x08000000;
+
+
+        [DllImport("user32.dll", EntryPoint = "GetWindowLong")]
+        private static extern IntPtr GetWindowLong32(IntPtr hWnd, int nIndex);
+
+        [DllImport("user32.dll", EntryPoint = "GetWindowLongPtr")]
+        private static extern IntPtr GetWindowLong64(IntPtr hWnd, int nIndex);
+
+        public static IntPtr GetWindowLong(IntPtr hWnd, int nIndex)
+        {
+            return IntPtr.Size == 8 ? GetWindowLong64(hWnd, nIndex) : GetWindowLong32(hWnd, nIndex);
+        }
+
+
+        [DllImport("user32.dll", EntryPoint = "SetWindowLong")]
+        private static extern int SetWindowLong32(IntPtr hWnd, int nIndex, int dwNewLong);
+
+        [DllImport("user32.dll", EntryPoint = "SetWindowLongPtr")]
+        private static extern IntPtr SetWindowLongPtr64(IntPtr hWnd, int nIndex, IntPtr dwNewLong);
+
+        public static IntPtr SetWindowLong(IntPtr hWnd, int nIndex, IntPtr dwNewLong)
+        {
+            return IntPtr.Size == 8
+                ? SetWindowLongPtr64(hWnd, nIndex, dwNewLong)
+                : new IntPtr(SetWindowLong32(hWnd, nIndex, dwNewLong.ToInt32()));
+        }
+
+
         [DllImport("user32.dll", SetLastError = true)]
         [return: MarshalAs(UnmanagedType.Bool)]
         public static extern bool EnumWindows(EnumedWindow lpEnumFunc, ArrayList lParam);
@@ -39,6 +71,7 @@ namespace DeskFrame.Util
         public const int WM_SETFOCUS = 0x0007;
         public const int WM_KILLFOCUS = 0x0008;
         public const int WM_SIZE = 0x0005;
+        public const int SWP_NOREDRAW = 0x0008;
 
         [StructLayout(LayoutKind.Sequential)]
         public struct SHFILEINFO
@@ -56,7 +89,7 @@ namespace DeskFrame.Util
         public const uint SHGFI_LARGEICON = 0x000000000; // Large icon (default)
         public const uint SHGFI_SMALLICON = 0x000000001; // Small icon
 
- 
+
         [DllImport("user32.dll", SetLastError = true)]
         [return: MarshalAs(UnmanagedType.Bool)]
         public static extern bool DestroyIcon(IntPtr hIcon);
@@ -137,7 +170,7 @@ namespace DeskFrame.Util
             void GetAttributes();
         }
 
-     
+
 
         [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Auto)]
         public struct CMINVOKECOMMANDINFO
