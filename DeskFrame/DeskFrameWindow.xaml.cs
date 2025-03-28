@@ -1036,8 +1036,8 @@ namespace DeskFrame
             MenuItem reloadItems = new MenuItem { Header = "Reload" };
             reloadItems.Click += (s, args) => { LoadFiles(_path); };
 
-            MenuItem dockFrame = new MenuItem { Header = Instance.IsLocked ? "Unlock Frame" : "Lock Frame" };
-            dockFrame.Click += (s, args) =>
+            MenuItem lockFrame = new MenuItem { Header = Instance.IsLocked ? "Unlock Frame" : "Lock Frame" };
+            lockFrame.Click += (s, args) =>
             {
                 _isLocked = !_isLocked;
                 ToggleIsLocked();
@@ -1087,10 +1087,12 @@ namespace DeskFrame
                 }
             };
 
-            contextMenu.Items.Add(exitItem);
+            contextMenu.Items.Add(lockFrame);
             contextMenu.Items.Add(reloadItems);
             contextMenu.Items.Add(toggleHiddenFiles);
-            contextMenu.Items.Add(dockFrame);
+            contextMenu.Items.Add(new Separator());
+            contextMenu.Items.Add(exitItem);
+
             contextMenu.IsOpen = true;
         }
 
