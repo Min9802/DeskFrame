@@ -448,6 +448,7 @@ namespace DeskFrame
             }
             _collectionView = CollectionViewSource.GetDefaultView(FileItems);
             _originalHeight = this.Height;
+            titleBar.Background = new SolidColorBrush((Color)System.Windows.Media.ColorConverter.ConvertFromString(Instance.TitleBarColor));
         }
         private void Window_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
         {
@@ -1042,6 +1043,17 @@ namespace DeskFrame
             MenuItem toggleHiddenFiles = new MenuItem { Header = "Toggle Hidden Files" };
             toggleHiddenFiles.Click += (s, args) => { ToggleHiddenFiles(); LoadFiles(_path); };
 
+            MenuItem frameSettings = new MenuItem { Header = "Frame Settings" };
+            frameSettings.Click += (s, args) => 
+            {
+                var dialog = new FrameSettingsDialog(Instance);
+                dialog.ShowDialog();
+                if (dialog.DialogResult == true)
+                {
+                    titleBar.Background = new SolidColorBrush((Color)System.Windows.Media.ColorConverter.ConvertFromString(Instance.TitleBarColor));
+                }
+            };
+
             MenuItem reloadItems = new MenuItem { Header = "Reload" };
             reloadItems.Click += (s, args) => { LoadFiles(_path); };
 
@@ -1098,6 +1110,7 @@ namespace DeskFrame
             contextMenu.Items.Add(lockFrame);
             contextMenu.Items.Add(reloadItems);
             contextMenu.Items.Add(toggleHiddenFiles);
+            contextMenu.Items.Add(frameSettings);
             contextMenu.Items.Add(new Separator());
             contextMenu.Items.Add(exitItem);
 

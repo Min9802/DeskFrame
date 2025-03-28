@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ui:FluentWindow x:Class="DeskFrame.FrameSettingsDialog"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml" 
+        xmlns:local="clr-namespace:DeskFrame"
+        ExtendsContentIntoTitleBar="True"
+        mc:Ignorable="d"    
+        Background="#66232323" 
+        WindowStyle="None" 
+        ResizeMode="NoResize"
+        Height="200" 
+        Width="300"
+        MaxWidth="300">
+    <Grid>
+        <StackPanel>
+            <ui:TitleBar Title="Frame Settings" Name="Titlebar" Padding="8,0,0,0" Height="30" CanMaximize="False" ShowMinimize="False" ApplicationTheme="Dark" ShowMaximize="False">
+                <ui:TitleBar.Icon>
+                    <ui:ImageIcon Source="/ico.png" Margin="0,0,6,0" />
+                </ui:TitleBar.Icon>
+            </ui:TitleBar>
+            <StackPanel Orientation="Vertical" Margin="10,25,0,0">
+                <Label Content="Enter hex color code (e.g. #FF0000):" Height="30"/>
+                <TextBox x:Name="ColorTextBox" Margin="0,0,0,20" TextChanged="ColorTextBox_TextChanged"/>
+                <Button x:Name="ApplyButton" Content="Apply" Height="30" Click="ApplyButton_Click" Margin="0,0,0,0"/>
+            </StackPanel>
+        </StackPanel>
+    </Grid>
+</ui:FluentWindow> 
