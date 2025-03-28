@@ -18,7 +18,7 @@ namespace DeskFrame
             {
                 using (var httpClient = new System.Net.Http.HttpClient())
                 {
-                    httpClient.DefaultRequestHeaders.UserAgent.Add(new System.Net.Http.Headers.ProductInfoHeaderValue("Pi-hole-tray", currentVersion));
+                    httpClient.DefaultRequestHeaders.UserAgent.Add(new System.Net.Http.Headers.ProductInfoHeaderValue("DeskFrame", currentVersion));
                     var response = await httpClient.GetStringAsync(_url);
                     Debug.WriteLine("got response");
                     using (JsonDocument doc = JsonDocument.Parse(response))
