@@ -31,6 +31,7 @@ using System.Windows.Data;
 using System.Text.RegularExpressions;
 using System.Collections;
 using Windows.Foundation.Collections;
+using System.Windows.Shell;
 namespace DeskFrame
 {
     public partial class DeskFrameWindow : System.Windows.Window
@@ -41,11 +42,17 @@ namespace DeskFrame
         private FileSystemWatcher _fileWatcher = new FileSystemWatcher();
         public ObservableCollection<FileItem> FileItems { get; set; }
         private bool _isMinimized = false;
+        private int _snapDistance = 8;
         private bool _isBlack = true;
         private bool _checkForChages = false;
+        private bool _isLocked = false;
+        private bool _isOnEdge = false;
         private double _originalHeight;
+        public bool isMouseDown = false;
         private ICollectionView _collectionView;
         private CancellationTokenSource _cts = new CancellationTokenSource();
+        DeskFrameWindow _wOnLeft = null;
+        DeskFrameWindow _wOnRight = null;
 
         private IntPtr WndProc(IntPtr hWnd, int msg, IntPtr wParam, IntPtr lParam, ref bool handled)
         {
@@ -57,8 +64,231 @@ namespace DeskFrame
                 structure.flags |= 4U;
                 Marshal.StructureToPtr<Interop.WINDOWPOS>(structure, lParam, false);
             }
+            if (msg == 0x0003) // WM_MOVE
+            {
+                HandleWindowMove();
+
+                if (_wOnLeft != null)
+                {
+                    _wOnLeft.HandleWindowMove();
+                }
+                if (_wOnRight != null)
+                {
+                    _wOnRight.HandleWindowMove();
+                }
+            }
+
             return IntPtr.Zero;
         }
+        public void HandleWindowMove()
+        {
+            Interop.RECT windowRect;
+            IntPtr hwnd = new WindowInteropHelper(this).Handle;
+            Interop.GetWindowRect(hwnd, out windowRect);
+
+            int windowLeft = windowRect.Left;
+            int windowTop = windowRect.Top;
+            int windowRight = windowRect.Right;
+            int windowBottom = windowRect.Bottom;
+
+            var mainWindow = Application.Current.MainWindow as MainWindow;
+            if (mainWindow == null) return;
+
+            int newWindowLeft = windowLeft;
+            int newWindowTop = windowTop;
+
+            var workingArea = SystemParameters.WorkArea;
+            if (Math.Abs(windowLeft - workingArea.Left) <= _snapDistance)
+            {
+                newWindowLeft = (int)workingArea.Left;
+                _isOnEdge = true;
+            }
+            else if (Math.Abs(windowRight - workingArea.Right) <= _snapDistance)
+            {
+                newWindowLeft = (int)(workingArea.Right - (windowRight - windowLeft));
+                _isOnEdge = true;
+            }
+            else
+            {
+                _isOnEdge = false;
+            }
+
+            if (Math.Abs(windowTop - workingArea.Top) <= _snapDistance)
+            {
+                newWindowTop = (int)workingArea.Top;
+                windowBorder.CornerRadius = new CornerRadius(0, 0, 5, 5);
+                _isOnEdge = true;
+            }
+            else if (Math.Abs(windowBottom - workingArea.Bottom) <= _snapDistance)
+            {
+                newWindowTop = (int)(workingArea.Bottom - (windowBottom - windowTop));
+            }
+            else
+            {
+                _isOnEdge = false;
+                windowBorder.CornerRadius = new CornerRadius(5);
+            }
+            int counter = 0;
+
+            bool onLeft = false;
+            bool onRight = false;
+            foreach (var otherWindow in MainWindow._controller._subWindows)
+            {
+                if (otherWindow == this) continue;
+
+                IntPtr otherHwnd = new WindowInteropHelper(otherWindow).Handle;
+                Interop.RECT otherWindowRect;
+                Interop.GetWindowRect(otherHwnd, out otherWindowRect);
+
+                int otherLeft = otherWindowRect.Left;
+                int otherTop = otherWindowRect.Top;
+                int otherRight = otherWindowRect.Right;
+                int otherBottom = otherWindowRect.Bottom;
+
+                if (Math.Abs(windowLeft - otherRight) <= _snapDistance && Math.Abs(windowTop - otherTop) <= _snapDistance)
+                {
+                    newWindowLeft = otherRight;
+                    newWindowTop = otherTop;
+                    _wOnLeft = otherWindow;
+                    onLeft = true;
+                    counter++;
+                }
+                else if (Math.Abs(windowRight - otherLeft) <= _snapDistance && Math.Abs(windowTop - otherTop) <= _snapDistance)
+                {
+                    newWindowLeft = otherLeft - (windowRight - windowLeft);
+                    newWindowTop = otherTop;
+                    _wOnRight = otherWindow;
+                    onRight = true;
+                    counter++;
+                }
+
+
+                if (Math.Abs(windowTop - otherBottom) <= _snapDistance && Math.Abs(windowLeft - otherLeft) <= _snapDistance)
+                {
+                    newWindowTop = otherBottom;
+                }
+                else if (Math.Abs(windowBottom - otherTop) <= _snapDistance && Math.Abs(windowLeft - otherLeft) <= _snapDistance)
+                {
+                    newWindowTop = otherTop - (windowBottom - windowTop);
+                }
+                if (counter == 2) break;
+            }
+            if (counter == 2)
+            {
+                windowBorder.CornerRadius = new CornerRadius(0);
+            }
+            else
+            {
+                if (_wOnLeft != null)
+                {
+                    if (_wOnLeft._isMinimized)
+                    {
+                        if (onLeft)
+                        {
+                            _wOnLeft.windowBorder.CornerRadius = new CornerRadius(
+                                topLeft: _wOnLeft.windowBorder.CornerRadius.TopLeft,
+                                topRight: 0.0,
+                                bottomRight: 0.0,
+                                bottomLeft: _wOnLeft.windowBorder.CornerRadius.BottomLeft
+                             );
+                        }
+                    }
+                    else
+                    {
+                        _wOnLeft.windowBorder.CornerRadius = new CornerRadius(
+                            topLeft: _wOnLeft.windowBorder.CornerRadius.TopLeft,
+                            topRight: 0.0,
+                            bottomRight: _wOnLeft.windowBorder.CornerRadius.BottomRight,
+                            bottomLeft: _wOnLeft.windowBorder.CornerRadius.BottomLeft
+                         );
+                    }
+                    windowBorder.CornerRadius = new CornerRadius(
+                        topLeft: 0.0,
+                        topRight: windowBorder.CornerRadius.TopRight,
+                        bottomRight: windowBorder.CornerRadius.BottomRight,
+                        bottomLeft: 0.0
+                     );
+
+                }
+                else if (_wOnRight != null)
+                {
+                    if (_wOnRight._isMinimized)
+                    {
+                        if (onRight)
+                        {
+                            _wOnRight.windowBorder.CornerRadius = new CornerRadius(
+                                topLeft: 0.0,
+                                topRight: _wOnRight.windowBorder.CornerRadius.TopRight,
+                                bottomRight: _wOnRight.windowBorder.CornerRadius.BottomRight,
+                                bottomLeft: 0.0
+                            );
+                        }
+                    }
+                    else
+                    {
+                        _wOnRight.windowBorder.CornerRadius = new CornerRadius(
+                            topLeft: 0.0,
+                            topRight: _wOnRight.windowBorder.CornerRadius.TopRight,
+                            bottomRight: _wOnRight.windowBorder.CornerRadius.BottomRight,
+                            bottomLeft: _wOnRight.windowBorder.CornerRadius.BottomLeft
+                        );
+                    }
+
+                    windowBorder.CornerRadius = new CornerRadius(
+                        topLeft: windowBorder.CornerRadius.TopLeft,
+                        topRight: 0.0,
+                        bottomRight: 0.0,
+                        bottomLeft: windowBorder.CornerRadius.BottomLeft
+                    );
+                }
+            }
+            if (counter == 0)
+            {
+                if (_wOnLeft != null)
+                {
+                    if (!onLeft)
+                    {
+                        _wOnLeft.windowBorder.CornerRadius = new CornerRadius(
+                            topLeft: _wOnLeft.windowBorder.CornerRadius.TopLeft,
+                            topRight: _wOnLeft._isOnEdge ? 0.0 : 5.0,
+                            bottomRight: 5.0,
+                            bottomLeft: _wOnLeft.windowBorder.CornerRadius.BottomLeft
+                         );
+                    }
+                    _wOnLeft._wOnRight = null;
+                    _wOnLeft = null;
+                }
+                if (_wOnRight != null)
+                {
+                    if (!onRight)
+                    {
+                        _wOnRight.windowBorder.CornerRadius = new CornerRadius(
+                             topLeft: _wOnRight._isOnEdge ? 0.0 : 5.0,
+                             topRight: _wOnRight.windowBorder.CornerRadius.TopRight,
+                             bottomRight: _wOnRight.windowBorder.CornerRadius.BottomRight,
+                             bottomLeft: 5.0
+                         );
+                    }
+                    _wOnRight._wOnLeft = null;
+                    _wOnRight = null;
+                }
+            }
+            if (!_isMinimized)
+            {
+                windowBorder.CornerRadius = new CornerRadius(
+                topLeft: windowBorder.CornerRadius.TopLeft,
+                topRight: windowBorder.CornerRadius.TopRight,
+                bottomRight: 5.0,
+                bottomLeft: 5.0
+            );
+            }
+            if (newWindowLeft != windowLeft || newWindowTop != windowTop)
+            {
+                Interop.SetWindowPos(hwnd, IntPtr.Zero, newWindowLeft, newWindowTop, 0, 0, Interop.SWP_NOREDRAW | Interop.SWP_NOACTIVATE | Interop.SWP_NOZORDER | Interop.SWP_NOSIZE);
+            }
+        }
+
+
 
         private void SetAsDesktopChild()
         {
@@ -80,9 +310,9 @@ namespace DeskFrame
         }
         public void SetAsToolWindow()
         {
-            WindowInteropHelper windowInteropHelper = new WindowInteropHelper(this);
-            IntPtr dwNewLong = new IntPtr(((long)Interop.GetWindowLong(windowInteropHelper.Handle, Interop.GWL_EXSTYLE).ToInt32() | 128L) & 4294705151L);
-            Interop.SetWindowLong((nint)new HandleRef(this, windowInteropHelper.Handle), Interop.GWL_EXSTYLE, dwNewLong);
+            WindowInteropHelper wih = new WindowInteropHelper(this);
+            IntPtr dwNew = new IntPtr(((long)Interop.GetWindowLong(wih.Handle, Interop.GWL_EXSTYLE).ToInt32() | 128L) & 4294705151L);
+            Interop.SetWindowLong((nint)new HandleRef(this, wih.Handle), Interop.GWL_EXSTYLE, dwNew);
         }
         public void SetNoActivate()
         {
@@ -291,9 +521,17 @@ namespace DeskFrame
                 Instance.Minimized = true;
                 Debug.WriteLine("minimize: " + Instance.Height);
                 AnimateWindowHeight(30);
+                HandleWindowMove();
+
             }
             else
             {
+                windowBorder.CornerRadius = new CornerRadius(
+                         topLeft: windowBorder.CornerRadius.TopLeft,
+                         topRight: windowBorder.CornerRadius.TopRight,
+                         bottomRight: 5.0,
+                         bottomLeft: 5.0
+                      );
                 _isMinimized = false;
                 Instance.Minimized = false;
 
@@ -759,6 +997,19 @@ namespace DeskFrame
 
             MenuItem reloadItems = new MenuItem { Header = "Reload" };
             reloadItems.Click += (s, args) => { LoadFiles(_path); };
+
+            MenuItem dockItems = new MenuItem { Header = _isLocked ? "Unlock Frame" : "Lock Frame" };
+            dockItems.Click += (s, args) =>
+            {
+                WindowChrome.SetWindowChrome(this, _isLocked ? (null) : new WindowChrome
+                {
+                    GlassFrameThickness = new Thickness(0),
+                    CaptionHeight = 0,
+                    ResizeBorderThickness = new Thickness(5),
+                    CornerRadius = new CornerRadius(5)
+
+                });
+            };
 
             MenuItem exitItem = new MenuItem { Header = "Remove" };
             exitItem.Click += async (s, args) =>

@@ -1,13 +1,14 @@
 ﻿using DeskFrame;
 using Microsoft.Win32;
 using System.Diagnostics;
+using System.Windows.Interop;
 using System.Xml.Linq;
 public class InstanceController
 {
     public static string appName = "DeskFrame";
     public List<Instance> Instances = new List<Instance>();
     public RegistryHelper reg = new RegistryHelper(appName);
-    private List<DeskFrameWindow> _subWindows = new List<DeskFrameWindow>();
+    public List<DeskFrameWindow> _subWindows = new List<DeskFrameWindow>();
 
     public void WriteOverInstanceToKey(Instance instance, string oldKey)
     {

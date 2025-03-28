@@ -10,6 +10,17 @@ namespace DeskFrame.Util
 {
     public static class Interop
     {
+        [DllImport("user32.dll")]
+        public static extern bool GetWindowRect(IntPtr hwnd, out RECT lpRect);
+
+        [StructLayout(LayoutKind.Sequential)]
+        public struct RECT
+        {
+            public int Left;
+            public int Top;
+            public int Right;
+            public int Bottom;
+        }
         public struct WINDOWPOS
         {
             public IntPtr hwnd;
@@ -72,6 +83,7 @@ namespace DeskFrame.Util
         public const int WM_KILLFOCUS = 0x0008;
         public const int WM_SIZE = 0x0005;
         public const int SWP_NOREDRAW = 0x0008;
+        public const uint SWP_NOZORDER = 0x0004;
 
         [StructLayout(LayoutKind.Sequential)]
         public struct SHFILEINFO
