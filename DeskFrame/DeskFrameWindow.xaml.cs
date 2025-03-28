@@ -595,6 +595,10 @@ namespace DeskFrame
         //    this._keepOnBottom = keepOnBottom;
         //}
 
+        private void ToggleHiddenFiles()
+        {
+            Instance.ShowHiddenFiles = !Instance.ShowHiddenFiles;
+        }
 
         private async void LoadFiles(string path)
         {
@@ -609,10 +613,13 @@ namespace DeskFrame
                 var dirInfo = new DirectoryInfo(path);
                 var files = dirInfo.GetFiles();
                 var directories = dirInfo.GetDirectories();
-                return files.Cast<FileSystemInfo>()
+                var filteredFiles = files.Cast<FileSystemInfo>()
                             .Concat(directories)
                             .OrderBy(entry => entry.Name, StringComparer.OrdinalIgnoreCase)
                             .ToList();
+                if (!Instance.ShowHiddenFiles)
+                    filteredFiles = filteredFiles.Where(entry => !entry.Attributes.HasFlag(FileAttributes.Hidden)).ToList();
+                return filteredFiles;
             });
 
             var fileNames = new HashSet<string>(fileEntries.Select(f => f.Name));
@@ -994,6 +1001,8 @@ namespace DeskFrame
         {
             ContextMenu contextMenu = new ContextMenu();
 
+            MenuItem toggleHiddenFiles = new MenuItem { Header = "Toggle Hidden Files" };
+            toggleHiddenFiles.Click += (s, args) => { ToggleHiddenFiles(); LoadFiles(_path); };
 
             MenuItem reloadItems = new MenuItem { Header = "Reload" };
             reloadItems.Click += (s, args) => { LoadFiles(_path); };
@@ -1038,6 +1047,7 @@ namespace DeskFrame
 
             contextMenu.Items.Add(exitItem);
             contextMenu.Items.Add(reloadItems);
+            contextMenu.Items.Add(toggleHiddenFiles);
             contextMenu.IsOpen = true;
         }
 

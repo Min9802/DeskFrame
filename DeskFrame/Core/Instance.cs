@@ -14,6 +14,7 @@ public class Instance : INotifyPropertyChanged
     private string _name;
     private string _folder;
     private bool _minimized;
+    private bool _showHiddenFiles;
 
     public double PosX
     {
@@ -103,6 +104,20 @@ public class Instance : INotifyPropertyChanged
             }
         }
     }
+
+    public bool ShowHiddenFiles
+    {
+        get => _showHiddenFiles;
+        set
+        {
+            if (_showHiddenFiles != value)
+            {
+                _showHiddenFiles = value;
+                OnPropertyChanged(nameof(ShowHiddenFiles), value.ToString());
+            }
+        }
+    }
+
     public Instance(Instance instance)
     {
         _posX = instance._posX;
@@ -112,6 +127,7 @@ public class Instance : INotifyPropertyChanged
         _name = instance._name;
         _minimized = instance._minimized;
         _folder = instance._folder;
+        _showHiddenFiles = instance._showHiddenFiles;
     }
 
     public Instance(string name) // default instance
@@ -123,6 +139,7 @@ public class Instance : INotifyPropertyChanged
         _name = name;
         _minimized = false;
         _folder = "empty";
+        _showHiddenFiles = false;
     }
 
     protected void OnPropertyChanged(string propertyName, string value)
