@@ -27,6 +27,7 @@ public class InstanceController
                 key.SetValue("Height", instance.Height!);
                 key.SetValue("Minimized", instance.Minimized!);
                 key.SetValue("ShowHiddenFiles", instance.ShowHiddenFiles!);
+                key.SetValue("IsLocked", instance.IsLocked!);
             }
             Registry.CurrentUser.DeleteSubKey(@$"SOFTWARE\{appName}\Instances\{oldKey}", throwOnMissingSubKey: false);
         }
@@ -71,6 +72,7 @@ public class InstanceController
                 key.SetValue("Minimized", instance.Minimized!);
                 key.SetValue("Folder", instance.Folder!);
                 key.SetValue("ShowHiddenFiles", instance.ShowHiddenFiles!);
+                key.SetValue("IsLocked", instance.IsLocked!);
             }
         }
         catch { }
@@ -213,6 +215,10 @@ public class InstanceController
                                             case "ShowHiddenFiles":
                                                 temp.ShowHiddenFiles = bool.Parse(value.ToString()!);
                                                 Debug.WriteLine($"ShowHiddenFiles added\t{temp.ShowHiddenFiles}");
+                                                break;
+                                            case "IsLocked":
+                                                temp.IsLocked = bool.Parse(value.ToString()!);
+                                                Debug.WriteLine($"IsLocked added\t{temp.IsLocked}");
                                                 break;
                                             default:
                                                 Debug.WriteLine($"Unknown value: {valueName}");

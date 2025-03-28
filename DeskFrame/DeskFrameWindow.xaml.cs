@@ -53,7 +53,6 @@ namespace DeskFrame
         private CancellationTokenSource _cts = new CancellationTokenSource();
         DeskFrameWindow _wOnLeft = null;
         DeskFrameWindow _wOnRight = null;
-
         private IntPtr WndProc(IntPtr hWnd, int msg, IntPtr wParam, IntPtr lParam, ref bool handled)
         {
             if (!(HwndSource.FromHwnd(hWnd).RootVisual is System.Windows.Window rootVisual))
@@ -98,20 +97,20 @@ namespace DeskFrame
             int newWindowTop = windowTop;
 
             var workingArea = SystemParameters.WorkArea;
-            if (Math.Abs(windowLeft - workingArea.Left) <= _snapDistance)
-            {
-                newWindowLeft = (int)workingArea.Left;
-                _isOnEdge = true;
-            }
-            else if (Math.Abs(windowRight - workingArea.Right) <= _snapDistance)
-            {
-                newWindowLeft = (int)(workingArea.Right - (windowRight - windowLeft));
-                _isOnEdge = true;
-            }
-            else
-            {
-                _isOnEdge = false;
-            }
+            //if (Math.Abs(windowLeft - workingArea.Left) <= _snapDistance)
+            //{
+            //    newWindowLeft = (int)workingArea.Left;
+            //    _isOnEdge = true;
+            //}
+            //else if (Math.Abs(windowRight - workingArea.Right) <= _snapDistance)
+            //{
+            //    newWindowLeft = (int)(workingArea.Right - (windowRight - windowLeft));
+            //    _isOnEdge = true;
+            //}
+            //else
+            //{
+            //    _isOnEdge = false;
+            //}
 
             if (Math.Abs(windowTop - workingArea.Top) <= _snapDistance)
             {
@@ -414,8 +413,10 @@ namespace DeskFrame
             Instance = instance;
             this.Width = instance.Width;
             _path = instance.Folder;
+            _isLocked = instance.IsLocked;
             this.Top = instance.PosY;
             this.Left = instance.PosX;
+            titleBar.Cursor = _isLocked ? System.Windows.Input.Cursors.Arrow : System.Windows.Input.Cursors.SizeAll;
             if ((int)instance.Height <= 30) _isMinimized = true;
             if (instance.Minimized)
             {
@@ -450,7 +451,10 @@ namespace DeskFrame
             if (e.ButtonState == MouseButtonState.Pressed)
             {
                 KeepWindowBehind();
-                this.DragMove();
+                if (!_isLocked)
+                {
+                    this.DragMove();
+                }
                 Debug.WriteLine("win left hide");
                 return;
             }
@@ -479,6 +483,8 @@ namespace DeskFrame
         }
         private void AnimateChevron(bool flip, bool onLoad)
         {
+
+
             var rotateTransform = ChevronRotate;
 
             int angleToAnimateTo;
@@ -486,13 +492,14 @@ namespace DeskFrame
             if (onLoad)
             {
                 angleToAnimateTo = flip ? 0 : 180;
-                duration = 0;
+                duration = 10;
             }
             else
             {
                 angleToAnimateTo = (rotateTransform.Angle == 180) ? 0 : 180;
                 duration = 200;
             }
+            if (_isLocked) duration = 100;
 
             var rotateAnimation = new DoubleAnimation
             {
@@ -501,11 +508,13 @@ namespace DeskFrame
                 Duration = new Duration(TimeSpan.FromMilliseconds(duration)),
                 EasingFunction = new QuadraticEase { EasingMode = EasingMode.EaseInOut }
             };
+            _canAnimate = false;
+            rotateAnimation.Completed += (s, e) => _canAnimate = true;
 
             rotateTransform.BeginAnimation(RotateTransform.AngleProperty, rotateAnimation);
         }
 
-
+        bool _canAnimate = true;
         private void Minimize_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
         {
 
@@ -545,10 +554,11 @@ namespace DeskFrame
             var animation = new DoubleAnimation
             {
                 To = targetHeight,
-                Duration = TimeSpan.FromSeconds(0.2),
+                Duration = (_isLocked) ? TimeSpan.FromSeconds(0.1) : TimeSpan.FromSeconds(0.2),
                 EasingFunction = new QuadraticEase()
             };
-
+            animation.Completed += (s, e) => _canAnimate = true;
+            _canAnimate = false;
             this.BeginAnimation(HeightProperty, animation);
         }
 
@@ -598,6 +608,10 @@ namespace DeskFrame
         private void ToggleHiddenFiles()
         {
             Instance.ShowHiddenFiles = !Instance.ShowHiddenFiles;
+        }
+        private void ToggleIsLocked()
+        {
+            Instance.IsLocked = !Instance.IsLocked;
         }
 
         private async void LoadFiles(string path)
@@ -990,6 +1004,21 @@ namespace DeskFrame
         private void MainWindow_Loaded(object sender, RoutedEventArgs e)
         {
             KeepWindowBehind();
+            WindowChrome.SetWindowChrome(this, Instance.IsLocked ?
+            new WindowChrome
+            {
+                ResizeBorderThickness = new Thickness(0),
+                CaptionHeight = 0
+            }
+            : new WindowChrome
+            {
+                GlassFrameThickness = new Thickness(5),
+                CaptionHeight = 0,
+                ResizeBorderThickness = new Thickness(5),
+                CornerRadius = new CornerRadius(5)
+            }
+         );
+
         }
         private void MainWindow_SourceInitialized(object sender, EventArgs e)
         {
@@ -1007,17 +1036,30 @@ namespace DeskFrame
             MenuItem reloadItems = new MenuItem { Header = "Reload" };
             reloadItems.Click += (s, args) => { LoadFiles(_path); };
 
-            MenuItem dockItems = new MenuItem { Header = _isLocked ? "Unlock Frame" : "Lock Frame" };
-            dockItems.Click += (s, args) =>
+            MenuItem dockFrame = new MenuItem { Header = Instance.IsLocked ? "Unlock Frame" : "Lock Frame" };
+            dockFrame.Click += (s, args) =>
             {
-                WindowChrome.SetWindowChrome(this, _isLocked ? (null) : new WindowChrome
-                {
-                    GlassFrameThickness = new Thickness(0),
-                    CaptionHeight = 0,
-                    ResizeBorderThickness = new Thickness(5),
-                    CornerRadius = new CornerRadius(5)
+                _isLocked = !_isLocked;
+                ToggleIsLocked();
+                HandleWindowMove();
+                WindowChrome.SetWindowChrome(this, Instance.IsLocked ?
+                       new WindowChrome
+                       {
+                           ResizeBorderThickness = new Thickness(0),
+                           CaptionHeight = 0
 
-                });
+                       }
+                       : new WindowChrome
+                       {
+                           GlassFrameThickness = new Thickness(5),
+                           CaptionHeight = 0,
+                           ResizeBorderThickness = new Thickness(5),
+                           CornerRadius = new CornerRadius(5)
+                       }
+                 );
+
+            
+                titleBar.Cursor = _isLocked ? System.Windows.Input.Cursors.Arrow : System.Windows.Input.Cursors.SizeAll;
             };
 
             MenuItem exitItem = new MenuItem { Header = "Remove" };
@@ -1048,6 +1090,7 @@ namespace DeskFrame
             contextMenu.Items.Add(exitItem);
             contextMenu.Items.Add(reloadItems);
             contextMenu.Items.Add(toggleHiddenFiles);
+            contextMenu.Items.Add(dockFrame);
             contextMenu.IsOpen = true;
         }
 
@@ -1144,14 +1187,21 @@ namespace DeskFrame
 
         private void Window_MouseEnter(object sender, MouseEventArgs e)
         {
-            this.Activate();
-            Debug.WriteLine("ddddddd");
-            this.Focus();
+            if (_isOnEdge && _isMinimized)
+            {
+                if (!_canAnimate) return;
+                Minimize_MouseLeftButtonDown(null, null);
+            }
         }
 
         private void Window_MouseLeave(object sender, MouseEventArgs e)
         {
             FilterTextBox.Text = null;
+            if (_isOnEdge && !_isMinimized)
+            {
+                if (!_canAnimate) return;
+                Minimize_MouseLeftButtonDown(null, null);
+            }
         }
     }
 }

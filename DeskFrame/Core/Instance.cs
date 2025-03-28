@@ -15,6 +15,7 @@ public class Instance : INotifyPropertyChanged
     private string _folder;
     private bool _minimized;
     private bool _showHiddenFiles;
+    private bool _isLocked;
 
     public double PosX
     {
@@ -118,6 +119,18 @@ public class Instance : INotifyPropertyChanged
         }
     }
 
+    public bool IsLocked
+    {
+        get => _isLocked;
+        set
+        {
+            if (_isLocked != value)
+            {
+                _isLocked = value;
+                OnPropertyChanged(nameof(IsLocked), value.ToString());
+            }
+        }
+    }
     public Instance(Instance instance)
     {
         _posX = instance._posX;
@@ -128,6 +141,7 @@ public class Instance : INotifyPropertyChanged
         _minimized = instance._minimized;
         _folder = instance._folder;
         _showHiddenFiles = instance._showHiddenFiles;
+        _isLocked = instance._isLocked;
     }
 
     public Instance(string name) // default instance
@@ -140,6 +154,8 @@ public class Instance : INotifyPropertyChanged
         _minimized = false;
         _folder = "empty";
         _showHiddenFiles = false;
+        _isLocked = false;
+
     }
 
     protected void OnPropertyChanged(string propertyName, string value)
