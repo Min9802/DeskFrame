@@ -25,7 +25,7 @@ public class InstanceController
                 key.SetValue("Width", instance.Width!);
                 key.SetValue("Height", instance.Height!);
                 key.SetValue("Minimized", instance.Minimized!);
-
+                key.SetValue("ShowHiddenFiles", instance.ShowHiddenFiles!);
             }
             Registry.CurrentUser.DeleteSubKey(@$"SOFTWARE\{appName}\Instances\{oldKey}", throwOnMissingSubKey: false);
         }
@@ -69,8 +69,7 @@ public class InstanceController
                 key.SetValue("Height", instance.Height!);
                 key.SetValue("Minimized", instance.Minimized!);
                 key.SetValue("Folder", instance.Folder!);
-
-
+                key.SetValue("ShowHiddenFiles", instance.ShowHiddenFiles!);
             }
         }
         catch { }
@@ -209,6 +208,10 @@ public class InstanceController
                                             case "Minimized":
                                                 temp.Minimized = bool.Parse(value.ToString()!);
                                                 Debug.WriteLine($"Minimized added\t{temp.Minimized}");
+                                                break;
+                                            case "ShowHiddenFiles":
+                                                temp.ShowHiddenFiles = bool.Parse(value.ToString()!);
+                                                Debug.WriteLine($"ShowHiddenFiles added\t{temp.ShowHiddenFiles}");
                                                 break;
                                             default:
                                                 Debug.WriteLine($"Unknown value: {valueName}");
