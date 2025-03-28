@@ -45,6 +45,7 @@ namespace DeskFrame
         private int _snapDistance = 8;
         private bool _isBlack = true;
         private bool _checkForChages = false;
+        private bool _canAutoClose = true;
         private bool _isLocked = false;
         private bool _isOnEdge = false;
         private double _originalHeight;
@@ -357,7 +358,10 @@ namespace DeskFrame
             try
             {
                 await Task.Delay(50, token);
-
+                foreach (var fileItem in FileItems)
+                {
+                        fileItem.IsSelected = false;
+                }
                 string regexPattern = Regex.Escape(filter).Replace("\\*", ".*"); // Escape other regex special chars and replace '*' with '.*'
 
                 var filteredItems = await Task.Run(() =>
@@ -401,7 +405,6 @@ namespace DeskFrame
         public DeskFrameWindow(Instance instance)
         {
             InitializeComponent();
-
             this.Loaded += MainWindow_Loaded;
             this.SourceInitialized += MainWindow_SourceInitialized!;
 
@@ -680,9 +683,14 @@ namespace DeskFrame
             });
 
         }
-
         private void Window_Drop(object sender, DragEventArgs e)
         {
+            _canAutoClose = false;
+            Task.Run(async () =>
+            {
+                Thread.Sleep(300);
+                _canAutoClose = true;
+            });
             if (e.Data.GetDataPresent(DataFormats.FileDrop))
             {
                 string[] files = (string[])e.Data.GetData(DataFormats.FileDrop);
@@ -776,12 +784,13 @@ namespace DeskFrame
 
         private void FileItem_RightClick(object sender, MouseButtonEventArgs e)
         {
+            _canAutoClose = false;
             var clickedFileItem = (sender as Border)?.DataContext as FileItem;
 
             if (clickedFileItem != null)
             {
                 clickedFileItem.IsSelected = !clickedFileItem.IsSelected;
-
+               
                 foreach (var fileItem in FileItems)
                 {
                     if (fileItem != clickedFileItem)
@@ -1014,7 +1023,7 @@ namespace DeskFrame
             {
                 GlassFrameThickness = new Thickness(5),
                 CaptionHeight = 0,
-                ResizeBorderThickness = new Thickness(5),
+                ResizeBorderThickness = new Thickness(5,0,5,5),
                 CornerRadius = new CornerRadius(5)
             }
          );
@@ -1053,12 +1062,11 @@ namespace DeskFrame
                        {
                            GlassFrameThickness = new Thickness(5),
                            CaptionHeight = 0,
-                           ResizeBorderThickness = new Thickness(5),
+                           ResizeBorderThickness = new Thickness(5, 0, 5, 5),
                            CornerRadius = new CornerRadius(5)
                        }
                  );
 
-            
                 titleBar.Cursor = _isLocked ? System.Windows.Input.Cursors.Arrow : System.Windows.Input.Cursors.SizeAll;
             };
 
@@ -1189,6 +1197,8 @@ namespace DeskFrame
 
         private void Window_MouseEnter(object sender, MouseEventArgs e)
         {
+            this.Activate();
+            _canAutoClose = true;
             if (_isOnEdge && _isMinimized)
             {
                 if (!_canAnimate) return;
@@ -1198,11 +1208,24 @@ namespace DeskFrame
 
         private void Window_MouseLeave(object sender, MouseEventArgs e)
         {
-            FilterTextBox.Text = null;
+            if (_canAutoClose) FilterTextBox.Text = null;
+            this.SetNoActivate();
             if (_isOnEdge && !_isMinimized)
             {
-                if (!_canAnimate) return;
-                Minimize_MouseLeftButtonDown(null, null);
+                if (!_canAutoClose) return;
+
+                Task.Run(() =>
+                {
+                    Thread.Sleep(150);
+                    foreach (var fileItem in FileItems)
+                    {
+                        fileItem.IsSelected = false;
+                    }
+                    Dispatcher.InvokeAsync(() =>
+                   {
+                       Minimize_MouseLeftButtonDown(null, null);
+                   });
+                });
             }
         }
     }
