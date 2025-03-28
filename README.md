@@ -6,10 +6,13 @@ It allows you to show a folders content, similar to DesktopPortals
 <a href="https://github.com/PinchToDebug/DeskFrame/issues"><img src="https://img.shields.io/github/issues/PinchToDebug/DeskFrame" alt="Issues"></a>
 
 ## ✨ Features
-- Search *(Click on the app and type)*
+- Search *(move the cursor on the app and type)*
 - Scrolling
 - Open / Close the frame
 - Background styles: Acrylic, Black or white with transparency
+- Support for showing/hiding hidden files
+- Frames now stick to each other
+- Added option to lock Frames
 
 ## Screenshot
 ![image](https://github.com/user-attachments/assets/a50fc5ba-02d7-47ca-97f7-e6e43e1b4d92)
