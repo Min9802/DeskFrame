@@ -49,6 +49,7 @@ namespace DeskFrame
         private bool _isLocked = false;
         private bool _isOnEdge = false;
         private double _originalHeight;
+        public int neighborFrameCount = 0;
         public bool isMouseDown = false;
         private ICollectionView _collectionView;
         private CancellationTokenSource _cts = new CancellationTokenSource();
@@ -127,8 +128,9 @@ namespace DeskFrame
             {
                 _isOnEdge = false;
                 windowBorder.CornerRadius = new CornerRadius(5);
+                titleBar.CornerRadius = new CornerRadius(5, 5, 0, 0);
             }
-            int counter = 0;
+            neighborFrameCount = 0;
 
             bool onLeft = false;
             bool onRight = false;
@@ -151,7 +153,7 @@ namespace DeskFrame
                     newWindowTop = otherTop;
                     _wOnLeft = otherWindow;
                     onLeft = true;
-                    counter++;
+                    neighborFrameCount++;
                 }
                 else if (Math.Abs(windowRight - otherLeft) <= _snapDistance && Math.Abs(windowTop - otherTop) <= _snapDistance)
                 {
@@ -159,7 +161,7 @@ namespace DeskFrame
                     newWindowTop = otherTop;
                     _wOnRight = otherWindow;
                     onRight = true;
-                    counter++;
+                    neighborFrameCount++;
                 }
 
 
@@ -171,106 +173,225 @@ namespace DeskFrame
                 {
                     newWindowTop = otherTop - (windowBottom - windowTop);
                 }
-                if (counter == 2) break;
+                if (neighborFrameCount == 2) break;
             }
-            if (counter == 2)
+            if (neighborFrameCount == 2)
             {
                 windowBorder.CornerRadius = new CornerRadius(0);
+                titleBar.CornerRadius = new CornerRadius(0);
             }
             else
             {
-                if (_wOnLeft != null)
+                if (_wOnLeft != null && onLeft)
                 {
                     if (_wOnLeft._isMinimized)
                     {
-                        if (onLeft)
-                        {
-                            _wOnLeft.windowBorder.CornerRadius = new CornerRadius(
-                                topLeft: _wOnLeft.windowBorder.CornerRadius.TopLeft,
-                                topRight: 0.0,
-                                bottomRight: 0.0,
-                                bottomLeft: _wOnLeft.windowBorder.CornerRadius.BottomLeft
-                             );
-                        }
+
+                        _wOnLeft.windowBorder.CornerRadius = new CornerRadius(
+                            topLeft: _wOnLeft.windowBorder.CornerRadius.TopLeft,
+                            topRight: 0,
+                            bottomRight: 0,
+                            bottomLeft: _wOnLeft.windowBorder.CornerRadius.BottomLeft
+                         );
+                        _wOnLeft.titleBar.CornerRadius = _wOnLeft.windowBorder.CornerRadius;
+
+                        windowBorder.CornerRadius = new CornerRadius(
+                            topLeft: 0,
+                            topRight: windowBorder.CornerRadius.TopRight,
+                            bottomRight: windowBorder.CornerRadius.BottomRight,
+                            bottomLeft: 0
+                         );
+                        titleBar.CornerRadius = new CornerRadius(
+                            topLeft: 0,
+                            topRight: titleBar.CornerRadius.TopRight,
+                            bottomRight: _isMinimized ? 5 : 0,
+                            bottomLeft: 0
+                         );
+                        Debug.WriteLine(_wOnLeft.Instance.Name + ":\t bal és min");
                     }
+
                     else
                     {
                         _wOnLeft.windowBorder.CornerRadius = new CornerRadius(
                             topLeft: _wOnLeft.windowBorder.CornerRadius.TopLeft,
-                            topRight: 0.0,
-                            bottomRight: _wOnLeft.windowBorder.CornerRadius.BottomRight,
-                            bottomLeft: _wOnLeft.windowBorder.CornerRadius.BottomLeft
+                            topRight: _wOnLeft.windowBorder.CornerRadius.TopRight,
+                            bottomRight: 5,
+                            bottomLeft: 5
                          );
-                    }
-                    windowBorder.CornerRadius = new CornerRadius(
-                        topLeft: 0.0,
-                        topRight: windowBorder.CornerRadius.TopRight,
-                        bottomRight: windowBorder.CornerRadius.BottomRight,
-                        bottomLeft: 0.0
-                     );
+                        _wOnLeft.titleBar.CornerRadius = new CornerRadius(
+                            topLeft: _wOnLeft.titleBar.CornerRadius.TopLeft,
+                            topRight: _wOnLeft.titleBar.CornerRadius.TopRight,
+                            bottomRight: 0,
+                            bottomLeft: 0
+                         );
 
+                        windowBorder.CornerRadius = new CornerRadius(
+                            topLeft: 0,
+                            topRight: windowBorder.CornerRadius.TopRight,
+                            bottomRight: 5,
+                            bottomLeft: 5
+                          );
+                        titleBar.CornerRadius = new CornerRadius(
+                            topLeft: 0,
+                            topRight: titleBar.CornerRadius.TopRight,
+                            bottomRight: _isMinimized ? 5 : 0,
+                            bottomLeft: 0
+                         );
+                        Debug.WriteLine("bal nem min");
+                    }
                 }
-                else if (_wOnRight != null)
+
+                else if (_wOnRight != null && onRight)
                 {
                     if (_wOnRight._isMinimized)
                     {
-                        if (onRight)
-                        {
-                            _wOnRight.windowBorder.CornerRadius = new CornerRadius(
-                                topLeft: 0.0,
-                                topRight: _wOnRight.windowBorder.CornerRadius.TopRight,
-                                bottomRight: _wOnRight.windowBorder.CornerRadius.BottomRight,
-                                bottomLeft: 0.0
-                            );
-                        }
+                        _wOnRight.windowBorder.CornerRadius = new CornerRadius(
+                            topLeft: 0,
+                            topRight: _wOnRight.windowBorder.CornerRadius.TopRight,
+                            bottomRight: _wOnRight.windowBorder.CornerRadius.BottomRight,
+                            bottomLeft: 0
+                        );
+                        _wOnRight.titleBar.CornerRadius = _wOnRight.windowBorder.CornerRadius;
+
+                        windowBorder.CornerRadius = new CornerRadius(
+                           topLeft: windowBorder.CornerRadius.TopLeft,
+                           topRight: 0,
+                           bottomRight: 0,
+                           bottomLeft: 5
+                        );
+                        titleBar.CornerRadius = new CornerRadius(
+                           topLeft: titleBar.CornerRadius.TopLeft,
+                           topRight: 0,
+                           bottomRight: 0,
+                           bottomLeft: _isMinimized ? 5 : 0
+                         );
+                        Debug.WriteLine(_wOnRight.Instance.Name + ":\t jobb es min");
+
                     }
                     else
                     {
                         _wOnRight.windowBorder.CornerRadius = new CornerRadius(
-                            topLeft: 0.0,
+                            topLeft: _wOnRight.windowBorder.CornerRadius.TopLeft,
                             topRight: _wOnRight.windowBorder.CornerRadius.TopRight,
-                            bottomRight: _wOnRight.windowBorder.CornerRadius.BottomRight,
-                            bottomLeft: _wOnRight.windowBorder.CornerRadius.BottomLeft
+                            bottomRight: 5,
+                            bottomLeft: 5
                         );
+
+                        _wOnRight.titleBar.CornerRadius = new CornerRadius(
+                            topLeft: _wOnRight.titleBar.CornerRadius.TopLeft,
+                            topRight: _wOnRight.titleBar.CornerRadius.TopRight,
+                            bottomRight: 0,
+                            bottomLeft: 0
+                        );
+
+                        windowBorder.CornerRadius = new CornerRadius(
+                           topLeft: windowBorder.CornerRadius.TopLeft,
+                            topRight: 0,
+                            bottomRight: 5,
+                            bottomLeft: 5
+                        );
+                        titleBar.CornerRadius = new CornerRadius(
+                            topLeft: titleBar.CornerRadius.TopLeft,
+                            topRight: 0,
+                            bottomRight: 0,
+                            bottomLeft: _isMinimized ? 5 : 0
+                         );
+                        Debug.WriteLine("jobb nem min");
+                    }
+
+                }
+            }
+            if (neighborFrameCount == 0)
+            {
+                if (_wOnLeft != null && !onLeft)
+                {
+                    _wOnLeft.windowBorder.CornerRadius = new CornerRadius(
+                        topLeft: _wOnLeft.windowBorder.CornerRadius.TopLeft,
+                        topRight: _wOnLeft._isOnEdge ? 0 : 5,
+                        bottomRight: 5,
+                        bottomLeft: _wOnLeft.windowBorder.CornerRadius.BottomLeft
+                     );
+                    _wOnLeft.titleBar.CornerRadius = new CornerRadius(
+                        topLeft: _wOnLeft.titleBar.CornerRadius.TopLeft,
+                        topRight: _wOnLeft._isOnEdge ? 0 : 5,
+                        bottomRight: _wOnLeft._isMinimized ? 5 : 0,
+                        bottomLeft: _wOnLeft._isMinimized ? 5 : 0
+                    );
+                    if (_wOnLeft.neighborFrameCount == 0 && !_wOnLeft._isMinimized)
+                    {
+                        _wOnLeft.titleBar.CornerRadius = new CornerRadius(
+                            topLeft: _wOnLeft._isOnEdge ? 0 : 5,
+                            topRight: _wOnLeft._isOnEdge ? 0 : 5,
+                            bottomRight: 5,
+                            bottomLeft: 5
+                         );
                     }
 
                     windowBorder.CornerRadius = new CornerRadius(
                         topLeft: windowBorder.CornerRadius.TopLeft,
-                        topRight: 0.0,
-                        bottomRight: 0.0,
+                        topRight: _isOnEdge ? 0 : 5,
+                        bottomRight: 5,
                         bottomLeft: windowBorder.CornerRadius.BottomLeft
                     );
-                }
-            }
-            if (counter == 0)
-            {
-                if (_wOnLeft != null)
-                {
-                    if (!onLeft)
-                    {
-                        _wOnLeft.windowBorder.CornerRadius = new CornerRadius(
-                            topLeft: _wOnLeft.windowBorder.CornerRadius.TopLeft,
-                            topRight: _wOnLeft._isOnEdge ? 0.0 : 5.0,
-                            bottomRight: 5.0,
-                            bottomLeft: _wOnLeft.windowBorder.CornerRadius.BottomLeft
-                         );
-                    }
+                    titleBar.CornerRadius = windowBorder.CornerRadius;
+                    Debug.WriteLine(_wOnLeft.Instance.Name + ":\t LEFT removed");
+
                     _wOnLeft._wOnRight = null;
                     _wOnLeft = null;
                 }
-                if (_wOnRight != null)
+                if (_wOnRight != null && !onRight)
                 {
-                    if (!onRight)
+                    _wOnRight.windowBorder.CornerRadius = new CornerRadius(
+                         topLeft: _wOnRight._isOnEdge ? 0 : 5,
+                         topRight: _wOnRight.windowBorder.CornerRadius.TopRight,
+                         bottomRight: _wOnRight.windowBorder.CornerRadius.BottomRight,
+                         bottomLeft: 5.0
+                     );
+                    _wOnRight.titleBar.CornerRadius = new CornerRadius(
+                         topLeft: _wOnRight._isOnEdge ? 0 : 5,
+                         topRight: _wOnRight.titleBar.CornerRadius.TopRight,
+                         bottomRight: _wOnRight._isMinimized ? 5 : 0,
+                         bottomLeft: _wOnRight._isMinimized ? 5 : 0
+                    );
+                    if (_wOnRight.neighborFrameCount == 0 && !_wOnRight._isMinimized)
                     {
-                        _wOnRight.windowBorder.CornerRadius = new CornerRadius(
-                             topLeft: _wOnRight._isOnEdge ? 0.0 : 5.0,
-                             topRight: _wOnRight.windowBorder.CornerRadius.TopRight,
-                             bottomRight: _wOnRight.windowBorder.CornerRadius.BottomRight,
-                             bottomLeft: 5.0
+                        _wOnRight.titleBar.CornerRadius = new CornerRadius(
+                            topLeft: _wOnRight._isOnEdge ? 0 : 5,
+                            topRight: _wOnRight._isOnEdge ? 0 : 5,
+                            bottomRight: 5,
+                            bottomLeft: 5
                          );
                     }
+                    Debug.WriteLine(_wOnRight.Instance.Name + ":\t RIGHT removed");
+
+                    windowBorder.CornerRadius = new CornerRadius(
+                         topLeft: _isOnEdge ? 0 : 5,
+                         topRight: windowBorder.CornerRadius.TopRight,
+                         bottomRight: windowBorder.CornerRadius.BottomRight,
+                         bottomLeft: 5
+                     );
+                    titleBar.CornerRadius = windowBorder.CornerRadius;
+
                     _wOnRight._wOnLeft = null;
                     _wOnRight = null;
+                }
+                if (_isMinimized)
+                {
+                    titleBar.CornerRadius = new CornerRadius(
+                            topLeft: _isOnEdge ? 0 : 5,
+                            topRight: _isOnEdge ? 0 : 5,
+                            bottomRight: 5,
+                            bottomLeft: 5
+                        );
+                }
+                else
+                {
+                    titleBar.CornerRadius = new CornerRadius(
+                          topLeft: _isOnEdge ? 0 : 5,
+                          topRight: _isOnEdge ? 0 : 5,
+                          bottomRight: 0,
+                          bottomLeft: 0
+                      );
                 }
             }
             if (!_isMinimized)
@@ -278,17 +399,23 @@ namespace DeskFrame
                 windowBorder.CornerRadius = new CornerRadius(
                 topLeft: windowBorder.CornerRadius.TopLeft,
                 topRight: windowBorder.CornerRadius.TopRight,
-                bottomRight: 5.0,
-                bottomLeft: 5.0
-            );
+                bottomRight: 5,
+                bottomLeft: 5
+                );
             }
+
+
+
             if (newWindowLeft != windowLeft || newWindowTop != windowTop)
             {
                 Interop.SetWindowPos(hwnd, IntPtr.Zero, newWindowLeft, newWindowTop, 0, 0, Interop.SWP_NOREDRAW | Interop.SWP_NOACTIVATE | Interop.SWP_NOZORDER | Interop.SWP_NOSIZE);
             }
         }
 
-
+        public void SetCornerRadius(Border border, double topLeft, double topRight, double bottomLeft, double bottomRight)
+        {
+            border.CornerRadius = new CornerRadius(topLeft, topRight, bottomLeft, bottomRight);
+        }
 
         private void SetAsDesktopChild()
         {
@@ -360,7 +487,7 @@ namespace DeskFrame
                 await Task.Delay(50, token);
                 foreach (var fileItem in FileItems)
                 {
-                        fileItem.IsSelected = false;
+                    fileItem.IsSelected = false;
                 }
                 string regexPattern = Regex.Escape(filter).Replace("\\*", ".*"); // Escape other regex special chars and replace '*' with '.*'
 
@@ -534,8 +661,6 @@ namespace DeskFrame
                 Instance.Minimized = true;
                 Debug.WriteLine("minimize: " + Instance.Height);
                 AnimateWindowHeight(30);
-                HandleWindowMove();
-
             }
             else
             {
@@ -551,6 +676,7 @@ namespace DeskFrame
                 Debug.WriteLine("unminimize: " + Instance.Height);
                 AnimateWindowHeight(Instance.Height);
             }
+            HandleWindowMove();
         }
 
         private void AnimateWindowHeight(double targetHeight)
@@ -791,7 +917,7 @@ namespace DeskFrame
             if (clickedFileItem != null)
             {
                 clickedFileItem.IsSelected = !clickedFileItem.IsSelected;
-               
+
                 foreach (var fileItem in FileItems)
                 {
                     if (fileItem != clickedFileItem)
@@ -1024,7 +1150,7 @@ namespace DeskFrame
             {
                 GlassFrameThickness = new Thickness(5),
                 CaptionHeight = 0,
-                ResizeBorderThickness = new Thickness(5,0,5,5),
+                ResizeBorderThickness = new Thickness(5, 0, 5, 5),
                 CornerRadius = new CornerRadius(5)
             }
          );
@@ -1044,7 +1170,7 @@ namespace DeskFrame
             toggleHiddenFiles.Click += (s, args) => { ToggleHiddenFiles(); LoadFiles(_path); };
 
             MenuItem frameSettings = new MenuItem { Header = "Frame Settings" };
-            frameSettings.Click += (s, args) => 
+            frameSettings.Click += (s, args) =>
             {
                 var dialog = new FrameSettingsDialog(Instance);
                 dialog.ShowDialog();
