@@ -78,6 +78,7 @@ public class InstanceController
                 key.SetValue("TitleBarColor", instance.TitleBarColor!);
                 key.SetValue("TitleTextColor", instance.TitleTextColor!);
                 key.SetValue("TitleTextAlignment", instance.TitleTextAlignment.ToString());
+                key.SetValue("TitleText", instance.TitleText);
             }
         }
         catch { }
@@ -232,6 +233,10 @@ public class InstanceController
                                             case "TitleTextColor":
                                                 temp.TitleTextColor = value.ToString()!;
                                                 Debug.WriteLine($"TitleTextColor added\t{temp.TitleTextColor}");
+                                                break;
+                                            case "TitleText":
+                                                temp.TitleText = value.ToString();
+                                                Debug.WriteLine($"TitleText added\t{temp.TitleText}");
                                                 break;
                                             case "TitleTextAlignment":
                                                 if (Enum.TryParse<System.Windows.HorizontalAlignment>(value.ToString()!, out var alignment))
