@@ -17,6 +17,7 @@ public class Instance : INotifyPropertyChanged
     private bool _showHiddenFiles;
     private bool _isLocked;
     private string _titleBarColor = "#000000";
+    private string _titleTextColor = "#FFFFFF";
 
     public double PosX
     {
@@ -146,6 +147,19 @@ public class Instance : INotifyPropertyChanged
         }
     }
 
+    public string TitleTextColor
+    {
+        get => _titleTextColor;
+        set
+        {
+            if (_titleTextColor != value)
+            {
+                _titleTextColor = value;
+                OnPropertyChanged(nameof(TitleTextColor), value);
+            }
+        }
+    }
+
     public Instance(Instance instance)
     {
         _posX = instance._posX;
@@ -158,6 +172,7 @@ public class Instance : INotifyPropertyChanged
         _showHiddenFiles = instance._showHiddenFiles;
         _isLocked = instance._isLocked;
         _titleBarColor = instance._titleBarColor;
+        _titleTextColor = instance._titleTextColor;
     }
 
     public Instance(string name) // default instance
@@ -172,6 +187,7 @@ public class Instance : INotifyPropertyChanged
         _showHiddenFiles = false;
         _isLocked = false;
         _titleBarColor = "#000000";
+        _titleTextColor = "#FFFFFF";
     }
 
     protected void OnPropertyChanged(string propertyName, string value)

@@ -29,6 +29,7 @@ public class InstanceController
                 key.SetValue("ShowHiddenFiles", instance.ShowHiddenFiles!);
                 key.SetValue("IsLocked", instance.IsLocked!);
                 key.SetValue("TitleBarColor", instance.TitleBarColor!);
+                key.SetValue("TitleTextColor", instance.TitleTextColor!);
             }
             Registry.CurrentUser.DeleteSubKey(@$"SOFTWARE\{appName}\Instances\{oldKey}", throwOnMissingSubKey: false);
         }
@@ -75,6 +76,7 @@ public class InstanceController
                 key.SetValue("ShowHiddenFiles", instance.ShowHiddenFiles!);
                 key.SetValue("IsLocked", instance.IsLocked!);
                 key.SetValue("TitleBarColor", instance.TitleBarColor!);
+                key.SetValue("TitleTextColor", instance.TitleTextColor!);
             }
         }
         catch { }
@@ -225,6 +227,10 @@ public class InstanceController
                                             case "TitleBarColor":
                                                 temp.TitleBarColor = value.ToString()!;
                                                 Debug.WriteLine($"TitleBarColor added\t{temp.TitleBarColor}");
+                                                break;
+                                            case "TitleTextColor":
+                                                temp.TitleTextColor = value.ToString()!;
+                                                Debug.WriteLine($"TitleTextColor added\t{temp.TitleTextColor}");
                                                 break;
                                             default:
                                                 Debug.WriteLine($"Unknown value: {valueName}");
