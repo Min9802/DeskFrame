@@ -576,6 +576,7 @@ namespace DeskFrame
             _collectionView = CollectionViewSource.GetDefaultView(FileItems);
             _originalHeight = this.Height;
             titleBar.Background = new SolidColorBrush((Color)System.Windows.Media.ColorConverter.ConvertFromString(Instance.TitleBarColor));
+            title.Foreground = new SolidColorBrush((Color)System.Windows.Media.ColorConverter.ConvertFromString(Instance.TitleTextColor));
         }
         private void Window_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
         {
@@ -1177,6 +1178,7 @@ namespace DeskFrame
                 if (dialog.DialogResult == true)
                 {
                     titleBar.Background = new SolidColorBrush((Color)System.Windows.Media.ColorConverter.ConvertFromString(Instance.TitleBarColor));
+                    title.Foreground = new SolidColorBrush((Color)System.Windows.Media.ColorConverter.ConvertFromString(Instance.TitleTextColor));
                 }
             };
 
