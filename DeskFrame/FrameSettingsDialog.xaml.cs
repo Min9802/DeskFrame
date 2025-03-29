@@ -8,7 +8,6 @@ namespace DeskFrame
         private Instance _instance;
         private bool _isValidTitleBarColor = false;
         private bool _isValidTitleTextColor = false;
-        private bool _isValidTitleTextAlignment = true;
 
         public FrameSettingsDialog(Instance instance)
         {
@@ -16,26 +15,20 @@ namespace DeskFrame
             _instance = instance;
             TitleBarColorTextBox.Text = _instance.TitleBarColor;
             TitleTextColorTextBox.Text = _instance.TitleTextColor;
-            TitleTextAlignmentComboBox.SelectedIndex = (int)_instance.TitleTextAlignment;
-            ValidateSettings();
+            ValidateColors();
         }
 
         private void TitleBarColorTextBox_TextChanged(object sender, System.Windows.Controls.TextChangedEventArgs e)
         {
-            ValidateSettings();
+            ValidateColors();
         }
 
         private void TitleTextColorTextBox_TextChanged(object sender, System.Windows.Controls.TextChangedEventArgs e)
         {
-            ValidateSettings();
+            ValidateColors();
         }
 
-        private void TitleTextAlignmentComboBox_SelectionChanged(object sender, System.Windows.Controls.SelectionChangedEventArgs e)
-        {
-            ValidateSettings();
-        }
-
-        private void ValidateSettings()
+        private void ValidateColors()
         {
             var converter = new System.Drawing.ColorConverter();
             try
@@ -57,17 +50,16 @@ namespace DeskFrame
             {
                 _isValidTitleTextColor = false;
             }
-            _isValidTitleTextAlignment = TitleTextAlignmentComboBox.SelectedIndex >= 0;
-            ApplyButton.IsEnabled = _isValidTitleBarColor && _isValidTitleTextColor && _isValidTitleTextAlignment;
+
+            ApplyButton.IsEnabled = _isValidTitleBarColor && _isValidTitleTextColor;
         }
 
         private void ApplyButton_Click(object sender, RoutedEventArgs e)
         {
-            if (_isValidTitleBarColor && _isValidTitleTextColor && _isValidTitleTextAlignment)
+            if (_isValidTitleBarColor && _isValidTitleTextColor)
             {
                 _instance.TitleBarColor = TitleBarColorTextBox.Text;
                 _instance.TitleTextColor = TitleTextColorTextBox.Text;
-                _instance.TitleTextAlignment = (System.Windows.HorizontalAlignment)TitleTextAlignmentComboBox.SelectedIndex;
                 this.DialogResult = true;
                 this.Close();
             }
