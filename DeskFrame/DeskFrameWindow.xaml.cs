@@ -207,7 +207,6 @@ namespace DeskFrame
                             bottomRight: _isMinimized ? 5 : 0,
                             bottomLeft: 0
                          );
-                        Debug.WriteLine(_wOnLeft.Instance.Name + ":\t bal és min");
                     }
 
                     else
@@ -237,7 +236,6 @@ namespace DeskFrame
                             bottomRight: _isMinimized ? 5 : 0,
                             bottomLeft: 0
                          );
-                        Debug.WriteLine("bal nem min");
                     }
                 }
 
@@ -265,8 +263,6 @@ namespace DeskFrame
                            bottomRight: 0,
                            bottomLeft: _isMinimized ? 5 : 0
                          );
-                        Debug.WriteLine(_wOnRight.Instance.Name + ":\t jobb es min");
-
                     }
                     else
                     {
@@ -296,7 +292,6 @@ namespace DeskFrame
                             bottomRight: 0,
                             bottomLeft: _isMinimized ? 5 : 0
                          );
-                        Debug.WriteLine("jobb nem min");
                     }
 
                 }
@@ -334,7 +329,6 @@ namespace DeskFrame
                         bottomLeft: windowBorder.CornerRadius.BottomLeft
                     );
                     titleBar.CornerRadius = windowBorder.CornerRadius;
-                    Debug.WriteLine(_wOnLeft.Instance.Name + ":\t LEFT removed");
 
                     _wOnLeft._wOnRight = null;
                     _wOnLeft = null;
@@ -362,7 +356,6 @@ namespace DeskFrame
                             bottomLeft: 5
                          );
                     }
-                    Debug.WriteLine(_wOnRight.Instance.Name + ":\t RIGHT removed");
 
                     windowBorder.CornerRadius = new CornerRadius(
                          topLeft: _isOnEdge ? 0 : 5,

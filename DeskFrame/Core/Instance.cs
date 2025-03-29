@@ -83,7 +83,7 @@ public class Instance : INotifyPropertyChanged
             if (_name != value)
             {
                 _name = value;
-                OnPropertyChanged(nameof(Name),value);
+                OnPropertyChanged(nameof(Name), value);
             }
         }
     }
@@ -254,14 +254,14 @@ public class Instance : INotifyPropertyChanged
 
     protected void OnPropertyChanged(string propertyName, string value)
     {
-      
+
         if (propertyName == "Name")
         {
             Debug.WriteLine($"oldname: {_name} \t newname: {Name}");
             if (Name == "empty")
             {
                 MainWindow._controller.WriteOverInstanceToKey(this, "empty");
-              
+
             }
         }
         else
