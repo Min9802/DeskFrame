@@ -11,7 +11,7 @@
         Background="#66232323" 
         WindowStyle="None" 
         ResizeMode="NoResize"
-        Height="300" 
+        Height="450" 
         Width="300"
         MaxWidth="300">
     <Grid>
@@ -26,6 +26,14 @@
                 <TextBox x:Name="TitleBarColorTextBox" Margin="0,0,0,20" TextChanged="TitleBarColorTextBox_TextChanged"/>
                 <Label Content="Title Text Color (hex):" Height="30"/>
                 <TextBox x:Name="TitleTextColorTextBox" Margin="0,0,0,20" TextChanged="TitleTextColorTextBox_TextChanged"/>
+                <Label Content="Title Text:" Height="30"/>
+                <TextBox x:Name="TitleTextBox" Margin="0,0,0,20" TextChanged="TitleTextBox_TextChanged"/>
+                <Label Content="Title Text Alignment:" Height="30"/>
+                <ComboBox x:Name="TitleTextAlignmentComboBox" Margin="0,0,0,20" SelectionChanged="TitleTextAlignmentComboBox_SelectionChanged">
+                    <ComboBoxItem Content="Left"/>
+                    <ComboBoxItem Content="Center"/>
+                    <ComboBoxItem Content="Right"/>
+                </ComboBox>
                 <Button x:Name="ApplyButton" Content="Apply" Height="30" Click="ApplyButton_Click" Margin="0,0,0,0"/>
             </StackPanel>
         </StackPanel>
