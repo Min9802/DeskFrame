@@ -19,6 +19,7 @@ public class Instance : INotifyPropertyChanged
     private string _titleBarColor = "#000000";
     private string _titleTextColor = "#FFFFFF";
     private Forms.HorizontalAlignment _titleTextAlignment = Forms.HorizontalAlignment.Center;
+    private string? _titleText;
 
     public double PosX
     {
@@ -157,6 +158,19 @@ public class Instance : INotifyPropertyChanged
             {
                 _titleTextColor = value;
                 OnPropertyChanged(nameof(TitleTextColor), value);
+            }
+        }
+    }
+
+    public string? TitleText
+    {
+        get => _titleText;
+        set
+        {
+            if (_titleText != value)
+            {
+                _titleText = value;
+                OnPropertyChanged(nameof(TitleText), value);
             }
         }
     }

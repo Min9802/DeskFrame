@@ -568,7 +568,7 @@ namespace DeskFrame
             else
             {
                 LoadFiles(instance.Folder);
-                title.Text = Instance.Name;
+                title.Text = Instance.TitleText ?? Instance.Name;
 
                 DataContext = this;
                 InitializeFileWatcher();
@@ -1179,6 +1179,7 @@ namespace DeskFrame
                 {
                     titleBar.Background = new SolidColorBrush((Color)System.Windows.Media.ColorConverter.ConvertFromString(Instance.TitleBarColor));
                     title.Foreground = new SolidColorBrush((Color)System.Windows.Media.ColorConverter.ConvertFromString(Instance.TitleTextColor));
+                    title.Text = Instance.TitleText ?? Instance.Name;
                 }
             };
 
