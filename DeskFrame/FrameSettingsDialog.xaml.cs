@@ -24,12 +24,12 @@ namespace DeskFrame
 
         private void TitleBarColorTextBox_TextChanged(object sender, System.Windows.Controls.TextChangedEventArgs e)
         {
-            ValidateColors();
+            ValidateSettings();
         }
 
         private void TitleTextColorTextBox_TextChanged(object sender, System.Windows.Controls.TextChangedEventArgs e)
         {
-            ValidateColors();
+            ValidateSettings();
         }
 
         private void TitleTextBox_TextChanged(object sender, System.Windows.Controls.TextChangedEventArgs e)
@@ -64,8 +64,8 @@ namespace DeskFrame
             {
                 _isValidTitleTextColor = false;
             }
-
-            ApplyButton.IsEnabled = _isValidTitleBarColor && _isValidTitleTextColor;
+            _isValidTitleTextAlignment = TitleTextAlignmentComboBox.SelectedIndex >= 0;
+            ApplyButton.IsEnabled = _isValidTitleBarColor && _isValidTitleTextColor && _isValidTitleTextAlignment;
         }
 
         private void ApplyButton_Click(object sender, RoutedEventArgs e)
@@ -81,4 +81,4 @@ namespace DeskFrame
             }
         }
     }
-} 
+}

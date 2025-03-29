@@ -1,7 +1,7 @@
 ﻿using DeskFrame;
 using System.ComponentModel;
 using System.Diagnostics;
-
+using Forms = System.Windows;
 
 public class Instance : INotifyPropertyChanged
 {
@@ -81,7 +81,7 @@ public class Instance : INotifyPropertyChanged
             if (_name != value)
             {
                 _name = value;
-                OnPropertyChanged(nameof(Name),value);
+                OnPropertyChanged(nameof(Name), value);
             }
         }
     }
@@ -201,6 +201,7 @@ public class Instance : INotifyPropertyChanged
         _isLocked = instance._isLocked;
         _titleBarColor = instance._titleBarColor;
         _titleTextColor = instance._titleTextColor;
+        _titleTextAlignment = instance._titleTextAlignment;
     }
 
     public Instance(string name) // default instance
@@ -216,18 +217,19 @@ public class Instance : INotifyPropertyChanged
         _isLocked = false;
         _titleBarColor = "#000000";
         _titleTextColor = "#FFFFFF";
+        _titleTextAlignment = Forms.HorizontalAlignment.Center;
     }
 
     protected void OnPropertyChanged(string propertyName, string value)
     {
-      
+
         if (propertyName == "Name")
         {
             Debug.WriteLine($"oldname: {_name} \t newname: {Name}");
             if (Name == "empty")
             {
                 MainWindow._controller.WriteOverInstanceToKey(this, "empty");
-              
+
             }
         }
         else
