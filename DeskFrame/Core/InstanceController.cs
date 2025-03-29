@@ -1,7 +1,9 @@
 ﻿using DeskFrame;
 using Microsoft.Win32;
 using System.Diagnostics;
+using System.IO;
 using System.Windows.Interop;
+using System.Windows.Shell;
 using System.Xml.Linq;
 public class InstanceController
 {
@@ -263,7 +265,18 @@ public class InstanceController
                                 }
                                 if (temp.Name != "empty")
                                 {
-                                    Instances.Add(temp);
+                                    if (Path.Exists(temp.Folder))
+                                    {
+                                        Instances.Add(temp);
+                                    }
+                                    else
+                                    {
+                                        RegistryKey key = Registry.CurrentUser.OpenSubKey(temp.GetKeyLocation(), true)!;
+                                        if (key != null)
+                                        {
+                                            Registry.CurrentUser.DeleteSubKeyTree(temp.GetKeyLocation());
+                                        }
+                                    }
                                 }
 
                             }
