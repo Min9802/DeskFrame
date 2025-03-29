@@ -11,7 +11,7 @@
         Background="#66232323" 
         WindowStyle="None" 
         ResizeMode="NoResize"
-        Height="200" 
+        Height="300" 
         Width="300"
         MaxWidth="300">
     <Grid>
@@ -22,8 +22,10 @@
                 </ui:TitleBar.Icon>
             </ui:TitleBar>
             <StackPanel Orientation="Vertical" Margin="10,25,0,0">
-                <Label Content="Enter hex color code (e.g. #FF0000):" Height="30"/>
-                <TextBox x:Name="ColorTextBox" Margin="0,0,0,20" TextChanged="ColorTextBox_TextChanged"/>
+                <Label Content="Title Bar Color (hex):" Height="30"/>
+                <TextBox x:Name="TitleBarColorTextBox" Margin="0,0,0,20" TextChanged="TitleBarColorTextBox_TextChanged"/>
+                <Label Content="Title Text Color (hex):" Height="30"/>
+                <TextBox x:Name="TitleTextColorTextBox" Margin="0,0,0,20" TextChanged="TitleTextColorTextBox_TextChanged"/>
                 <Button x:Name="ApplyButton" Content="Apply" Height="30" Click="ApplyButton_Click" Margin="0,0,0,0"/>
             </StackPanel>
         </StackPanel>

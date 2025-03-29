@@ -6,42 +6,60 @@ namespace DeskFrame
     public partial class FrameSettingsDialog : FluentWindow
     {
         private Instance _instance;
-        private bool _isValidColor = false;
+        private bool _isValidTitleBarColor = false;
+        private bool _isValidTitleTextColor = false;
 
         public FrameSettingsDialog(Instance instance)
         {
             InitializeComponent();
             _instance = instance;
-            ColorTextBox.Text = _instance.TitleBarColor;
-            ValidateColor();
+            TitleBarColorTextBox.Text = _instance.TitleBarColor;
+            TitleTextColorTextBox.Text = _instance.TitleTextColor;
+            ValidateColors();
         }
 
-        private void ColorTextBox_TextChanged(object sender, System.Windows.Controls.TextChangedEventArgs e)
+        private void TitleBarColorTextBox_TextChanged(object sender, System.Windows.Controls.TextChangedEventArgs e)
         {
-            ValidateColor();
+            ValidateColors();
         }
 
-        private void ValidateColor()
+        private void TitleTextColorTextBox_TextChanged(object sender, System.Windows.Controls.TextChangedEventArgs e)
         {
+            ValidateColors();
+        }
+
+        private void ValidateColors()
+        {
+            var converter = new System.Drawing.ColorConverter();
             try
             {
-                var converter = new System.Drawing.ColorConverter();
-                var color = (Color)converter.ConvertFromString(ColorTextBox.Text);
-                _isValidColor = true;
-                ApplyButton.IsEnabled = true;
+                var titleBarColor = (Color)converter.ConvertFromString(TitleBarColorTextBox.Text);
+                _isValidTitleBarColor = true;
             }
             catch
             {
-                _isValidColor = false;
-                ApplyButton.IsEnabled = false;
+                _isValidTitleBarColor = false;
             }
+
+            try
+            {
+                var titleTextColor = (Color)converter.ConvertFromString(TitleTextColorTextBox.Text);
+                _isValidTitleTextColor = true;
+            }
+            catch
+            {
+                _isValidTitleTextColor = false;
+            }
+
+            ApplyButton.IsEnabled = _isValidTitleBarColor && _isValidTitleTextColor;
         }
 
         private void ApplyButton_Click(object sender, RoutedEventArgs e)
         {
-            if (_isValidColor)
+            if (_isValidTitleBarColor && _isValidTitleTextColor)
             {
-                _instance.TitleBarColor = ColorTextBox.Text;
+                _instance.TitleBarColor = TitleBarColorTextBox.Text;
+                _instance.TitleTextColor = TitleTextColorTextBox.Text;
                 this.DialogResult = true;
                 this.Close();
             }

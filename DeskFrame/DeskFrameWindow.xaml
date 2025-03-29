@@ -80,7 +80,7 @@
                         </TextBlock>
                     </StackPanel>
                     <Grid Cursor="Hand" MouseLeftButtonDown="Minimize_MouseLeftButtonDown" Width="30" HorizontalAlignment="Right" Background="#02000000">
-                        <ui:SymbolIcon x:Name="ChevronIcon" Symbol="ChevronDown48" Foreground="White" Width="20" Height="20" FontSize="20">
+                        <ui:SymbolIcon x:Name="ChevronIcon" Symbol="ChevronDown48" Foreground="{Binding ElementName=title, Path=Foreground}" Width="20" Height="20" FontSize="20">
                             <ui:SymbolIcon.RenderTransform>
                                 <RotateTransform x:Name="ChevronRotate" Angle="0" CenterX="0.5" CenterY="0.5" />
                             </ui:SymbolIcon.RenderTransform>
