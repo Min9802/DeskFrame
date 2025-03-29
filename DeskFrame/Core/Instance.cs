@@ -18,6 +18,8 @@ public class Instance : INotifyPropertyChanged
     private bool _isLocked;
     private string _titleBarColor = "#000000";
     private string _titleTextColor = "#FFFFFF";
+    private string _borderColor = "#FFFFFF";
+    private bool _borderEnabled = false;
     private Forms.HorizontalAlignment _titleTextAlignment = Forms.HorizontalAlignment.Center;
     private string? _titleText;
 
@@ -162,6 +164,32 @@ public class Instance : INotifyPropertyChanged
         }
     }
 
+    public string BorderColor
+    {
+        get => _borderColor;
+        set
+        {
+            if (_borderColor != value)
+            {
+                _borderColor = value;
+                OnPropertyChanged(nameof(BorderColor), value);
+            }
+        }
+    }
+
+    public bool BorderEnabled
+    {
+        get => _borderEnabled;
+        set
+        {
+            if (_borderEnabled != value)
+            {
+                _borderEnabled = value;
+                OnPropertyChanged(nameof(BorderEnabled), value.ToString());
+            }
+        }
+    }
+
     public string? TitleText
     {
         get => _titleText;
@@ -201,6 +229,8 @@ public class Instance : INotifyPropertyChanged
         _isLocked = instance._isLocked;
         _titleBarColor = instance._titleBarColor;
         _titleTextColor = instance._titleTextColor;
+        _borderColor = instance._borderColor;
+        _borderEnabled = instance._borderEnabled;
         _titleTextAlignment = instance._titleTextAlignment;
     }
 
@@ -217,6 +247,8 @@ public class Instance : INotifyPropertyChanged
         _isLocked = false;
         _titleBarColor = "#000000";
         _titleTextColor = "#FFFFFF";
+        _borderColor = "#FFFFFF";
+        _borderEnabled = false;
         _titleTextAlignment = Forms.HorizontalAlignment.Center;
     }
 
