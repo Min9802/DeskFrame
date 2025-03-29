@@ -1,7 +1,7 @@
 ﻿using DeskFrame;
 using System.ComponentModel;
 using System.Diagnostics;
-
+using Forms = System.Windows;
 
 public class Instance : INotifyPropertyChanged
 {
@@ -18,6 +18,7 @@ public class Instance : INotifyPropertyChanged
     private bool _isLocked;
     private string _titleBarColor = "#000000";
     private string _titleTextColor = "#FFFFFF";
+    private Forms.HorizontalAlignment _titleTextAlignment = Forms.HorizontalAlignment.Center;
 
     public double PosX
     {
@@ -160,6 +161,19 @@ public class Instance : INotifyPropertyChanged
         }
     }
 
+    public Forms.HorizontalAlignment TitleTextAlignment
+    {
+        get => _titleTextAlignment;
+        set
+        {
+            if (_titleTextAlignment != value)
+            {
+                _titleTextAlignment = value;
+                OnPropertyChanged(nameof(TitleTextAlignment), value.ToString());
+            }
+        }
+    }
+
     public Instance(Instance instance)
     {
         _posX = instance._posX;
@@ -173,6 +187,7 @@ public class Instance : INotifyPropertyChanged
         _isLocked = instance._isLocked;
         _titleBarColor = instance._titleBarColor;
         _titleTextColor = instance._titleTextColor;
+        _titleTextAlignment = instance._titleTextAlignment;
     }
 
     public Instance(string name) // default instance
@@ -188,6 +203,7 @@ public class Instance : INotifyPropertyChanged
         _isLocked = false;
         _titleBarColor = "#000000";
         _titleTextColor = "#FFFFFF";
+        _titleTextAlignment = Forms.HorizontalAlignment.Center;
     }
 
     protected void OnPropertyChanged(string propertyName, string value)
