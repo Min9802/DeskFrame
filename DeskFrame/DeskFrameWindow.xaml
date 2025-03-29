@@ -75,11 +75,15 @@
 
             <Border MouseRightButtonDown="titleBar_MouseRightButtonDown" x:Name="titleBar" Background="#0C000000" Height="30" VerticalAlignment="Top" Cursor="SizeAll" CornerRadius="5,5,0,0">
                 <Grid>
-                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Center" >
-                        <TextBlock x:Name="title" VerticalAlignment="Center"  HorizontalAlignment="Left" Margin="10,0" Foreground="White"  FontSize="13">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+                    <StackPanel Grid.Column="0" Orientation="Horizontal" HorizontalAlignment="{Binding Instance.TitleTextAlignment}" VerticalAlignment="Center" Margin="10,0,0,0">
+                        <TextBlock x:Name="title" VerticalAlignment="Center" Foreground="White" FontSize="13">
                         </TextBlock>
                     </StackPanel>
-                    <Grid Cursor="Hand" MouseLeftButtonDown="Minimize_MouseLeftButtonDown" Width="30" HorizontalAlignment="Right" Background="#02000000">
+                    <Grid Grid.Column="1" Cursor="Hand" MouseLeftButtonDown="Minimize_MouseLeftButtonDown" Width="30" Background="#02000000">
                         <ui:SymbolIcon x:Name="ChevronIcon" Symbol="ChevronDown48" Foreground="{Binding ElementName=title, Path=Foreground}" Width="20" Height="20" FontSize="20">
                             <ui:SymbolIcon.RenderTransform>
                                 <RotateTransform x:Name="ChevronRotate" Angle="0" CenterX="0.5" CenterY="0.5" />
@@ -89,8 +93,8 @@
                             </ui:SymbolIcon.RenderTransformOrigin>
                         </ui:SymbolIcon>
                     </Grid>
-                    <ui:TextBox x:Name="FilterTextBox"  HorizontalAlignment="Left"  Width="0"  Height="0" TextChanged="FilterTextBox_TextChanged" />
-                    <StackPanel x:Name="Search" Visibility="Hidden" HorizontalAlignment="Left" Orientation="Horizontal">
+                    <ui:TextBox x:Name="FilterTextBox" Grid.Column="0" HorizontalAlignment="Left" Width="0" Height="0" TextChanged="FilterTextBox_TextChanged" />
+                    <StackPanel x:Name="Search" Grid.Column="0" Visibility="Hidden" HorizontalAlignment="Left" Orientation="Horizontal">
                         <ui:SymbolIcon Symbol="Search48" Margin="4,0,0,0" Foreground="White" VerticalAlignment="Center" FontSize="22"/>
                         <Label HorizontalAlignment="Left" VerticalAlignment="Center" FontSize="14" Content=":  "  FontWeight="Bold"/>
                         <Label x:Name="searchQuery" HorizontalAlignment="Left" VerticalAlignment="Center" FontSize="16" />
