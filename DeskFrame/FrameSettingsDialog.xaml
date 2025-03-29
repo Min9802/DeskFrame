@@ -11,7 +11,7 @@
         Background="#66232323" 
         WindowStyle="None" 
         ResizeMode="NoResize"
-        Height="450" 
+        Height="575" 
         Width="300"
         MaxWidth="300">
     <Grid>
@@ -26,6 +26,9 @@
                 <TextBox x:Name="TitleBarColorTextBox" Margin="0,0,0,20" TextChanged="TitleBarColorTextBox_TextChanged"/>
                 <Label Content="Title Text Color (hex):" Height="30"/>
                 <TextBox x:Name="TitleTextColorTextBox" Margin="0,0,0,20" TextChanged="TitleTextColorTextBox_TextChanged"/>
+                <CheckBox x:Name="BorderEnabledCheckBox" Content="Enable Border" Margin="0,0,0,10" Checked="BorderEnabledCheckBox_Checked" Unchecked="BorderEnabledCheckBox_Checked"/>
+                <Label Content="Border Color (hex):" Height="30"/>
+                <TextBox x:Name="BorderColorTextBox" Margin="0,0,0,20" TextChanged="BorderColorTextBox_TextChanged"/>
                 <Label Content="Title Text:" Height="30"/>
                 <TextBox x:Name="TitleTextBox" Margin="0,0,0,20" TextChanged="TitleTextBox_TextChanged"/>
                 <Label Content="Title Text Alignment:" Height="30"/>

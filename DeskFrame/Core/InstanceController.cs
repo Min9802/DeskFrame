@@ -79,6 +79,8 @@ public class InstanceController
                 key.SetValue("TitleTextColor", instance.TitleTextColor!);
                 key.SetValue("TitleTextAlignment", instance.TitleTextAlignment.ToString());
                 key.SetValue("TitleText", instance.TitleText);
+                key.SetValue("BorderColor", instance.BorderColor!);
+                key.SetValue("BorderEnabled", instance.BorderEnabled!);
             }
         }
         catch { }
@@ -243,6 +245,14 @@ public class InstanceController
                                                 {
                                                     temp.TitleTextAlignment = alignment;
                                                 }
+                                                break;
+                                            case "BorderColor":
+                                                temp.BorderColor = value.ToString()!;
+                                                Debug.WriteLine($"BorderColor added\t{temp.BorderColor}");
+                                                break;
+                                            case "BorderEnabled":
+                                                temp.BorderEnabled = bool.Parse(value.ToString()!);
+                                                Debug.WriteLine($"BorderEnabled added\t{temp.BorderEnabled}");
                                                 break;
                                             default:
                                                 Debug.WriteLine($"Unknown value: {valueName}");
