@@ -681,7 +681,11 @@ namespace DeskFrame
                 Duration = (_isLocked) ? TimeSpan.FromSeconds(0.1) : TimeSpan.FromSeconds(0.2),
                 EasingFunction = new QuadraticEase()
             };
-            animation.Completed += (s, e) => _canAnimate = true;
+            animation.Completed += (s, e) =>
+            {
+                _canAnimate = true;
+                if (targetHeight == 30) scrollViewer.ScrollToTop();
+            };
             _canAnimate = false;
             this.BeginAnimation(HeightProperty, animation);
         }
