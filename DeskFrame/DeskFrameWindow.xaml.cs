@@ -1165,7 +1165,7 @@ namespace DeskFrame
         {
             ContextMenu contextMenu = new ContextMenu();
 
-            MenuItem toggleHiddenFiles = new MenuItem { Header = "Toggle Hidden Files" };
+            MenuItem toggleHiddenFiles = new MenuItem { Header = Instance.ShowHiddenFiles ? "Hide hidden Files": "Show hidden files" };
             toggleHiddenFiles.Click += (s, args) => { ToggleHiddenFiles(); LoadFiles(_path); };
 
             MenuItem frameSettings = new MenuItem { Header = "Frame Settings" };
