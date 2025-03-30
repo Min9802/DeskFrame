@@ -16,32 +16,38 @@
         MinWidth="0"
         MinHeight="0">
     <Grid>
-        <StackPanel>
-            <ui:TitleBar Title="Frame Settings" Name="Titlebar" Padding="8,0,0,0" Height="30" CanMaximize="False" ShowMinimize="False" ApplicationTheme="Dark" ShowMaximize="False">
-                <ui:TitleBar.Icon>
-                    <ui:ImageIcon Source="/ico.png" Margin="0,0,6,0" />
-                </ui:TitleBar.Icon>
-            </ui:TitleBar>
-            <StackPanel Orientation="Vertical" Margin="10,25,10,0">
-                <Label Content="Title Bar Color (hex):" Height="30"/>
-                <TextBox x:Name="TitleBarColorTextBox" Margin="0,0,0,20" TextChanged="TitleBarColorTextBox_TextChanged"/>
-                <Label Content="Title Text Color (hex):" Height="30"/>
-                <TextBox x:Name="TitleTextColorTextBox" Margin="0,0,0,20" TextChanged="TitleTextColorTextBox_TextChanged"/>
-                <CheckBox x:Name="BorderEnabledCheckBox" Content="Enable Border" Margin="0,0,0,10" Checked="BorderEnabledCheckBox_Checked" Unchecked="BorderEnabledCheckBox_Checked"/>
-                <Label Content="Border Color (hex):" Height="30"/>
-                <TextBox x:Name="BorderColorTextBox" Margin="0,0,0,20" TextChanged="BorderColorTextBox_TextChanged"/>
-                <Label Content="Title Text:" Height="30"/>
-                <TextBox x:Name="TitleTextBox" Margin="0,0,0,20" TextChanged="TitleTextBox_TextChanged"/>
-                <Label Content="File Filter (regex):" Height="30"/>
-                <TextBox x:Name="FileFilterRegexTextBox" Margin="0,0,0,20" TextChanged="FileFilterRegexTextBox_TextChanged"/>
-                <Label Content="Title Text Alignment:" Height="30"/>
-                <ComboBox x:Name="TitleTextAlignmentComboBox" Margin="0,0,0,20" SelectionChanged="TitleTextAlignmentComboBox_SelectionChanged">
-                    <ComboBoxItem Content="Left"/>
-                    <ComboBoxItem Content="Center"/>
-                    <ComboBoxItem Content="Right"/>
-                </ComboBox>
-                <Button x:Name="ApplyButton" Content="Apply" HorizontalAlignment="Right" Height="30" Click="ApplyButton_Click" Margin="0,0,0,0"/>
-            </StackPanel>
+        <ui:TitleBar Title="Frame Settings" Name="Titlebar" Padding="8,0,0,0" Height="30" CanMaximize="False" ShowMinimize="False" ApplicationTheme="Dark" ShowMaximize="False">
+            <ui:TitleBar.Icon>
+                <ui:ImageIcon Source="/ico.png" Margin="0,0,6,0" />
+            </ui:TitleBar.Icon>
+        </ui:TitleBar>
+
+        <StackPanel Orientation="Vertical" Margin="10,25,10,0">
+            <Label Content="Title Bar Color (hex):" Height="30"/>
+            <TextBox x:Name="TitleBarColorTextBox" Margin="0,0,0,20" TextChanged="TextChangedHandler"/>
+
+            <Label Content="Title Text Color (hex):" Height="30"/>
+            <TextBox x:Name="TitleTextColorTextBox" Margin="0,0,0,20" TextChanged="TextChangedHandler"/>
+
+            <CheckBox x:Name="BorderEnabledCheckBox" Content="Enable Border" Margin="0,0,0,10" Checked="BorderEnabledCheckBox_Checked" Unchecked="BorderEnabledCheckBox_Checked"/>
+            
+            <Label Content="Border Color (hex):" Height="30"/>
+            <TextBox x:Name="BorderColorTextBox" Margin="0,0,0,20" TextChanged="TextChangedHandler"/>
+
+            <Label Content="Title Text:" Height="30"/>
+            <TextBox x:Name="TitleTextBox" Margin="0,0,0,20" TextChanged="TextChangedHandler"/>
+
+            <Label Content="File Filter (regex):" Height="30"/>
+            <TextBox x:Name="FileFilterRegexTextBox" Margin="0,0,0,20" TextChanged="TextChangedHandler"/>
+
+            <Label Content="Title Text Alignment:" Height="30"/>
+            <ComboBox x:Name="TitleTextAlignmentComboBox" Margin="0,0,0,20" SelectionChanged="TitleTextAlignmentComboBox_SelectionChanged">
+                <ComboBoxItem Content="Left"/>
+                <ComboBoxItem Content="Center"/>
+                <ComboBoxItem Content="Right"/>
+            </ComboBox>
+
+            <Button x:Name="ApplyButton" Content="Apply" HorizontalAlignment="Right" Height="30" Click="ApplyButton_Click" Margin="0,0,0,20"/>
         </StackPanel>
     </Grid>
-</ui:FluentWindow> 
+</ui:FluentWindow>

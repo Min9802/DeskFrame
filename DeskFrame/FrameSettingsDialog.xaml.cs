@@ -6,10 +6,10 @@ namespace DeskFrame
     public partial class FrameSettingsDialog : FluentWindow
     {
         private Instance _instance;
+
         private bool _isValidTitleBarColor = false;
         private bool _isValidTitleTextColor = false;
         private bool _isValidTitleTextAlignment = true;
-        private bool _isValidTitleText = true;
         private bool _isValidBorderColor = false;
         private bool _isValidFileFilterRegex = true;
 
@@ -28,26 +28,10 @@ namespace DeskFrame
             ValidateSettings();
         }
 
-        private void TitleBarColorTextBox_TextChanged(object sender, System.Windows.Controls.TextChangedEventArgs e)
+        private void TextChangedHandler(object sender, System.Windows.Controls.TextChangedEventArgs e)
         {
             ValidateSettings();
         }
-
-        private void TitleTextColorTextBox_TextChanged(object sender, System.Windows.Controls.TextChangedEventArgs e)
-        {
-            ValidateSettings();
-        }
-
-        private void BorderColorTextBox_TextChanged(object sender, System.Windows.Controls.TextChangedEventArgs e)
-        {
-            ValidateSettings();
-        }
-
-        private void TitleTextBox_TextChanged(object sender, System.Windows.Controls.TextChangedEventArgs e)
-        {
-            ValidateSettings();
-        }
-
         private void TitleTextAlignmentComboBox_SelectionChanged(object sender, System.Windows.Controls.SelectionChangedEventArgs e)
         {
             ValidateSettings();
@@ -59,76 +43,51 @@ namespace DeskFrame
             ValidateSettings();
         }
 
-        private void FileFilterRegexTextBox_TextChanged(object sender, System.Windows.Controls.TextChangedEventArgs e)
-        {
-            ValidateSettings();
-        }
-
-        private void UpdateBorderColorEnabled()
-        {
-            BorderColorTextBox.IsEnabled = BorderEnabledCheckBox.IsChecked == true;
-        }
+        private void UpdateBorderColorEnabled() => BorderColorTextBox.IsEnabled = BorderEnabledCheckBox.IsChecked == true;
 
         private void ValidateSettings()
         {
-            var converter = new System.Drawing.ColorConverter();
-            try
-            {
-                var titleBarColor = (Color)converter.ConvertFromString(TitleBarColorTextBox.Text);
-                _isValidTitleBarColor = true;
-            }
-            catch
-            {
-                _isValidTitleBarColor = false;
-            }
-
-            try
-            {
-                var titleTextColor = (Color)converter.ConvertFromString(TitleTextColorTextBox.Text);
-                _isValidTitleTextColor = true;
-            }
-            catch
-            {
-                _isValidTitleTextColor = false;
-            }
-
-            try
-            {
-                if (BorderEnabledCheckBox.IsChecked == true)
-                {
-                    var borderColor = (Color)converter.ConvertFromString(BorderColorTextBox.Text);
-                    _isValidBorderColor = true;
-                }
-                else
-                {
-                    _isValidBorderColor = true;
-                }
-            }
-            catch
-            {
-                _isValidBorderColor = false;
-            }
-
-            try
-            {
-                if (!string.IsNullOrWhiteSpace(FileFilterRegexTextBox.Text))
-                {
-                    new System.Text.RegularExpressions.Regex(FileFilterRegexTextBox.Text);
-                }
-                _isValidFileFilterRegex = true;
-            }
-            catch
-            {
-                _isValidFileFilterRegex = false;
-            }
-
+            _isValidTitleBarColor = TryParseColor(TitleBarColorTextBox.Text);
+            _isValidTitleTextColor = TryParseColor(TitleTextColorTextBox.Text);
+            _isValidBorderColor = BorderEnabledCheckBox.IsChecked == true ? TryParseColor(BorderColorTextBox.Text) : true;
+            _isValidFileFilterRegex = TryParseRegex(FileFilterRegexTextBox.Text);
             _isValidTitleTextAlignment = TitleTextAlignmentComboBox.SelectedIndex >= 0;
+
             ApplyButton.IsEnabled = _isValidTitleBarColor && _isValidTitleTextColor && _isValidTitleTextAlignment && _isValidBorderColor && _isValidFileFilterRegex;
+        }
+
+        private bool TryParseColor(string colorText)
+        {
+            try
+            {
+                new ColorConverter().ConvertFromString(colorText);
+                return true;
+            }
+            catch
+            {
+                return false;
+            }
+        }
+
+        private bool TryParseRegex(string regexText)
+        {
+            try
+            {
+                if (!string.IsNullOrWhiteSpace(regexText))
+                {
+                    new System.Text.RegularExpressions.Regex(regexText);
+                }
+                return true;
+            }
+            catch
+            {
+                return false;
+            }
         }
 
         private void ApplyButton_Click(object sender, RoutedEventArgs e)
         {
-            if (_isValidTitleBarColor && _isValidTitleTextColor && _isValidTitleTextAlignment && _isValidTitleText && _isValidBorderColor && _isValidFileFilterRegex)
+            if (_isValidTitleBarColor && _isValidTitleTextColor && _isValidTitleTextAlignment && _isValidBorderColor && _isValidFileFilterRegex)
             {
                 _instance.TitleBarColor = TitleBarColorTextBox.Text;
                 _instance.TitleTextColor = TitleTextColorTextBox.Text;
@@ -137,6 +96,7 @@ namespace DeskFrame
                 _instance.TitleTextAlignment = (System.Windows.HorizontalAlignment)TitleTextAlignmentComboBox.SelectedIndex;
                 _instance.TitleText = TitleTextBox.Text;
                 _instance.FileFilterRegex = FileFilterRegexTextBox.Text;
+
                 this.DialogResult = true;
                 this.Close();
             }
