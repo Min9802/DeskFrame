@@ -53,6 +53,7 @@ namespace DeskFrame
         public bool isMouseDown = false;
         private ICollectionView _collectionView;
         private CancellationTokenSource _cts = new CancellationTokenSource();
+        private CancellationTokenSource loadFilesCancellationToken = new CancellationTokenSource();
         DeskFrameWindow _wOnLeft = null;
         DeskFrameWindow _wOnRight = null;
         private IntPtr WndProc(IntPtr hWnd, int msg, IntPtr wParam, IntPtr lParam, ref bool handled)
@@ -745,74 +746,105 @@ namespace DeskFrame
 
         private async void LoadFiles(string path)
         {
-            if (!Directory.Exists(path))
+            loadFilesCancellationToken.Cancel();
+            loadFilesCancellationToken.Dispose();
+            loadFilesCancellationToken = new CancellationTokenSource();
+            CancellationToken loadFiles_cts = loadFilesCancellationToken.Token;
+            try
             {
-                // MessageBox.Show("Failed to load desktop contents.", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
-                return;
-            }
 
-            var fileEntries = await Task.Run(() =>
-            {
-                var dirInfo = new DirectoryInfo(path);
-                var files = dirInfo.GetFiles();
-                var directories = dirInfo.GetDirectories();
-                var filteredFiles = files.Cast<FileSystemInfo>()
-                            .Concat(directories)
-                            .OrderBy(entry => entry.Name, StringComparer.OrdinalIgnoreCase)
-                            .ToList();
-                if (!Instance.ShowHiddenFiles)
-                    filteredFiles = filteredFiles.Where(entry => !entry.Attributes.HasFlag(FileAttributes.Hidden)).ToList();
-                if (Instance.FileFilterRegex != null)
+
+                if (!Directory.Exists(path))
                 {
-                    var regex = new Regex(Instance.FileFilterRegex);
-                    filteredFiles = filteredFiles.Where(entry => regex.IsMatch(entry.Name)).ToList();
+                    return;
                 }
-                return filteredFiles;
-            });
 
-            var fileNames = new HashSet<string>(fileEntries.Select(f => f.Name));
-
-            await Dispatcher.InvokeAsync(async () =>
-            {
-
-                for (int i = FileItems.Count - 1; i >= 0; i--)  // Remove item that no longer exist
+                var fileEntries = await Task.Run(() =>
                 {
-                    if (!fileNames.Contains(Path.GetFileName(FileItems[i].FullPath!)))
+                    if (loadFiles_cts.IsCancellationRequested)
                     {
-                        FileItems.RemoveAt(i);
+                        return new List<FileSystemInfo>();
                     }
+                    var dirInfo = new DirectoryInfo(path);
+                    var files = dirInfo.GetFiles();
+                    var directories = dirInfo.GetDirectories();
+                    var filteredFiles = files.Cast<FileSystemInfo>()
+                                .Concat(directories)
+                                .OrderBy(entry => entry.Name, StringComparer.OrdinalIgnoreCase)
+                                .ToList();
+                    if (!Instance.ShowHiddenFiles)
+                        filteredFiles = filteredFiles.Where(entry => !entry.Attributes.HasFlag(FileAttributes.Hidden)).ToList();
+                    if (Instance.FileFilterRegex != null)
+                    {
+                        var regex = new Regex(Instance.FileFilterRegex);
+                        filteredFiles = filteredFiles.Where(entry => regex.IsMatch(entry.Name)).ToList();
+                    }
+                    return filteredFiles;
+                }, loadFiles_cts);
+
+                if (loadFiles_cts.IsCancellationRequested)
+                {
+                    return;
                 }
 
-                foreach (var entry in fileEntries)
+                var fileNames = new HashSet<string>(fileEntries.Select(f => f.Name));
+
+                await Dispatcher.InvokeAsync(async () =>
                 {
-                    var existingItem = FileItems.FirstOrDefault(item => item.FullPath == entry.FullName);
-
-                    if (existingItem == null)
+                    if (loadFiles_cts.IsCancellationRequested)
                     {
-                        var fileItem = new FileItem
+                        return;
+                    }
+                    for (int i = FileItems.Count - 1; i >= 0; i--)  // Remove item that no longer exist
+                    {
+                        if (loadFiles_cts.IsCancellationRequested)
                         {
-                            Name = entry.Name,
-                            FullPath = entry.FullName,
-                            Thumbnail = await GetThumbnailAsync(entry.FullName)
-                        };
+                            return;
+                        }
+                        if (!fileNames.Contains(Path.GetFileName(FileItems[i].FullPath!)))
+                        {
+                            FileItems.RemoveAt(i);
+                        }
+                    }
 
+                    foreach (var entry in fileEntries)
+                    {
+                        if (loadFiles_cts.IsCancellationRequested)
+                        {
+                            return;
+                        }
+                        var existingItem = FileItems.FirstOrDefault(item => item.FullPath == entry.FullName);
+
+                        if (existingItem == null)
+                        {
+                            var fileItem = new FileItem
+                            {
+                                Name = entry.Name,
+                                FullPath = entry.FullName,
+                                Thumbnail = await GetThumbnailAsync(entry.FullName)
+                            };
+
+                            FileItems.Add(fileItem);
+                        }
+                        else
+                        {
+                            existingItem.Thumbnail = await GetThumbnailAsync(entry.FullName);
+                        }
+                    }
+
+                    var sortedList = FileItems.OrderBy(item => item.Name, StringComparer.OrdinalIgnoreCase).ToList();
+                    FileItems.Clear();
+                    foreach (var fileItem in sortedList)
+                    {
                         FileItems.Add(fileItem);
                     }
-                    else
-                    {
-                        existingItem.Thumbnail = await GetThumbnailAsync(entry.FullName);
-                    }
-                }
-
-                var sortedList = FileItems.OrderBy(item => item.Name, StringComparer.OrdinalIgnoreCase).ToList();
-                FileItems.Clear();
-                foreach (var fileItem in sortedList)
-                {
-                    FileItems.Add(fileItem);
-                }
-                Debug.WriteLine("LOADEDDDDDDDD");
-            });
-
+                    Debug.WriteLine("LOADEDDDDDDDD");
+                });
+            }
+            catch (OperationCanceledException)
+            {
+                Debug.WriteLine("LoadFiles was canceled.");
+            }
         }
         private void Window_Drop(object sender, DragEventArgs e)
         {
