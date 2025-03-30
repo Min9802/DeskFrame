@@ -83,6 +83,7 @@ public class InstanceController
                 key.SetValue("TitleText", instance.TitleText);
                 key.SetValue("BorderColor", instance.BorderColor!);
                 key.SetValue("BorderEnabled", instance.BorderEnabled!);
+                key.SetValue("FileFilterRegex", instance.FileFilterRegex!);
             }
         }
         catch { }
@@ -255,6 +256,10 @@ public class InstanceController
                                             case "BorderEnabled":
                                                 temp.BorderEnabled = bool.Parse(value.ToString()!);
                                                 Debug.WriteLine($"BorderEnabled added\t{temp.BorderEnabled}");
+                                                break;
+                                            case "FileFilterRegex":
+                                                temp.FileFilterRegex = value.ToString()!;
+                                                Debug.WriteLine($"FileFilterRegex added\t{temp.FileFilterRegex}");
                                                 break;
                                             default:
                                                 Debug.WriteLine($"Unknown value: {valueName}");
