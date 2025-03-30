@@ -11,6 +11,7 @@ namespace DeskFrame
         private bool _isValidTitleTextAlignment = true;
         private bool _isValidTitleText = true;
         private bool _isValidBorderColor = false;
+        private bool _isValidFileFilterRegex = true;
 
         public FrameSettingsDialog(Instance instance)
         {
@@ -21,6 +22,7 @@ namespace DeskFrame
             BorderColorTextBox.Text = _instance.BorderColor;
             BorderEnabledCheckBox.IsChecked = _instance.BorderEnabled;
             TitleTextBox.Text = _instance.TitleText ?? _instance.Name;
+            FileFilterRegexTextBox.Text = _instance.FileFilterRegex;
             TitleTextAlignmentComboBox.SelectedIndex = (int)_instance.TitleTextAlignment;
             UpdateBorderColorEnabled();
             ValidateSettings();
@@ -54,6 +56,11 @@ namespace DeskFrame
         private void BorderEnabledCheckBox_Checked(object sender, RoutedEventArgs e)
         {
             UpdateBorderColorEnabled();
+            ValidateSettings();
+        }
+
+        private void FileFilterRegexTextBox_TextChanged(object sender, System.Windows.Controls.TextChangedEventArgs e)
+        {
             ValidateSettings();
         }
 
@@ -102,13 +109,26 @@ namespace DeskFrame
                 _isValidBorderColor = false;
             }
 
+            try
+            {
+                if (!string.IsNullOrWhiteSpace(FileFilterRegexTextBox.Text))
+                {
+                    new System.Text.RegularExpressions.Regex(FileFilterRegexTextBox.Text);
+                }
+                _isValidFileFilterRegex = true;
+            }
+            catch
+            {
+                _isValidFileFilterRegex = false;
+            }
+
             _isValidTitleTextAlignment = TitleTextAlignmentComboBox.SelectedIndex >= 0;
-            ApplyButton.IsEnabled = _isValidTitleBarColor && _isValidTitleTextColor && _isValidTitleTextAlignment && _isValidBorderColor;
+            ApplyButton.IsEnabled = _isValidTitleBarColor && _isValidTitleTextColor && _isValidTitleTextAlignment && _isValidBorderColor && _isValidFileFilterRegex;
         }
 
         private void ApplyButton_Click(object sender, RoutedEventArgs e)
         {
-            if (_isValidTitleBarColor && _isValidTitleTextColor && _isValidTitleTextAlignment && _isValidTitleText && _isValidBorderColor)
+            if (_isValidTitleBarColor && _isValidTitleTextColor && _isValidTitleTextAlignment && _isValidTitleText && _isValidBorderColor && _isValidFileFilterRegex)
             {
                 _instance.TitleBarColor = TitleBarColorTextBox.Text;
                 _instance.TitleTextColor = TitleTextColorTextBox.Text;
@@ -116,6 +136,7 @@ namespace DeskFrame
                 _instance.BorderEnabled = BorderEnabledCheckBox.IsChecked == true;
                 _instance.TitleTextAlignment = (System.Windows.HorizontalAlignment)TitleTextAlignmentComboBox.SelectedIndex;
                 _instance.TitleText = TitleTextBox.Text;
+                _instance.FileFilterRegex = FileFilterRegexTextBox.Text;
                 this.DialogResult = true;
                 this.Close();
             }

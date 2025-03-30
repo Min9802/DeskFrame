@@ -757,6 +757,11 @@ namespace DeskFrame
                             .ToList();
                 if (!Instance.ShowHiddenFiles)
                     filteredFiles = filteredFiles.Where(entry => !entry.Attributes.HasFlag(FileAttributes.Hidden)).ToList();
+                if (Instance.FileFilterRegex != null)
+                {
+                    var regex = new Regex(Instance.FileFilterRegex);
+                    filteredFiles = filteredFiles.Where(entry => regex.IsMatch(entry.Name)).ToList();
+                }
                 return filteredFiles;
             });
 
@@ -1173,6 +1178,7 @@ namespace DeskFrame
                     titleBar.Background = new SolidColorBrush((Color)System.Windows.Media.ColorConverter.ConvertFromString(Instance.TitleBarColor));
                     title.Foreground = new SolidColorBrush((Color)System.Windows.Media.ColorConverter.ConvertFromString(Instance.TitleTextColor));
                     title.Text = Instance.TitleText ?? Instance.Name;
+                    LoadFiles(_path);
                 }
             };
 

@@ -22,6 +22,7 @@ public class Instance : INotifyPropertyChanged
     private bool _borderEnabled = false;
     private Forms.HorizontalAlignment _titleTextAlignment = Forms.HorizontalAlignment.Center;
     private string? _titleText;
+    private string _fileFilterRegex = "";
 
     public double PosX
     {
@@ -83,7 +84,7 @@ public class Instance : INotifyPropertyChanged
             if (_name != value)
             {
                 _name = value;
-                OnPropertyChanged(nameof(Name), value);
+                OnPropertyChanged(nameof(Name),value);
             }
         }
     }
@@ -216,6 +217,19 @@ public class Instance : INotifyPropertyChanged
         }
     }
 
+    public string FileFilterRegex
+    {
+        get => _fileFilterRegex;
+        set
+        {
+            if (_fileFilterRegex != value)
+            {
+                _fileFilterRegex = value;
+                OnPropertyChanged(nameof(FileFilterRegex), value);
+            }
+        }
+    }
+
     public Instance(Instance instance)
     {
         _posX = instance._posX;
@@ -232,6 +246,7 @@ public class Instance : INotifyPropertyChanged
         _borderColor = instance._borderColor;
         _borderEnabled = instance._borderEnabled;
         _titleTextAlignment = instance._titleTextAlignment;
+        _fileFilterRegex = instance._fileFilterRegex;
     }
 
     public Instance(string name) // default instance
@@ -250,18 +265,19 @@ public class Instance : INotifyPropertyChanged
         _borderColor = "#FFFFFF";
         _borderEnabled = false;
         _titleTextAlignment = Forms.HorizontalAlignment.Center;
+        _fileFilterRegex = "";
     }
 
     protected void OnPropertyChanged(string propertyName, string value)
     {
-
+      
         if (propertyName == "Name")
         {
             Debug.WriteLine($"oldname: {_name} \t newname: {Name}");
             if (Name == "empty")
             {
                 MainWindow._controller.WriteOverInstanceToKey(this, "empty");
-
+              
             }
         }
         else
