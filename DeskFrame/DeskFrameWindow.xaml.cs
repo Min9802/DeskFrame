@@ -481,6 +481,7 @@ namespace DeskFrame
                 foreach (var fileItem in FileItems)
                 {
                     fileItem.IsSelected = false;
+                    fileItem.Background = Brushes.Transparent;
                 }
                 string regexPattern = Regex.Escape(filter).Replace("\\*", ".*"); // Escape other regex special chars and replace '*' with '.*'
 
@@ -1362,6 +1363,8 @@ namespace DeskFrame
                     foreach (var fileItem in FileItems)
                     {
                         fileItem.IsSelected = false;
+                        fileItem.Background = Brushes.Transparent;
+
                     }
                     Dispatcher.InvokeAsync(() =>
                    {
