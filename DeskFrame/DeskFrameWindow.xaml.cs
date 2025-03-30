@@ -1171,13 +1171,10 @@ namespace DeskFrame
             MenuItem frameSettings = new MenuItem { Header = "Frame Settings" };
             frameSettings.Click += (s, args) =>
             {
-                var dialog = new FrameSettingsDialog(Instance);
+                var dialog = new FrameSettingsDialog(this);
                 dialog.ShowDialog();
                 if (dialog.DialogResult == true)
                 {
-                    titleBar.Background = new SolidColorBrush((Color)System.Windows.Media.ColorConverter.ConvertFromString(Instance.TitleBarColor));
-                    title.Foreground = new SolidColorBrush((Color)System.Windows.Media.ColorConverter.ConvertFromString(Instance.TitleTextColor));
-                    title.Text = Instance.TitleText ?? Instance.Name;
                     LoadFiles(_path);
                 }
             };
