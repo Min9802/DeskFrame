@@ -16,7 +16,7 @@ public class Instance : INotifyPropertyChanged
     private bool _minimized;
     private bool _showHiddenFiles;
     private bool _isLocked;
-    private string _titleBarColor = "#000000";
+    private string _titleBarColor = "#0C000000";
     private string _titleTextColor = "#FFFFFF";
     private string _borderColor = "#FFFFFF";
     private bool _borderEnabled = false;
@@ -260,7 +260,7 @@ public class Instance : INotifyPropertyChanged
         _folder = "empty";
         _showHiddenFiles = false;
         _isLocked = false;
-        _titleBarColor = "#000000";
+        _titleBarColor = "#0C000000";
         _titleTextColor = "#FFFFFF";
         _borderColor = "#FFFFFF";
         _borderEnabled = false;
