@@ -56,7 +56,7 @@ namespace DeskFrame
         private void ValidateSettings()
         {
             if (_isReverting) return;
-            _isValidTitleBarColor = TryParseColor(TitleBarColorTextBox.Text);
+            _isValidTitleBarColor = TryParseColor(string.IsNullOrEmpty(TitleBarColorTextBox.Text) ? "#0C000000" : TitleBarColorTextBox.Text);
             _isValidTitleTextColor = TryParseColor(TitleTextColorTextBox.Text);
             _isValidBorderColor = BorderEnabledCheckBox.IsChecked == true ? TryParseColor(BorderColorTextBox.Text) : true;
             _isValidFileFilterRegex = TryParseRegex(FileFilterRegexTextBox.Text);
@@ -64,14 +64,14 @@ namespace DeskFrame
 
             if (_isValidTitleBarColor && _isValidTitleTextColor && _isValidTitleTextAlignment && _isValidBorderColor && _isValidFileFilterRegex)
             {
-                _instance.TitleBarColor = TitleBarColorTextBox.Text;
+                _instance.TitleBarColor = string.IsNullOrEmpty(TitleBarColorTextBox.Text) ? "#0C000000" : TitleBarColorTextBox.Text;
                 _instance.TitleTextColor = TitleTextColorTextBox.Text;
                 _instance.BorderColor = BorderColorTextBox.Text;
                 _instance.BorderEnabled = BorderEnabledCheckBox.IsChecked == true;
                 _instance.TitleTextAlignment = (System.Windows.HorizontalAlignment)TitleTextAlignmentComboBox.SelectedIndex;
                 _instance.TitleText = TitleTextBox.Text;
                 _instance.FileFilterRegex = FileFilterRegexTextBox.Text;
-                _frame.titleBar.Background = new SolidColorBrush((Color)System.Windows.Media.ColorConverter.ConvertFromString(TitleBarColorTextBox.Text));
+                _frame.titleBar.Background = new SolidColorBrush((Color)System.Windows.Media.ColorConverter.ConvertFromString(_instance.TitleBarColor));
                 _frame.title.Foreground = new SolidColorBrush((Color)System.Windows.Media.ColorConverter.ConvertFromString(TitleTextColorTextBox.Text));
                 _frame.title.Text = TitleTextBox.Text ?? _frame.Instance.Name;
             }
@@ -104,23 +104,6 @@ namespace DeskFrame
             catch
             {
                 return false;
-            }
-        }
-
-        private void ApplyButton_Click(object sender, RoutedEventArgs e)
-        {
-            if (_isValidTitleBarColor && _isValidTitleTextColor && _isValidTitleTextAlignment && _isValidBorderColor && _isValidFileFilterRegex)
-            {
-                _instance.TitleBarColor = TitleBarColorTextBox.Text;
-                _instance.TitleTextColor = TitleTextColorTextBox.Text;
-                _instance.BorderColor = BorderColorTextBox.Text;
-                _instance.BorderEnabled = BorderEnabledCheckBox.IsChecked == true;
-                _instance.TitleTextAlignment = (System.Windows.HorizontalAlignment)TitleTextAlignmentComboBox.SelectedIndex;
-                _instance.TitleText = TitleTextBox.Text;
-                _instance.FileFilterRegex = FileFilterRegexTextBox.Text;
-
-                this.DialogResult = true;
-                this.Close();
             }
         }
 

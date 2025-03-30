@@ -24,7 +24,7 @@
 
         <StackPanel Orientation="Vertical" Margin="10,45,10,0">
             <Label Content="Title Bar Color (hex):" Height="30"/>
-            <TextBox x:Name="TitleBarColorTextBox" Margin="0,0,0,20" TextChanged="TextChangedHandler"/>
+            <ui:TextBox x:Name="TitleBarColorTextBox" Margin="0,0,0,20" PlaceholderText="#0C000000" TextChanged="TextChangedHandler"/>
 
             <Label Content="Title Text Color (hex):" Height="30"/>
             <TextBox x:Name="TitleTextColorTextBox" Margin="0,0,0,20" TextChanged="TextChangedHandler"/>
