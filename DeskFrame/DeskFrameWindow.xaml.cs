@@ -60,6 +60,19 @@ namespace DeskFrame
         {
             if (!(HwndSource.FromHwnd(hWnd).RootVisual is System.Windows.Window rootVisual))
                 return IntPtr.Zero;
+            if (msg == 0x0214) // WM_SIZING
+            {
+                Interop.RECT rect = (Interop.RECT)Marshal.PtrToStructure(lParam, typeof(Interop.RECT));
+                double width = rect.Right - rect.Left;
+                double newWidth = Math.Round(width / 85.0) * 85 + 20;
+                if (width != newWidth)
+                {
+                    rect.Right = rect.Left + (int)newWidth;
+                    Marshal.StructureToPtr(rect, lParam, true);
+                    Instance.Width = this.Width;
+                }
+            }
+
             if (msg == 70)
             {
                 Interop.WINDOWPOS structure = Marshal.PtrToStructure<Interop.WINDOWPOS>(lParam);
@@ -595,16 +608,6 @@ namespace DeskFrame
                 if (this.ActualHeight != 30)
                 {
                     Instance.Height = this.ActualHeight;
-                }
-            }
-            if (e.WidthChanged)
-            {
-                double newWidth = Math.Round(this.Width / 85) * 85 + 20;
-
-                if (this.Width != newWidth)
-                {
-                    this.Width = newWidth;
-                    Instance.Width = this.Width;
                 }
             }
         }
@@ -1202,7 +1205,7 @@ namespace DeskFrame
         {
             ContextMenu contextMenu = new ContextMenu();
 
-            MenuItem toggleHiddenFiles = new MenuItem { Header = Instance.ShowHiddenFiles ? "Hide hidden Files": "Show hidden files" };
+            MenuItem toggleHiddenFiles = new MenuItem { Header = Instance.ShowHiddenFiles ? "Hide hidden Files" : "Show hidden files" };
             toggleHiddenFiles.Click += (s, args) => { ToggleHiddenFiles(); LoadFiles(_path); };
 
             MenuItem frameSettings = new MenuItem { Header = "Frame Settings" };
