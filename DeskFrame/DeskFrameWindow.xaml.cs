@@ -432,7 +432,7 @@ namespace DeskFrame
         public void SetAsToolWindow()
         {
             WindowInteropHelper wih = new WindowInteropHelper(this);
-            IntPtr dwNew = new IntPtr(((long)Interop.GetWindowLong(wih.Handle, Interop.GWL_EXSTYLE).ToInt32() | 128L) & 4294705151L);
+            IntPtr dwNew = new IntPtr(((long)Interop.GetWindowLong(wih.Handle, Interop.GWL_EXSTYLE).ToInt32() | 128L | 0x00200000L) & 4294705151L);
             Interop.SetWindowLong((nint)new HandleRef(this, wih.Handle), Interop.GWL_EXSTYLE, dwNew);
         }
         public void SetNoActivate()
