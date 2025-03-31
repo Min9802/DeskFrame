@@ -71,6 +71,11 @@ namespace DeskFrame
                     Marshal.StructureToPtr(rect, lParam, true);
                     Instance.Width = this.Width;
                 }
+                double height = rect.Bottom - rect.Top;
+                if (height < 100) height = 100;
+                rect.Bottom = (int)(rect.Top + height);
+                Marshal.StructureToPtr(rect, lParam, true);
+                Instance.Width = this.Width;
             }
 
             if (msg == 70)
