@@ -11,7 +11,7 @@
         Background="#66232323" 
         WindowStyle="None" 
         ResizeMode="NoResize"
-        Height="650" 
+        Height="830" 
         Width="300"
         MinWidth="0"
         MinHeight="0">
@@ -46,7 +46,14 @@
                 <ComboBoxItem Content="Center"/>
                 <ComboBoxItem Content="Right"/>
             </ComboBox>
-                <Button x:Name="RevertButton" HorizontalAlignment="Right" Content="Revert" Height="30" Click="RevertButton_Click" />
+
+            <Label Content="List View Background Color (hex):" Height="30"/>
+            <TextBox x:Name="ListViewBackgroundColorTextBox" Margin="0,0,0,20" TextChanged="TextChangedHandler"/>
+
+            <Label Content="Opacity:" Height="30"/>
+            <Slider x:Name="OpacitySlider" Minimum="0" Maximum="255" Margin="0,0,0,20" ValueChanged="OpacitySlider_ValueChanged"/>
+
+            <Button x:Name="RevertButton" HorizontalAlignment="Right" Content="Revert" Height="30" Click="RevertButton_Click" />
         </StackPanel>
     </Grid>
 </ui:FluentWindow>

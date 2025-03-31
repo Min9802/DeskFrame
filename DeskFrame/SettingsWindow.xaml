@@ -22,14 +22,6 @@
             </ui:TitleBar>
             <StackPanel Orientation="Vertical" Margin="10,25,0,0" >
                 <ui:ToggleSwitch x:Name="blurToggle"  Content="Enable blur" Margin="0,0,0,30" VerticalAlignment="Top" Checked="blurToggle_CheckChanged" Unchecked="blurToggle_CheckChanged"/>
-                <StackPanel Orientation="Vertical">
-                    <Label Content="Background color" Height="30"/>
-                    <ui:ToggleSwitch x:Name="bgToggle"  Checked="bgToggle_CheckChanged" Unchecked="bgToggle_CheckChanged" Margin="0,0,0,30" VerticalAlignment="Center" />
-                </StackPanel>
-                <StackPanel Orientation="Vertical" Height="60" >
-                    <Label Content="Opacity" FontSize="16" Height="30" Width="53" HorizontalAlignment="Left" Foreground="#C5FFFFFF"/>
-                    <Slider x:Name="opacitySlider"  Minimum="1"  Maximum="255"   HorizontalAlignment="Center" Margin="-10,0,0,0" Width="250" ValueChanged="opacitySlider_ValueChanged"/>
-                </StackPanel>
             </StackPanel>
         </StackPanel>
         

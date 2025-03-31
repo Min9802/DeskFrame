@@ -2,9 +2,7 @@
 using Microsoft.Win32;
 using System.Diagnostics;
 using System.IO;
-using System.Windows.Interop;
-using System.Windows.Shell;
-using System.Xml.Linq;
+
 public class InstanceController
 {
     public static string appName = "DeskFrame";
@@ -32,6 +30,8 @@ public class InstanceController
                 key.SetValue("IsLocked", instance.IsLocked!);
                 key.SetValue("TitleBarColor", instance.TitleBarColor!);
                 key.SetValue("TitleTextColor", instance.TitleTextColor!);
+                key.SetValue("ListViewBackgroundColor", instance.ListViewBackgroundColor!);
+                key.SetValue("Opacity", instance.Opacity);
             }
             Registry.CurrentUser.DeleteSubKey(@$"SOFTWARE\{appName}\Instances\{oldKey}", throwOnMissingSubKey: false);
         }
@@ -39,20 +39,6 @@ public class InstanceController
     }
     private void InitDetails()
     {
-        double opacity = 60;
-
-        if (reg.KeyExistsRoot("isBlack"))
-        {
-            ChangeIsBlack((bool)reg.ReadKeyValueRoot("isBlack"));         
-        }
-        if (reg.KeyExistsRoot("Opacity")) {
-
-            ChangeBackgroundOpacity(Int32.Parse(reg.ReadKeyValueRoot("Opacity").ToString()!));
-        }
-        else
-        {
-            ChangeBackgroundOpacity(60);
-        }
         if (reg.KeyExistsRoot("blurBackground"))
         {
             ChangeBlur((bool)reg.ReadKeyValueRoot("blurBackground"));
@@ -84,6 +70,8 @@ public class InstanceController
                 key.SetValue("BorderColor", instance.BorderColor!);
                 key.SetValue("BorderEnabled", instance.BorderEnabled!);
                 key.SetValue("FileFilterRegex", instance.FileFilterRegex!);
+                key.SetValue("ListViewBackgroundColor", instance.ListViewBackgroundColor!);
+                key.SetValue("Opacity", instance.Opacity);
             }
         }
         catch { }
@@ -101,6 +89,7 @@ public class InstanceController
         Instances.Add(new Instance("empty"));
         MainWindow._controller.WriteInstanceToKey(Instances.Last());
         var subWindow = new DeskFrameWindow(Instances.Last());
+        subWindow.ChangeBackgroundOpacity(Instances.Last().Opacity);
         _subWindows.Add(subWindow);
         subWindow.Show();
         InitDetails();
@@ -113,13 +102,7 @@ public class InstanceController
             window.BackgroundType(toBlur);
         }
     }
-    public void ChangeIsBlack(bool isBlack)
-    {
-        foreach (DeskFrameWindow window in _subWindows)
-        {
-            window.ChangeIsBlack(isBlack);
-        }
-    }
+
     public void ChangeBackgroundOpacity(int num)
     {
         foreach (DeskFrameWindow window in _subWindows)
@@ -127,6 +110,7 @@ public class InstanceController
             window.ChangeBackgroundOpacity(num);
         }
     }
+
     public void InitInstances()
     {
         Debug.WriteLine("Init...");
@@ -261,6 +245,17 @@ public class InstanceController
                                                 temp.FileFilterRegex = value.ToString()!;
                                                 Debug.WriteLine($"FileFilterRegex added\t{temp.FileFilterRegex}");
                                                 break;
+                                            case "ListViewBackgroundColor":
+                                                temp.ListViewBackgroundColor = value.ToString()!;
+                                                Debug.WriteLine($"ListViewBackgroundColor added\t{temp.ListViewBackgroundColor}");
+                                                break;
+                                            case "Opacity":
+                                                if (int.TryParse(value.ToString(), out int parsedOpacity))
+                                                {
+                                                    temp.Opacity = parsedOpacity;
+                                                    Debug.WriteLine($"Opacity added\t{temp.Opacity}");
+                                                }
+                                                break;
                                             default:
                                                 Debug.WriteLine($"Unknown value: {valueName}");
                                                 break;
@@ -305,6 +300,7 @@ public class InstanceController
             {
                 var subWindow = new DeskFrameWindow(Instance);
                 _subWindows.Add(subWindow);
+                subWindow.ChangeBackgroundOpacity(Instance.Opacity);
                 subWindow.Show();
                 InitDetails();
             }
