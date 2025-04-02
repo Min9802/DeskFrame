@@ -1052,7 +1052,7 @@ namespace DeskFrame
                 IntPtr hBitmap = IntPtr.Zero;
                 Interop.IShellItemImageFactory? factory = null;
                 int attempts = 0;
-                while (attempts < 2) // Try twice if needed
+                while (attempts < 4) // Try 4 times if needed
                 {
                     try
                     {
