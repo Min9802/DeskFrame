@@ -32,6 +32,7 @@ using System.Text.RegularExpressions;
 using System.Collections;
 using Windows.Foundation.Collections;
 using System.Windows.Shell;
+using static System.Windows.Forms.VisualStyles.VisualStyleElement;
 namespace DeskFrame
 {
     public partial class DeskFrameWindow : System.Windows.Window
@@ -64,7 +65,7 @@ namespace DeskFrame
             {
                 Interop.RECT rect = (Interop.RECT)Marshal.PtrToStructure(lParam, typeof(Interop.RECT));
                 double width = rect.Right - rect.Left;
-                double newWidth = Math.Round(width / 85.0) * 85 + 20;
+                double newWidth = (Math.Round(width / 85.0) * 85 + 13);
                 if (width != newWidth)
                 {
                     rect.Right = rect.Left + (int)newWidth;
@@ -72,10 +73,16 @@ namespace DeskFrame
                     Instance.Width = this.Width;
                 }
                 double height = rect.Bottom - rect.Top;
-                if (height < 100) height = 100;
-                rect.Bottom = (int)(rect.Top + height);
-                Marshal.StructureToPtr(rect, lParam, true);
-                Instance.Width = this.Width;
+                if (height <= 102)
+                {
+                    this.Height = 102;
+                    rect.Bottom = rect.Top + 102;
+                    Marshal.StructureToPtr(rect, lParam, true);
+                    handled = true;
+                    return (IntPtr)4;
+                }
+                ResizeBottomAnimation(height, rect, lParam);
+               
             }
 
             if (msg == 70)
@@ -100,6 +107,25 @@ namespace DeskFrame
 
             return IntPtr.Zero;
         }
+        private void ResizeBottomAnimation(double targetBottom, Interop.RECT rect, IntPtr lParam)
+        {
+            if (!_canAnimate) return;
+            var animation = new DoubleAnimation
+            {
+                To = targetBottom,
+                Duration = TimeSpan.FromMilliseconds(10),
+                FillBehavior = FillBehavior.Stop
+            };
+
+            animation.Completed += (s, e) =>
+            {
+                _canAnimate = true;
+                Marshal.StructureToPtr(rect, lParam, true);
+            };
+            _canAnimate = false;
+            this.BeginAnimation(HeightProperty, animation);
+        }
+
         public void HandleWindowMove()
         {
             Interop.RECT windowRect;
@@ -545,6 +571,7 @@ namespace DeskFrame
         public DeskFrameWindow(Instance instance)
         {
             InitializeComponent();
+            this.MinWidth = 98;
             this.Loaded += MainWindow_Loaded;
             this.SourceInitialized += MainWindow_SourceInitialized!;
 
