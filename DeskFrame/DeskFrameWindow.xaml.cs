@@ -617,6 +617,7 @@ namespace DeskFrame
             _originalHeight = this.Height;
             titleBar.Background = new SolidColorBrush((Color)System.Windows.Media.ColorConverter.ConvertFromString(Instance.TitleBarColor));
             title.Foreground = new SolidColorBrush((Color)System.Windows.Media.ColorConverter.ConvertFromString(Instance.TitleTextColor));
+            ChangeBackgroundOpacity(Instance.Opacity);
         }
         private void Window_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
         {
@@ -1157,8 +1158,15 @@ namespace DeskFrame
 
         public void ChangeBackgroundOpacity(int num)
         {
-            windowBorder.Background = _isBlack ? new SolidColorBrush(Color.FromArgb((byte)num, 0, 0, 0)) :
-                                                 new SolidColorBrush(Color.FromArgb((byte)num, 255, 255, 255));
+            try
+            {                
+                var c = (Color)System.Windows.Media.ColorConverter.ConvertFromString(Instance.ListViewBackgroundColor);
+                windowBorder.Background = new SolidColorBrush(Color.FromArgb((byte)Instance.Opacity, c.R, c.G, c.B));                
+            }
+            catch
+            {
+                
+            }
         }
         public void ChangeIsBlack(bool value)
         {

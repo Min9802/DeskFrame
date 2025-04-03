@@ -23,6 +23,8 @@ public class Instance : INotifyPropertyChanged
     private Forms.HorizontalAlignment _titleTextAlignment = Forms.HorizontalAlignment.Center;
     private string? _titleText;
     private string _fileFilterRegex = "";
+    private string _listViewBackgroundColor = "#0C000000";
+    private int _opacity = 26;
 
     public double PosX
     {
@@ -230,6 +232,32 @@ public class Instance : INotifyPropertyChanged
         }
     }
 
+    public string ListViewBackgroundColor
+    {
+        get => _listViewBackgroundColor;
+        set
+        {
+            if (_listViewBackgroundColor != value)
+            {
+                _listViewBackgroundColor = value;
+                OnPropertyChanged(nameof(ListViewBackgroundColor), value);
+            }
+        }
+    }
+
+    public int Opacity
+    {
+        get => _opacity;
+        set
+        {
+            if (_opacity != value)
+            {
+                _opacity = value;
+                OnPropertyChanged(nameof(Opacity), value.ToString());
+            }
+        }
+    }
+
     public Instance(Instance instance)
     {
         _posX = instance._posX;
@@ -247,6 +275,8 @@ public class Instance : INotifyPropertyChanged
         _borderEnabled = instance._borderEnabled;
         _titleTextAlignment = instance._titleTextAlignment;
         _fileFilterRegex = instance._fileFilterRegex;
+        _listViewBackgroundColor = instance._listViewBackgroundColor;
+        _opacity = instance._opacity;
     }
 
     public Instance(string name) // default instance
@@ -260,14 +290,8 @@ public class Instance : INotifyPropertyChanged
         _folder = "empty";
         _showHiddenFiles = false;
         _isLocked = false;
-        _titleBarColor = "#0C000000";
-        _titleTextColor = "#FFFFFF";
-        _borderColor = "#FFFFFF";
-        _borderEnabled = false;
-        _titleTextAlignment = Forms.HorizontalAlignment.Center;
-        _fileFilterRegex = "";
-    }
 
+    }
     protected void OnPropertyChanged(string propertyName, string value)
     {
       
