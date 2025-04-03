@@ -11,8 +11,8 @@
         Background="#66232323" 
         WindowStyle="None" 
         ResizeMode="NoResize"
-        Height="830" 
-        Width="300"
+        Height="432" 
+        Width="490"
         MinWidth="0"
         MinHeight="0">
     <Grid>
@@ -21,39 +21,55 @@
                 <ui:ImageIcon Source="/ico.png" Margin="0,0,6,0" />
             </ui:TitleBar.Icon>
         </ui:TitleBar>
+        <Grid>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition/>
+                <ColumnDefinition Width="30"/>
+                <ColumnDefinition/>
+            </Grid.ColumnDefinitions>
 
-        <StackPanel Orientation="Vertical" Margin="10,45,10,0">
-            <Label Content="Title Bar Color (hex):" Height="30"/>
-            <ui:TextBox x:Name="TitleBarColorTextBox" Margin="0,0,0,20" PlaceholderText="#0C000000" TextChanged="TextChangedHandler"/>
+            <StackPanel Orientation="Vertical" Margin="10,45,10,0" Grid.Column="0">
+                <StackPanel Orientation="Horizontal" >
+                    <CheckBox x:Name="BorderEnabledCheckBox" Margin="-11,0,-5,0" Checked="BorderEnabledCheckBox_Checked"  Unchecked="BorderEnabledCheckBox_Checked"/>
+                    <Label Content="Border Color (hex):"  VerticalAlignment="Center"/>
 
-            <Label Content="Title Text Color (hex):" Height="30"/>
-            <TextBox x:Name="TitleTextColorTextBox" Margin="0,0,0,20" TextChanged="TextChangedHandler"/>
+                </StackPanel>
+                <TextBox x:Name="BorderColorTextBox" Margin="0,0,0,20" TextChanged="TextChangedHandler"/>
+                <Label Content="File Filter (regex):" Height="30" />
+                <TextBox x:Name="FileFilterRegexTextBox" Margin="0,0,0,20" TextChanged="TextChangedHandler"/>
 
-            <CheckBox x:Name="BorderEnabledCheckBox" Content="Enable Border" Margin="0,0,0,10" Checked="BorderEnabledCheckBox_Checked" Unchecked="BorderEnabledCheckBox_Checked"/>
-            
-            <Label Content="Border Color (hex):" Height="30"/>
-            <TextBox x:Name="BorderColorTextBox" Margin="0,0,0,20" TextChanged="TextChangedHandler"/>
+                <Label Content="List View Background Color (hex):" Height="30"/>
+                <TextBox x:Name="ListViewBackgroundColorTextBox" Margin="0,0,0,20" TextChanged="TextChangedHandler"/>
 
-            <Label Content="Title Text:" Height="30"/>
-            <TextBox x:Name="TitleTextBox" Margin="0,0,0,20" TextChanged="TextChangedHandler"/>
+                <Label x:Name="OpacityLabel" Content="Opacity:" Height="30"/>
+                <Slider x:Name="OpacitySlider" Minimum="1" Maximum="255" Margin="0,0,0,20" ValueChanged="OpacitySlider_ValueChanged"/>
+            </StackPanel>
+            <Separator HorizontalAlignment="Center"  Grid.Column="1" Height="368"/>
 
-            <Label Content="File Filter (regex):" Height="30"/>
-            <TextBox x:Name="FileFilterRegexTextBox" Margin="0,0,0,20" TextChanged="TextChangedHandler"/>
+            <StackPanel Orientation="Vertical" Margin="10,48,10,0" Grid.Column="2">
+                <Label Content="Title Bar Color (hex):" Height="30"/>
+                <ui:TextBox x:Name="TitleBarColorTextBox" Margin="0,0,0,20" PlaceholderText="#0C000000" TextChanged="TextChangedHandler"/>
 
-            <Label Content="Title Text Alignment:" Height="30"/>
-            <ComboBox x:Name="TitleTextAlignmentComboBox" Margin="0,0,0,20" SelectionChanged="TitleTextAlignmentComboBox_SelectionChanged">
-                <ComboBoxItem Content="Left"/>
-                <ComboBoxItem Content="Center"/>
-                <ComboBoxItem Content="Right"/>
-            </ComboBox>
+                <Label Content="Title Text Color (hex):" Height="30"/>
+                <TextBox x:Name="TitleTextColorTextBox" Margin="0,0,0,20" TextChanged="TextChangedHandler"/>
 
-            <Label Content="List View Background Color (hex):" Height="30"/>
-            <TextBox x:Name="ListViewBackgroundColorTextBox" Margin="0,0,0,20" TextChanged="TextChangedHandler"/>
 
-            <Label Content="Opacity:" Height="30"/>
-            <Slider x:Name="OpacitySlider" Minimum="0" Maximum="255" Margin="0,0,0,20" ValueChanged="OpacitySlider_ValueChanged"/>
+                <Label Content="Title Text:" Height="30"/>
+                <TextBox x:Name="TitleTextBox" Margin="0,0,0,20" TextChanged="TextChangedHandler"/>
 
-            <Button x:Name="RevertButton" HorizontalAlignment="Right" Content="Revert" Height="30" Click="RevertButton_Click" />
-        </StackPanel>
+
+                <Label Content="Title Text Alignment:" Height="30"/>
+                <ComboBox x:Name="TitleTextAlignmentComboBox" Margin="0,0,0,20" SelectionChanged="TitleTextAlignmentComboBox_SelectionChanged">
+                    <ComboBoxItem Content="Left"/>
+                    <ComboBoxItem Content="Center"/>
+                    <ComboBoxItem Content="Right"/>
+                </ComboBox>
+
+
+                <Button x:Name="RevertButton" HorizontalAlignment="Right" Content="Revert" Height="30" Click="RevertButton_Click" />
+            </StackPanel>
+
+        </Grid>
+
     </Grid>
 </ui:FluentWindow>

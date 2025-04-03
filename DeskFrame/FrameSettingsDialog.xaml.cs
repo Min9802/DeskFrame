@@ -34,6 +34,7 @@ namespace DeskFrame
             FileFilterRegexTextBox.Text = _instance.FileFilterRegex;
             TitleTextAlignmentComboBox.SelectedIndex = (int)_instance.TitleTextAlignment;
             OpacitySlider.Value = _instance.Opacity;
+            OpacityLabel.Content = $"Opacity: {(int)((OpacitySlider.Value / 255) * 100)}%";
             ListViewBackgroundColorTextBox.Text = _instance.ListViewBackgroundColor;
             UpdateBorderColorEnabled();
             ValidateSettings();
@@ -89,6 +90,7 @@ namespace DeskFrame
         {
             if (_isReverting || _instance == null || _frame == null || !_initDone) return;
             _instance.Opacity = (int)OpacitySlider.Value;
+            OpacityLabel.Content = $"Opacity: {(int)((OpacitySlider.Value/255)*100)}%";
             _frame.ChangeBackgroundOpacity(_instance.Opacity);
         }
 
