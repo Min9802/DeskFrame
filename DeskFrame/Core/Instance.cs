@@ -24,7 +24,7 @@ public class Instance : INotifyPropertyChanged
     private string? _titleText;
     private string _fileFilterRegex = "";
     private string _listViewBackgroundColor = "#0C000000";
-    private int _opacity = 190;
+    private int _opacity = 26;
 
     public double PosX
     {
@@ -290,16 +290,8 @@ public class Instance : INotifyPropertyChanged
         _folder = "empty";
         _showHiddenFiles = false;
         _isLocked = false;
-        _titleBarColor = "#0C000000";
-        _titleTextColor = "#FFFFFF";
-        _borderColor = "#FFFFFF";
-        _borderEnabled = false;
-        _titleTextAlignment = Forms.HorizontalAlignment.Center;
-        _fileFilterRegex = "";
-        _listViewBackgroundColor = "#0C000000";
-        _opacity = 190;
-    }
 
+    }
     protected void OnPropertyChanged(string propertyName, string value)
     {
       
