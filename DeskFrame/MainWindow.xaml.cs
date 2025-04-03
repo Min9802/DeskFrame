@@ -20,7 +20,8 @@ namespace DeskFrame
             _controller = new InstanceController();
             _controller.InitInstances();
             if (_controller.reg.KeyExistsRoot("startOnLogin")) startOnLogin = (bool)_controller.reg.ReadKeyValueRoot("startOnLogin");
-            Autorun_Button.IsChecked = startOnLogin;
+            AutorunToggle.IsChecked = startOnLogin;
+            if (_controller.reg.KeyExistsRoot("blurBackground")) BlurToggle.IsChecked = (bool)_controller.reg.ReadKeyValueRoot("blurBackground");
         }
 
         private void addDesktopFrame_Click(object sender, RoutedEventArgs e)
@@ -63,9 +64,14 @@ namespace DeskFrame
             await Updater.CheckUpdateAsync(url);
 
         }
-        private void Autorun_Checked(object sender, RoutedEventArgs e)
+        private void BlurToggle_CheckChanged(object sender, System.Windows.RoutedEventArgs e)
         {
-            if (Autorun_Button.IsChecked)
+            _controller.reg.WriteToRegistryRoot("blurBackground", BlurToggle.IsChecked!);
+            _controller.ChangeBlur((bool)BlurToggle.IsChecked!);
+        }
+        private void AutorunToggle_CheckChanged(object sender, RoutedEventArgs e)
+        {
+            if ((bool)AutorunToggle.IsChecked!)
             {
 
                 _controller.reg.AddToAutoRun("DeskFrame", Process.GetCurrentProcess().MainModule!.FileName);
@@ -74,7 +80,7 @@ namespace DeskFrame
             {
                 _controller.reg.RemoveFromAutoRun("DeskFrame");
             }
-            _controller.reg.WriteToRegistryRoot("startOnLogin", Autorun_Button.IsChecked);
+            _controller.reg.WriteToRegistryRoot("startOnLogin", AutorunToggle.IsChecked);
         }
         private void visitGithub_Buton_Click(object sender, RoutedEventArgs e)
         {
