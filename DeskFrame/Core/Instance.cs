@@ -1,6 +1,7 @@
 ﻿using DeskFrame;
 using System.ComponentModel;
 using System.Diagnostics;
+using static DeskFrame.DeskFrameWindow;
 using Forms = System.Windows;
 
 public class Instance : INotifyPropertyChanged
@@ -25,7 +26,7 @@ public class Instance : INotifyPropertyChanged
     private string _fileFilterRegex = "";
     private string _listViewBackgroundColor = "#0C000000";
     private int _opacity = 26;
-
+    private int _sortBy = 1;
     public double PosX
     {
         get => _posX;
@@ -86,7 +87,7 @@ public class Instance : INotifyPropertyChanged
             if (_name != value)
             {
                 _name = value;
-                OnPropertyChanged(nameof(Name),value);
+                OnPropertyChanged(nameof(Name), value);
             }
         }
     }
@@ -257,6 +258,18 @@ public class Instance : INotifyPropertyChanged
             }
         }
     }
+    public int SortBy
+    {
+        get => _sortBy;
+        set
+        {
+            if (_sortBy != value)
+            {
+                _sortBy = value;
+                OnPropertyChanged(nameof(SortBy), value.ToString());
+            }
+        }
+    }
 
     public Instance(Instance instance)
     {
@@ -277,6 +290,7 @@ public class Instance : INotifyPropertyChanged
         _fileFilterRegex = instance._fileFilterRegex;
         _listViewBackgroundColor = instance._listViewBackgroundColor;
         _opacity = instance._opacity;
+        _sortBy = instance._sortBy;
     }
 
     public Instance(string name) // default instance
@@ -294,14 +308,14 @@ public class Instance : INotifyPropertyChanged
     }
     protected void OnPropertyChanged(string propertyName, string value)
     {
-      
+
         if (propertyName == "Name")
         {
             Debug.WriteLine($"oldname: {_name} \t newname: {Name}");
             if (Name == "empty")
             {
                 MainWindow._controller.WriteOverInstanceToKey(this, "empty");
-              
+
             }
         }
         else

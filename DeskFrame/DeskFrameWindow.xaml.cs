@@ -33,6 +33,8 @@ using System.Collections;
 using Windows.Foundation.Collections;
 using System.Windows.Shell;
 using static System.Windows.Forms.VisualStyles.VisualStyleElement;
+using System.Windows.Controls.Primitives;
+using Wpf.Ui.Controls;
 namespace DeskFrame
 {
     public partial class DeskFrameWindow : System.Windows.Window
@@ -57,6 +59,45 @@ namespace DeskFrame
         private CancellationTokenSource loadFilesCancellationToken = new CancellationTokenSource();
         DeskFrameWindow _wOnLeft = null;
         DeskFrameWindow _wOnRight = null;
+        MenuItem nameMenuItem;
+        MenuItem dateModifiedMenuItem;
+        MenuItem ascendingMenuItem;
+        MenuItem descendingMenuItem;
+
+        public enum SortBy
+        {
+            NameAsc = 1,
+            NameDesc = 2,
+            DateModifiedAsc = 3,
+            DateModifiedDesc = 4
+        }
+
+        public static ObservableCollection<FileItem> SortFileItems(ObservableCollection<FileItem> fileItems, int sortBy)
+        {
+            var sortOptions = new Dictionary<int, Func<IEnumerable<FileItem>, IOrderedEnumerable<FileItem>>>
+            {
+                { (int)SortBy.NameAsc, items => items.OrderBy(i => i.Name, StringComparer.OrdinalIgnoreCase) },
+                { (int)SortBy.NameDesc, items => items.OrderByDescending(i => i.Name, StringComparer.OrdinalIgnoreCase) },
+                { (int)SortBy.DateModifiedAsc, items => items.OrderBy(i => i.DateModified) },
+                { (int)SortBy.DateModifiedDesc, items => items.OrderByDescending(i => i.DateModified) }
+            };
+            var sortedItems = sortOptions.TryGetValue(sortBy, out var sorter) ? sorter(fileItems).ToList() : fileItems.ToList();
+            return new ObservableCollection<FileItem>(sortedItems);
+        }
+        public static List<FileSystemInfo> SortFileItemsToList(List<FileSystemInfo> fileItems, int sortBy)
+        {
+            var sortOptions = new Dictionary<int, Func<IEnumerable<FileSystemInfo>, IOrderedEnumerable<FileSystemInfo>>>
+            {
+                { (int)SortBy.NameAsc, items => items.OrderBy(i => i.Name, StringComparer.OrdinalIgnoreCase) },
+                { (int)SortBy.NameDesc, items => items.OrderByDescending(i => i.Name, StringComparer.OrdinalIgnoreCase) },
+                { (int)SortBy.DateModifiedAsc, items => items.OrderBy(i => i.LastWriteTime) },
+                { (int)SortBy.DateModifiedDesc, items => items.OrderByDescending(i => i.LastWriteTime) }
+            };
+            var sortedItems = sortOptions.TryGetValue(sortBy, out var sorter) ? sorter(fileItems).ToList() : fileItems.ToList();
+            return sortedItems;
+        }
+
+
         private IntPtr WndProc(IntPtr hWnd, int msg, IntPtr wParam, IntPtr lParam, ref bool handled)
         {
             if (!(HwndSource.FromHwnd(hWnd).RootVisual is System.Windows.Window rootVisual))
@@ -82,7 +123,7 @@ namespace DeskFrame
                     return (IntPtr)4;
                 }
                 ResizeBottomAnimation(height, rect, lParam);
-               
+
             }
 
             if (msg == 70)
@@ -788,8 +829,6 @@ namespace DeskFrame
             CancellationToken loadFiles_cts = loadFilesCancellationToken.Token;
             try
             {
-
-
                 if (!Directory.Exists(path))
                 {
                     return;
@@ -823,7 +862,10 @@ namespace DeskFrame
                     return;
                 }
 
+                fileEntries = SortFileItemsToList(fileEntries, (int)Instance.SortBy);
+
                 var fileNames = new HashSet<string>(fileEntries.Select(f => f.Name));
+
 
                 await Dispatcher.InvokeAsync(async () =>
                 {
@@ -857,6 +899,7 @@ namespace DeskFrame
                             {
                                 Name = entry.Name,
                                 FullPath = entry.FullName,
+                                DateModified = entry is FileInfo fileInfo ? fileInfo.LastWriteTime : ((DirectoryInfo)entry).LastWriteTime,
                                 Thumbnail = await GetThumbnailAsync(entry.FullName)
                             };
 
@@ -864,15 +907,15 @@ namespace DeskFrame
                         }
                         else
                         {
+                            existingItem.DateModified = entry is FileInfo fileInfo ? fileInfo.LastWriteTime : ((DirectoryInfo)entry).LastWriteTime;
                             existingItem.Thumbnail = await GetThumbnailAsync(entry.FullName);
                         }
                     }
-
-                    var sortedList = FileItems.OrderBy(item => item.Name, StringComparer.OrdinalIgnoreCase).ToList();
+                    var sortedList = SortFileItems(FileItems, (int)Instance.SortBy);
                     FileItems.Clear();
                     foreach (var fileItem in sortedList)
                     {
-                        FileItems.Add(fileItem);
+                     FileItems.Add(fileItem);
                     }
                     Debug.WriteLine("LOADEDDDDDDDD");
                 });
@@ -882,6 +925,16 @@ namespace DeskFrame
                 Debug.WriteLine("LoadFiles was canceled.");
             }
         }
+        public void SortItems()
+        {
+            var sortedList = SortFileItems(FileItems, (int)Instance.SortBy);
+            FileItems.Clear();
+            foreach (var fileItem in sortedList)
+            {
+                FileItems.Add(fileItem);
+            }
+        }
+
         private void Window_Drop(object sender, DragEventArgs e)
         {
             _canAutoClose = false;
@@ -1159,13 +1212,13 @@ namespace DeskFrame
         public void ChangeBackgroundOpacity(int num)
         {
             try
-            {                
+            {
                 var c = (Color)System.Windows.Media.ColorConverter.ConvertFromString(Instance.ListViewBackgroundColor);
-                windowBorder.Background = new SolidColorBrush(Color.FromArgb((byte)Instance.Opacity, c.R, c.G, c.B));                
+                windowBorder.Background = new SolidColorBrush(Color.FromArgb((byte)Instance.Opacity, c.R, c.G, c.B));
             }
             catch
             {
-                
+
             }
         }
         public void ChangeIsBlack(bool value)
@@ -1240,7 +1293,28 @@ namespace DeskFrame
             KeepWindowBehind();
         }
 
+        private void UpdateIcons()
+        {
+            // Update Name menu icon
+            nameMenuItem.Icon = (Instance.SortBy == 1 || Instance.SortBy == 2)
+                ? new SymbolIcon { Symbol = SymbolRegular.CircleSmall20, Filled = true }
+                : new SymbolIcon { Symbol = SymbolRegular.CircleSmall20, Foreground = Brushes.Transparent };
 
+            // Update DateModified menu icon
+            dateModifiedMenuItem.Icon = (Instance.SortBy == 3 || Instance.SortBy == 4)
+                ? new SymbolIcon { Symbol = SymbolRegular.CircleSmall20, Filled = true }
+                : new SymbolIcon { Symbol = SymbolRegular.CircleSmall20, Foreground = Brushes.Transparent };
+
+            // Update Ascending menu icon
+            ascendingMenuItem.Icon = (Instance.SortBy == 1 || Instance.SortBy == 3)
+                ? new SymbolIcon { Symbol = SymbolRegular.CircleSmall20, Filled = true }
+                : new SymbolIcon { Symbol = SymbolRegular.CircleSmall20, Foreground = Brushes.Transparent };
+
+            // Update Descending menu icon
+            descendingMenuItem.Icon = (Instance.SortBy == 2 || Instance.SortBy == 4)
+                ? new SymbolIcon { Symbol = SymbolRegular.CircleSmall20, Filled = true }
+                : new SymbolIcon { Symbol = SymbolRegular.CircleSmall20, Foreground = Brushes.Transparent };
+        }
         private void titleBar_MouseRightButtonDown(object sender, MouseButtonEventArgs e)
         {
             ContextMenu contextMenu = new ContextMenu();
@@ -1312,10 +1386,72 @@ namespace DeskFrame
                 }
             };
 
+            MenuItem sortByMenuItem = new MenuItem { Header = "Sort by", Height = 34 };
+            nameMenuItem = new MenuItem { Header = "Name", Height = 34, StaysOpenOnClick = true };
+            dateModifiedMenuItem = new MenuItem { Header = "Date Modified", Height = 34, StaysOpenOnClick = true };
+            ascendingMenuItem = new MenuItem { Header = "Ascending", Height = 34, StaysOpenOnClick = true };
+            descendingMenuItem = new MenuItem { Header = "Descending", Height = 34, StaysOpenOnClick = true };
+
+
+            nameMenuItem.Icon = (Instance.SortBy == 1 || Instance.SortBy == 2)
+                ? new SymbolIcon { Symbol = SymbolRegular.CircleSmall20, Filled = true }
+                : new SymbolIcon { Symbol = SymbolRegular.CircleSmall20, Foreground = Brushes.Transparent };
+            dateModifiedMenuItem.Icon = (Instance.SortBy == 3 || Instance.SortBy == 4)
+                ? new SymbolIcon { Symbol = SymbolRegular.CircleSmall20, Filled = true }
+                : new SymbolIcon { Symbol = SymbolRegular.CircleSmall20, Foreground = Brushes.Transparent };
+
+            ascendingMenuItem.Icon = (Instance.SortBy == 1 || Instance.SortBy == 3)
+                ? new SymbolIcon { Symbol = SymbolRegular.CircleSmall20, Filled = true }
+                : new SymbolIcon { Symbol = SymbolRegular.CircleSmall20, Foreground = Brushes.Transparent };
+            descendingMenuItem.Icon = (Instance.SortBy == 2 || Instance.SortBy == 4)
+                ? new SymbolIcon { Symbol = SymbolRegular.CircleSmall20, Filled = true }
+                : new SymbolIcon { Symbol = SymbolRegular.CircleSmall20, Foreground = Brushes.Transparent };
+
+            nameMenuItem.Click += async (s, args) =>
+            {
+                if (Instance.SortBy == 3) Instance.SortBy = 1;
+                if (Instance.SortBy == 4) Instance.SortBy = 2;
+                UpdateIcons();
+                SortItems();
+            };
+            dateModifiedMenuItem.Click += async (s, args) =>
+            {
+                if (Instance.SortBy == 1) Instance.SortBy = 3;
+                if (Instance.SortBy == 2) Instance.SortBy = 4;
+                UpdateIcons();
+                SortItems();
+            };
+
+            ascendingMenuItem.Click += async (s, args) =>
+            {
+                if (Instance.SortBy == 2) Instance.SortBy = 1;
+                if (Instance.SortBy == 4) Instance.SortBy = 3;
+                UpdateIcons();
+                SortItems();
+            };
+
+            descendingMenuItem.Click += async (s, args) =>
+            {
+                if (Instance.SortBy == 1) Instance.SortBy = 2;
+                if (Instance.SortBy == 3) Instance.SortBy = 4;
+                UpdateIcons();
+                SortItems();
+            };
+
+
             contextMenu.Items.Add(lockFrame);
             contextMenu.Items.Add(reloadItems);
             contextMenu.Items.Add(toggleHiddenFiles);
             contextMenu.Items.Add(frameSettings);
+
+            sortByMenuItem.Items.Add(nameMenuItem);
+            sortByMenuItem.Items.Add(dateModifiedMenuItem);
+            sortByMenuItem.Items.Add(new Separator());
+            sortByMenuItem.Items.Add(ascendingMenuItem);
+            sortByMenuItem.Items.Add(descendingMenuItem);
+
+            contextMenu.Items.Add(sortByMenuItem);
+
             contextMenu.Items.Add(new Separator());
             contextMenu.Items.Add(exitItem);
 
@@ -1341,6 +1477,7 @@ namespace DeskFrame
             public string? Name { get; set; }
             public string? FullPath { get; set; }
             public BitmapSource? Thumbnail { get; set; }
+            public DateTime DateModified { get; set; }
 
             public string DisplayName
             {

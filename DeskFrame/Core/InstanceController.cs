@@ -32,6 +32,7 @@ public class InstanceController
                 key.SetValue("TitleTextColor", instance.TitleTextColor!);
                 key.SetValue("ListViewBackgroundColor", instance.ListViewBackgroundColor!);
                 key.SetValue("Opacity", instance.Opacity);
+                key.SetValue("SortBy", instance.SortBy);
             }
             Registry.CurrentUser.DeleteSubKey(@$"SOFTWARE\{appName}\Instances\{oldKey}", throwOnMissingSubKey: false);
         }
@@ -72,6 +73,8 @@ public class InstanceController
                 key.SetValue("FileFilterRegex", instance.FileFilterRegex!);
                 key.SetValue("ListViewBackgroundColor", instance.ListViewBackgroundColor!);
                 key.SetValue("Opacity", instance.Opacity);
+                key.SetValue("SortBy", instance.SortBy);
+
             }
         }
         catch { }
@@ -254,6 +257,16 @@ public class InstanceController
                                                 {
                                                     temp.Opacity = parsedOpacity;
                                                     Debug.WriteLine($"Opacity added\t{temp.Opacity}");
+                                                }
+                                                break;
+                                            case "SortBy":
+                                                if (Int32.TryParse(value.ToString(), out int parsedSortBy))
+                                                {
+                                                    temp.SortBy = parsedSortBy;
+                                                }
+                                                else
+                                                {
+                                                    temp.SortBy = 1;
                                                 }
                                                 break;
                                             default:
