@@ -4,7 +4,7 @@ using System.Windows;
 using System.Windows.Media;
 using Wpf.Ui.Controls;
 using Color = System.Windows.Media.Color;
-
+using DeskFrame.ColorPicker;
 namespace DeskFrame
 {
     public partial class FrameSettingsDialog : FluentWindow
@@ -90,7 +90,7 @@ namespace DeskFrame
         {
             if (_isReverting || _instance == null || _frame == null || !_initDone) return;
             _instance.Opacity = (int)OpacitySlider.Value;
-            OpacityLabel.Content = $"Opacity: {(int)((OpacitySlider.Value/255)*100)}%";
+            OpacityLabel.Content = $"Opacity: {(int)((OpacitySlider.Value / 255) * 100)}%";
             _frame.ChangeBackgroundOpacity(_instance.Opacity);
         }
 
@@ -163,7 +163,36 @@ namespace DeskFrame
                 _isReverting = false;
                 ValidateSettings();
             }
-          
+
+        }
+        private void OpenColorPicker(System.Windows.Controls.TextBox textbox)
+        {
+            ColorCard.Children.Clear();
+            var colorPicker = new ColorPicker.ColorPicker(textbox);
+            ColorCard.Children.Add(colorPicker);
+            uiFlyout.IsOpen = true;
+        }
+
+        private void BorderColorButton_Click(object sender, RoutedEventArgs e)
+        {
+            if (BorderEnabledCheckBox.IsChecked == false) return;
+            OpenColorPicker(BorderColorTextBox);
+        }
+
+        private void FilesBackgroundColorButton_Click(object sender, RoutedEventArgs e)
+        {
+            ColorCard.Children.Clear();
+            OpenColorPicker(ListViewBackgroundColorTextBox);
+        }
+
+        private void TitleTextColorButton_Click(object sender, RoutedEventArgs e)
+        {
+            OpenColorPicker(TitleTextColorTextBox);
+        }
+
+        private void TitleBarColorButton_Click(object sender, RoutedEventArgs e)
+        {
+            OpenColorPicker(TitleBarColorTextBox);
         }
     }
 }

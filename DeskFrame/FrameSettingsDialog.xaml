@@ -6,6 +6,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml" 
         xmlns:local="clr-namespace:DeskFrame"
+        xmlns:colorpick="clr-namespace:DeskFrame.ColorPicker"     
         ExtendsContentIntoTitleBar="True"
         mc:Ignorable="d"    
         Background="#66232323" 
@@ -27,18 +28,23 @@
                 <ColumnDefinition Width="30"/>
                 <ColumnDefinition/>
             </Grid.ColumnDefinitions>
-
+            <ui:Flyout x:Name="uiFlyout"  Padding="13" IsTabStop="True" HorizontalAlignment="Right" VerticalAlignment="Center">
+                <StackPanel  x:Name="ColorCard" />
+            </ui:Flyout>
             <StackPanel Orientation="Vertical" Margin="10,45,10,0" Grid.Column="0">
                 <StackPanel Orientation="Horizontal" >
                     <CheckBox x:Name="BorderEnabledCheckBox" Margin="-11,0,-5,0" Checked="BorderEnabledCheckBox_Checked"  Unchecked="BorderEnabledCheckBox_Checked"/>
+                    <ui:Button x:Name="BorderColorButton"  HorizontalAlignment="Center" VerticalAlignment="Top" Margin="1,7,5,0" Icon="{ui:SymbolIcon Color24}" Padding="-10" Click="BorderColorButton_Click" />
                     <Label Content="Border Color (hex):"  VerticalAlignment="Center"/>
-
                 </StackPanel>
                 <TextBox x:Name="BorderColorTextBox" Margin="0,0,0,20" TextChanged="TextChangedHandler"/>
                 <Label Content="File Filter (regex):" Height="30" />
                 <TextBox x:Name="FileFilterRegexTextBox" Margin="0,0,0,20" TextChanged="TextChangedHandler"/>
 
-                <Label Content="List View Background Color (hex):" Height="30"/>
+                <StackPanel Orientation="Horizontal">
+                    <ui:Button  x:Name="FilesBackgroundColorButton" HorizontalAlignment="Center" VerticalAlignment="Top" Margin="1,1,5,0" Icon="{ui:SymbolIcon Color24}" Padding="-10" Click="FilesBackgroundColorButton_Click"/>
+                    <Label Content="Files Background color (hex):" Height="30"/>
+                </StackPanel>
                 <TextBox x:Name="ListViewBackgroundColorTextBox" Margin="0,0,0,20" TextChanged="TextChangedHandler"/>
 
                 <Label x:Name="OpacityLabel" Content="Opacity:" Height="30"/>
@@ -46,11 +52,20 @@
             </StackPanel>
             <Separator HorizontalAlignment="Center"  Grid.Column="1" Height="368"/>
 
-            <StackPanel Orientation="Vertical" Margin="10,48,10,0" Grid.Column="2">
-                <Label Content="Title Bar Color (hex):" Height="30"/>
+            <StackPanel  Orientation="Vertical" Margin="10,48,10,0" Grid.Column="2">
+
+                <StackPanel Orientation="Horizontal">
+                    <ui:Button x:Name="TitleBarColorButton"  HorizontalAlignment="Center" VerticalAlignment="Top" Margin="1,1,5,0" Icon="{ui:SymbolIcon Color24}" Padding="-10" Click="TitleBarColorButton_Click"/>
+                    <Label Content="Title Bar Color (hex):" Height="30"/>
+                </StackPanel>
+                
                 <ui:TextBox x:Name="TitleBarColorTextBox" Margin="0,0,0,20" PlaceholderText="#0C000000" TextChanged="TextChangedHandler"/>
 
-                <Label Content="Title Text Color (hex):" Height="30"/>
+                <StackPanel Orientation="Horizontal">
+                    <ui:Button x:Name="TitleTextColorButton" HorizontalAlignment="Center" VerticalAlignment="Top" Margin="1,1,5,0" Icon="{ui:SymbolIcon Color24}" Padding="-10" Click="TitleTextColorButton_Click"/>
+                    <Label Content="Title Text Color (hex):" Height="30"/>
+                </StackPanel>
+                
                 <TextBox x:Name="TitleTextColorTextBox" Margin="0,0,0,20" TextChanged="TextChangedHandler"/>
 
 
@@ -68,8 +83,10 @@
 
                 <Button x:Name="RevertButton" HorizontalAlignment="Right" Content="Revert" Height="30" Click="RevertButton_Click" />
             </StackPanel>
-
+         
         </Grid>
+                 
+       
 
     </Grid>
 </ui:FluentWindow>
