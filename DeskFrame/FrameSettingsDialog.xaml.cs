@@ -35,8 +35,7 @@ namespace DeskFrame
             FileFilterRegexTextBox.Text = _instance.FileFilterRegex;
             FileFilterHideRegexTextBox.Text = _instance.FileFilterHideRegex;
             TitleTextAlignmentComboBox.SelectedIndex = (int)_instance.TitleTextAlignment;
-            OpacitySlider.Value = _instance.Opacity;
-            OpacityLabel.Content = $"Opacity: {(int)((OpacitySlider.Value / 255) * 100)}%";
+
             ListViewBackgroundColorTextBox.Text = _instance.ListViewBackgroundColor;
             UpdateBorderColorEnabled();
             ValidateSettings();
@@ -83,20 +82,12 @@ namespace DeskFrame
                 _instance.FileFilterRegex = FileFilterRegexTextBox.Text;
                 _instance.FileFilterHideRegex = FileFilterHideRegexTextBox.Text;
                 _instance.ListViewBackgroundColor = ListViewBackgroundColorTextBox.Text;
-                _instance.Opacity = (int)OpacitySlider.Value;
+                _instance.Opacity = ((Color)System.Windows.Media.ColorConverter.ConvertFromString(ListViewBackgroundColorTextBox.Text)).A;
                 _frame.titleBar.Background = new SolidColorBrush((Color)System.Windows.Media.ColorConverter.ConvertFromString(_instance.TitleBarColor));
                 _frame.title.Foreground = new SolidColorBrush((Color)System.Windows.Media.ColorConverter.ConvertFromString(TitleTextColorTextBox.Text));
                 _frame.title.Text = TitleTextBox.Text ?? _frame.Instance.Name;
                 _frame.ChangeBackgroundOpacity(_instance.Opacity);
             }
-        }
-
-        private void OpacitySlider_ValueChanged(object sender, System.Windows.RoutedPropertyChangedEventArgs<double> e)
-        {
-            if (_isReverting || _instance == null || _frame == null || !_initDone) return;
-            _instance.Opacity = (int)OpacitySlider.Value;
-            OpacityLabel.Content = $"Opacity: {(int)((OpacitySlider.Value / 255) * 100)}%";
-            _frame.ChangeBackgroundOpacity(_instance.Opacity);
         }
 
         private bool TryParseColor(string colorText)
@@ -165,7 +156,6 @@ namespace DeskFrame
 
                 TitleTextAlignmentComboBox.SelectedIndex = (int)_instance.TitleTextAlignment;
                 ListViewBackgroundColorTextBox.Text = _instance.ListViewBackgroundColor;
-                OpacitySlider.Value = _instance.Opacity;
 
                 UpdateBorderColorEnabled();
                 _isReverting = false;
