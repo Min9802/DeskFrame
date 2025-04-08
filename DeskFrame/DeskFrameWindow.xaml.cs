@@ -812,14 +812,8 @@ namespace DeskFrame
         //    this._keepOnBottom = keepOnBottom;
         //}
 
-        private void ToggleHiddenFiles()
-        {
-            Instance.ShowHiddenFiles = !Instance.ShowHiddenFiles;
-        }
-        private void ToggleIsLocked()
-        {
-            Instance.IsLocked = !Instance.IsLocked;
-        }
+        private void ToggleHiddenFiles() => Instance.ShowHiddenFiles = !Instance.ShowHiddenFiles;
+        private void ToggleIsLocked() => Instance.IsLocked = !Instance.IsLocked;
         private void ToggleFileExtension() => Instance.ShowFileExtension = !Instance.ShowFileExtension;
 
         private async void LoadFiles(string path)
