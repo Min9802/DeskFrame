@@ -37,6 +37,7 @@
         <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter"/>
         <local:BooleanToBorderThicknessConverter x:Key="BooleanToBorderThicknessConverter"/>
         <local:TitleTextAlignmentToMarginConverter x:Key="TitleTextAlignmentToMarginConverter" />
+        <local:MarginToBorderThicknessConverter x:Key="MarginToBorderThicknessConverter" />
 
         <!-- DataTemplate to display each file item -->
         <DataTemplate x:Key="FileItemTemplate">
@@ -74,7 +75,7 @@
     </WindowChrome.WindowChrome>
     <Border CornerRadius="5" x:Name="windowBorder" Background="#02000000" BorderThickness="{Binding Instance.BorderEnabled, Converter={StaticResource BooleanToBorderThicknessConverter}}" BorderBrush="{Binding Instance.BorderColor}">
 
-        <Grid>
+        <Grid Margin="{Binding Instance.BorderEnabled, Converter={StaticResource MarginToBorderThicknessConverter}}">
 
             <Border MouseRightButtonDown="titleBar_MouseRightButtonDown" x:Name="titleBar" Background="#0C000000" Height="30" VerticalAlignment="Top" Cursor="SizeAll" CornerRadius="5,5,0,0">
                 <Grid>
