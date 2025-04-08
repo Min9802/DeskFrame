@@ -820,6 +820,7 @@ namespace DeskFrame
         {
             Instance.IsLocked = !Instance.IsLocked;
         }
+        private void ToggleFileExtension() => Instance.ShowFileExtension = !Instance.ShowFileExtension;
 
         private async void LoadFiles(string path)
         {
@@ -900,9 +901,10 @@ namespace DeskFrame
                             {
                                 continue;
                             }
+
                             var fileItem = new FileItem
                             {
-                                Name = entry.Name,
+                                Name = Instance.ShowFileExtension ? entry.Name : Path.GetFileNameWithoutExtension(entry.FullName),
                                 FullPath = entry.FullName,
                                 DateModified = entry is FileInfo fileInfo ? fileInfo.LastWriteTime : ((DirectoryInfo)entry).LastWriteTime,
                                 Thumbnail = await GetThumbnailAsync(entry.FullName)
@@ -911,6 +913,7 @@ namespace DeskFrame
                         }
                         else
                         {
+                            existingItem.Name = Instance.ShowFileExtension ? entry.Name : Path.GetFileNameWithoutExtension(entry.FullName);
                             existingItem.DateModified = entry is FileInfo fileInfo ? fileInfo.LastWriteTime : ((DirectoryInfo)entry).LastWriteTime;
                             existingItem.Thumbnail = await GetThumbnailAsync(entry.FullName);
                         }
@@ -1331,6 +1334,9 @@ namespace DeskFrame
             MenuItem toggleHiddenFiles = new MenuItem { Header = Instance.ShowHiddenFiles ? "Hide hidden Files" : "Show hidden files" };
             toggleHiddenFiles.Click += (s, args) => { ToggleHiddenFiles(); LoadFiles(_path); };
 
+            MenuItem toggleFileExtension = new MenuItem { Header = Instance.ShowFileExtension ? "Hide File Extensions" : "Show File Extensions" };
+            toggleFileExtension.Click += (_, _) => { ToggleFileExtension(); LoadFiles(_path); };
+
             MenuItem frameSettings = new MenuItem { Header = "Frame Settings" };
             frameSettings.Click += (s, args) =>
             {
@@ -1451,6 +1457,7 @@ namespace DeskFrame
             contextMenu.Items.Add(lockFrame);
             contextMenu.Items.Add(reloadItems);
             contextMenu.Items.Add(toggleHiddenFiles);
+            contextMenu.Items.Add(toggleFileExtension);
             contextMenu.Items.Add(frameSettings);
 
             sortByMenuItem.Items.Add(nameMenuItem);

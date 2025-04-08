@@ -27,6 +27,7 @@ public class InstanceController
                 key.SetValue("Minimized", instance.Minimized!);
                 key.SetValue("Folder", instance.Folder!);
                 key.SetValue("ShowHiddenFiles", instance.ShowHiddenFiles!);
+                key.SetValue("ShowFileExtension", instance.ShowFileExtension!);
                 key.SetValue("IsLocked", instance.IsLocked!);
                 key.SetValue("TitleBarColor", instance.TitleBarColor!);
                 key.SetValue("TitleTextColor", instance.TitleTextColor!);
@@ -69,6 +70,7 @@ public class InstanceController
                 key.SetValue("Minimized", instance.Minimized!);
                 key.SetValue("Folder", instance.Folder!);
                 key.SetValue("ShowHiddenFiles", instance.ShowHiddenFiles!);
+                key.SetValue("ShowFileExtension", instance.ShowFileExtension!);
                 key.SetValue("IsLocked", instance.IsLocked!);
                 key.SetValue("TitleBarColor", instance.TitleBarColor!);
                 key.SetValue("TitleTextColor", instance.TitleTextColor!);
@@ -220,6 +222,10 @@ public class InstanceController
                                             case "ShowHiddenFiles":
                                                 temp.ShowHiddenFiles = bool.Parse(value.ToString()!);
                                                 Debug.WriteLine($"ShowHiddenFiles added\t{temp.ShowHiddenFiles}");
+                                                break;
+                                            case "ShowFileExtension":
+                                                temp.ShowFileExtension = bool.Parse(value.ToString()!);
+                                                Debug.WriteLine($"ShowFileExtension added\t{temp.ShowFileExtension}");
                                                 break;
                                             case "IsLocked":
                                                 temp.IsLocked = bool.Parse(value.ToString()!);

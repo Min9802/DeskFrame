@@ -16,6 +16,7 @@ public class Instance : INotifyPropertyChanged
     private string _folder;
     private bool _minimized;
     private bool _showHiddenFiles;
+    private bool _showFileExtension;
     private bool _isLocked;
     private string _titleBarColor = "#0C000000";
     private string _titleTextColor = "#FFFFFF";
@@ -129,7 +130,18 @@ public class Instance : INotifyPropertyChanged
             }
         }
     }
-
+    public bool ShowFileExtension
+    {
+        get => _showFileExtension;
+        set
+        {
+            if (_showFileExtension != value)
+            {
+                _showFileExtension = value;
+                OnPropertyChanged(nameof(ShowFileExtension), value.ToString());
+            }
+        }
+    }
     public bool IsLocked
     {
         get => _isLocked;
@@ -294,6 +306,7 @@ public class Instance : INotifyPropertyChanged
         _minimized = instance._minimized;
         _folder = instance._folder;
         _showHiddenFiles = instance._showHiddenFiles;
+        _showFileExtension = instance._showFileExtension;
         _isLocked = instance._isLocked;
         _titleBarColor = instance._titleBarColor;
         _titleTextColor = instance._titleTextColor;
