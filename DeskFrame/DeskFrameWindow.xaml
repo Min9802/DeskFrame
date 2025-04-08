@@ -38,6 +38,7 @@
         <local:BooleanToBorderThicknessConverter x:Key="BooleanToBorderThicknessConverter"/>
         <local:TitleTextAlignmentToMarginConverter x:Key="TitleTextAlignmentToMarginConverter" />
         <local:MarginToBorderThicknessConverter x:Key="MarginToBorderThicknessConverter" />
+        <local:TitleBarBoolToHeightConverter x:Key="TitleBarBoolToHeightConverter" />
 
         <!-- DataTemplate to display each file item -->
         <DataTemplate x:Key="FileItemTemplate">
@@ -77,9 +78,13 @@
 
         <Grid Margin="{Binding Instance.BorderEnabled, Converter={StaticResource MarginToBorderThicknessConverter}}">
 
-            <Border MouseRightButtonDown="titleBar_MouseRightButtonDown" x:Name="titleBar" Background="#0C000000" Height="30" VerticalAlignment="Top" Cursor="SizeAll" CornerRadius="5,5,0,0">
-                <Grid>
-                    <StackPanel Orientation="Horizontal" HorizontalAlignment="{Binding Instance.TitleTextAlignment}" Margin="{Binding Instance.TitleTextAlignment, Converter={StaticResource TitleTextAlignmentToMarginConverter}}" VerticalAlignment="Center" >
+            <Border MouseRightButtonDown="titleBar_MouseRightButtonDown" x:Name="titleBar" Background="#0C000000" 
+                    Height="{Binding Instance.BorderEnabled, Converter={StaticResource TitleBarBoolToHeightConverter}}"
+                    Margin="{Binding Instance.BorderEnabled, Converter={StaticResource BooleanToBorderThicknessConverter}}"
+                   
+                    VerticalAlignment="Top" Cursor="SizeAll" CornerRadius="5,5,0,0">
+                <Grid  Margin="{Binding Instance.BorderEnabled, Converter={StaticResource MarginToBorderThicknessConverter}}" >
+                    <StackPanel  Orientation="Horizontal" HorizontalAlignment="{Binding Instance.TitleTextAlignment}" Margin="{Binding Instance.TitleTextAlignment, Converter={StaticResource TitleTextAlignmentToMarginConverter}}" VerticalAlignment="Center" >
                         <TextBlock x:Name="title" VerticalAlignment="Center"  HorizontalAlignment="Left" Margin="10,0" Foreground="White"  FontSize="13">
                         </TextBlock>
                     </StackPanel>

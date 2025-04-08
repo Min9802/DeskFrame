@@ -4,13 +4,13 @@ using System.Windows.Data;
 
 namespace DeskFrame
 {
-    public class MarginToBorderThicknessConverter : IValueConverter
+    public class TitleBarBoolToHeightConverter : IValueConverter
     {
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
             if (value is bool enabled)
             {
-                return enabled ? new Thickness(-1.3,-1.3,-1.3,0) : new Thickness(0);
+                return enabled ? 28.7 : 30;
             }
             return new Thickness(0);
         }
