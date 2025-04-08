@@ -48,7 +48,7 @@
                     <ui:Button  x:Name="FilesBackgroundColorButton" HorizontalAlignment="Center" VerticalAlignment="Top" Margin="1,1,5,0" Icon="{ui:SymbolIcon Color24}" Padding="-10" Click="FilesBackgroundColorButton_Click"/>
                     <Label Content="Files Background color (hex):" Height="30"/>
                 </StackPanel>
-                <TextBox x:Name="ListViewBackgroundColorTextBox" Margin="0,0,0,20" TextChanged="TextChangedHandler"/>
+                <ui:TextBox x:Name="ListViewBackgroundColorTextBox" PlaceholderText="#0C000000" Margin="0,0,0,20" TextChanged="TextChangedHandler"/>
 
             </StackPanel>
             <Separator HorizontalAlignment="Center"  Grid.Column="1" Height="368"/>
@@ -66,8 +66,8 @@
                     <ui:Button x:Name="TitleTextColorButton" HorizontalAlignment="Center" VerticalAlignment="Top" Margin="1,1,5,0" Icon="{ui:SymbolIcon Color24}" Padding="-10" Click="TitleTextColorButton_Click"/>
                     <Label Content="Title Text Color (hex):" Height="30"/>
                 </StackPanel>
-                
-                <TextBox x:Name="TitleTextColorTextBox" Margin="0,0,0,20" TextChanged="TextChangedHandler"/>
+
+                <ui:TextBox x:Name="TitleTextColorTextBox" PlaceholderText="#FFFFFF" Margin="0,0,0,20" TextChanged="TextChangedHandler"/>
 
 
                 <Label Content="Title Text:" Height="30"/>

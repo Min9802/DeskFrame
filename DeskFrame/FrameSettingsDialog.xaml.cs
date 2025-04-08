@@ -18,6 +18,7 @@ namespace DeskFrame
         private bool _isValidBorderColor = false;
         private bool _isValidFileFilterRegex = true;
         private bool _isValidFileFilterHideRegex = true;
+        private bool _isValidListViewBackgroundColor = true;
         private bool _isReverting = false;
         private bool _initDone = false;
         public FrameSettingsDialog(DeskFrameWindow frame)
@@ -28,6 +29,7 @@ namespace DeskFrame
             _frame = frame;
             TitleBarColorTextBox.Text = _instance.TitleBarColor;
             TitleTextColorTextBox.Text = _instance.TitleTextColor;
+            ListViewBackgroundColorTextBox.Text = _instance.ListViewBackgroundColor;
             BorderColorTextBox.Text = _instance.BorderColor;
             BorderEnabledCheckBox.IsChecked = _instance.BorderEnabled;
             TitleTextBox.Text = _instance.TitleText ?? _instance.Name;
@@ -36,7 +38,6 @@ namespace DeskFrame
             FileFilterHideRegexTextBox.Text = _instance.FileFilterHideRegex;
             TitleTextAlignmentComboBox.SelectedIndex = (int)_instance.TitleTextAlignment;
 
-            ListViewBackgroundColorTextBox.Text = _instance.ListViewBackgroundColor;
             UpdateBorderColorEnabled();
             ValidateSettings();
             _initDone = true;
@@ -62,31 +63,35 @@ namespace DeskFrame
         private void ValidateSettings()
         {
             if (_isReverting) return;
+
             _isValidTitleBarColor = TryParseColor(string.IsNullOrEmpty(TitleBarColorTextBox.Text) ? "#0C000000" : TitleBarColorTextBox.Text);
-            _isValidTitleTextColor = TryParseColor(TitleTextColorTextBox.Text);
+            _isValidTitleTextColor = TryParseColor(string.IsNullOrEmpty(TitleTextColorTextBox.Text) ? "#FFFFFF" : TitleTextColorTextBox.Text);
             _isValidBorderColor = BorderEnabledCheckBox.IsChecked == true ? TryParseColor(BorderColorTextBox.Text) : true;
             _isValidFileFilterRegex = TryParseRegex(FileFilterRegexTextBox.Text);
             _isValidFileFilterHideRegex = TryParseRegex(FileFilterHideRegexTextBox.Text);
 
             _isValidTitleTextAlignment = TitleTextAlignmentComboBox.SelectedIndex >= 0;
-            bool isValidListViewBackgroundColor = TryParseColor(ListViewBackgroundColorTextBox.Text);
+            _isValidListViewBackgroundColor = TryParseColor(string.IsNullOrEmpty(ListViewBackgroundColorTextBox.Text) ? "#0C000000" : ListViewBackgroundColorTextBox.Text);
 
-            if (_isValidTitleBarColor && _isValidTitleTextColor && _isValidTitleTextAlignment && _isValidBorderColor && _isValidFileFilterRegex && _isValidFileFilterHideRegex && isValidListViewBackgroundColor)
+            if (_isValidTitleBarColor && _isValidTitleTextColor && _isValidTitleTextAlignment && _isValidBorderColor && _isValidFileFilterRegex && _isValidFileFilterHideRegex && _isValidListViewBackgroundColor)
             {
                 _instance.TitleBarColor = string.IsNullOrEmpty(TitleBarColorTextBox.Text) ? "#0C000000" : TitleBarColorTextBox.Text;
-                _instance.TitleTextColor = TitleTextColorTextBox.Text;
+                _instance.TitleTextColor = string.IsNullOrEmpty(TitleTextColorTextBox.Text) ? "#FFFFFF" : TitleTextColorTextBox.Text;
+
                 _instance.BorderColor = BorderColorTextBox.Text;
                 _instance.BorderEnabled = BorderEnabledCheckBox.IsChecked == true;
                 _instance.TitleTextAlignment = (System.Windows.HorizontalAlignment)TitleTextAlignmentComboBox.SelectedIndex;
                 _instance.TitleText = TitleTextBox.Text;
                 _instance.FileFilterRegex = FileFilterRegexTextBox.Text;
                 _instance.FileFilterHideRegex = FileFilterHideRegexTextBox.Text;
-                _instance.ListViewBackgroundColor = ListViewBackgroundColorTextBox.Text;
-                _instance.Opacity = ((Color)System.Windows.Media.ColorConverter.ConvertFromString(ListViewBackgroundColorTextBox.Text)).A;
+
+                _instance.ListViewBackgroundColor = string.IsNullOrEmpty(ListViewBackgroundColorTextBox.Text) ? "#0C000000" : ListViewBackgroundColorTextBox.Text;
+                _instance.Opacity = ((Color)System.Windows.Media.ColorConverter.ConvertFromString(_instance.ListViewBackgroundColor)).A;
+               
                 _frame.titleBar.Background = new SolidColorBrush((Color)System.Windows.Media.ColorConverter.ConvertFromString(_instance.TitleBarColor));
-                _frame.title.Foreground = new SolidColorBrush((Color)System.Windows.Media.ColorConverter.ConvertFromString(TitleTextColorTextBox.Text));
+                _frame.title.Foreground = new SolidColorBrush((Color)System.Windows.Media.ColorConverter.ConvertFromString(_instance.TitleTextColor));
                 _frame.title.Text = TitleTextBox.Text ?? _frame.Instance.Name;
-                _frame.ChangeBackgroundOpacity(_instance.Opacity);
+                _frame.windowBorder.Background = new SolidColorBrush((Color)System.Windows.Media.ColorConverter.ConvertFromString(_instance.ListViewBackgroundColor));;
             }
         }
 
