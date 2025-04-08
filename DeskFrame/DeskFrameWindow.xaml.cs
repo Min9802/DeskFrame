@@ -763,7 +763,24 @@ namespace DeskFrame
             animation.Completed += (s, e) =>
             {
                 _canAnimate = true;
-                if (targetHeight == 30) scrollViewer.ScrollToTop();
+                if (targetHeight == 30)
+                {
+                    scrollViewer.ScrollToTop();
+                }
+                WindowChrome.SetWindowChrome(this, Instance.IsLocked ?
+                    new WindowChrome
+                    {
+                        ResizeBorderThickness = new Thickness(0),
+                        CaptionHeight = 0
+                    } :
+                    new WindowChrome
+                    {
+                        GlassFrameThickness = new Thickness(5),
+                        CaptionHeight = 0,
+                        ResizeBorderThickness = new Thickness(5, 0, 5, Instance.Minimized ? 0 : 5),
+                        CornerRadius = new CornerRadius(5)
+                    }
+                );
             };
             _canAnimate = false;
             this.BeginAnimation(HeightProperty, animation);
@@ -1288,7 +1305,7 @@ namespace DeskFrame
             {
                 GlassFrameThickness = new Thickness(5),
                 CaptionHeight = 0,
-                ResizeBorderThickness = new Thickness(5, 0, 5, 5),
+                ResizeBorderThickness = new Thickness(5, 0, 5, Instance.Minimized ? 0 : 5),
                 CornerRadius = new CornerRadius(5)
             }
          );
@@ -1362,7 +1379,7 @@ namespace DeskFrame
                        {
                            GlassFrameThickness = new Thickness(5),
                            CaptionHeight = 0,
-                           ResizeBorderThickness = new Thickness(5, 0, 5, 5),
+                           ResizeBorderThickness = new Thickness(5, 0, 5, Instance.Minimized ? 0 : 5),
                            CornerRadius = new CornerRadius(5)
                        }
                  );
