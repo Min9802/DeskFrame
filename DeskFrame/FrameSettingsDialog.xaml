@@ -46,7 +46,7 @@
 
                 <StackPanel Orientation="Horizontal">
                     <ui:Button  x:Name="FilesBackgroundColorButton" HorizontalAlignment="Center" VerticalAlignment="Top" Margin="1,1,5,0" Icon="{ui:SymbolIcon Color24}" Padding="-10" Click="FilesBackgroundColorButton_Click"/>
-                    <Label Content="Files Background color (hex):" Height="30"/>
+                    <Label Content="Background color (hex):" Height="30"/>
                 </StackPanel>
                 <ui:TextBox x:Name="ListViewBackgroundColorTextBox" PlaceholderText="#0C000000" Margin="0,0,0,20" TextChanged="TextChangedHandler"/>
 
