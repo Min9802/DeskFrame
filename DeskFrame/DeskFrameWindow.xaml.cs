@@ -35,6 +35,9 @@ using System.Windows.Shell;
 using static System.Windows.Forms.VisualStyles.VisualStyleElement;
 using System.Windows.Controls.Primitives;
 using Wpf.Ui.Controls;
+using ColorConverter = System.Windows.Media.ColorConverter;
+using TextBlock = Wpf.Ui.Controls.TextBlock;
+using System.Windows.Documents;
 namespace DeskFrame
 {
     public partial class DeskFrameWindow : System.Windows.Window
@@ -63,6 +66,11 @@ namespace DeskFrame
         MenuItem dateModifiedMenuItem;
         MenuItem ascendingMenuItem;
         MenuItem descendingMenuItem;
+
+        private string _fileCount;
+        private int _folderCount = 0;
+        private DateTime _lastUpdated;
+        private string _folderSize;
 
         public enum SortBy
         {
@@ -855,6 +863,9 @@ namespace DeskFrame
                     var dirInfo = new DirectoryInfo(path);
                     var files = dirInfo.GetFiles();
                     var directories = dirInfo.GetDirectories();
+                    _folderCount = directories.Count();
+                    _fileCount = dirInfo.GetFiles().Count().ToString();
+                    _folderSize = Task.Run(() => BytesToString(dirInfo.EnumerateFiles("*", SearchOption.AllDirectories).Sum(file => file.Length))).Result;
                     var filteredFiles = files.Cast<FileSystemInfo>()
                                 .Concat(directories)
                                 .OrderBy(entry => entry.Name, StringComparer.OrdinalIgnoreCase)
@@ -939,6 +950,12 @@ namespace DeskFrame
                             continue;
                         }
                         FileItems.Add(fileItem);
+                    }
+                    _lastUpdated = DateTime.Now;
+                    int hiddenCount = Int32.Parse(_fileCount) - (FileItems.Count - _folderCount);
+                    if (hiddenCount > 0)
+                    {
+                        _fileCount += $" ({hiddenCount} hidden)";
                     }
                     Debug.WriteLine("LOADEDDDDDDDD");
                 });
@@ -1342,13 +1359,21 @@ namespace DeskFrame
         {
             ContextMenu contextMenu = new ContextMenu();
 
-            MenuItem toggleHiddenFiles = new MenuItem { Header = Instance.ShowHiddenFiles ? "Hide Hidden Files" : "Show Hidden files" };
+            ToggleSwitch toggleHiddenFiles = new ToggleSwitch { Content = "Hidden Files" };
             toggleHiddenFiles.Click += (s, args) => { ToggleHiddenFiles(); LoadFiles(_path); };
 
-            MenuItem toggleFileExtension = new MenuItem { Header = Instance.ShowFileExtension ? "Hide File Extensions" : "Show File Extensions" };
+            ToggleSwitch toggleFileExtension = new ToggleSwitch { Content = "File Extensions" };
             toggleFileExtension.Click += (_, _) => { ToggleFileExtension(); LoadFiles(_path); };
 
-            MenuItem frameSettings = new MenuItem { Header = "Frame Settings" };
+            toggleHiddenFiles.IsChecked = Instance.ShowHiddenFiles;
+            toggleFileExtension.IsChecked = Instance.ShowFileExtension;
+
+            MenuItem frameSettings = new MenuItem
+            {
+                Header = "Frame Settings",
+                Height = 34,
+                Icon = new SymbolIcon(SymbolRegular.Settings20)
+            };
             frameSettings.Click += (s, args) =>
             {
                 var dialog = new FrameSettingsDialog(this);
@@ -1359,10 +1384,20 @@ namespace DeskFrame
                 }
             };
 
-            MenuItem reloadItems = new MenuItem { Header = "Reload" };
+            MenuItem reloadItems = new MenuItem
+            {
+                Header = "Reload",
+                Height = 34,
+                Icon = new SymbolIcon(SymbolRegular.ArrowSync20)
+            };
             reloadItems.Click += (s, args) => { LoadFiles(_path); };
 
-            MenuItem lockFrame = new MenuItem { Header = Instance.IsLocked ? "Unlock Frame" : "Lock Frame" };
+            MenuItem lockFrame = new MenuItem
+            {
+                Header = Instance.IsLocked ? "Unlock Frame" : "Lock Frame",
+                Height = 34,
+                Icon = Instance.IsLocked ? new SymbolIcon(SymbolRegular.LockClosed20) : new SymbolIcon(SymbolRegular.LockOpen20)
+            };
             lockFrame.Click += (s, args) =>
             {
                 _isLocked = !_isLocked;
@@ -1387,7 +1422,15 @@ namespace DeskFrame
                 titleBar.Cursor = _isLocked ? System.Windows.Input.Cursors.Arrow : System.Windows.Input.Cursors.SizeAll;
             };
 
-            MenuItem exitItem = new MenuItem { Header = "Remove" };
+            MenuItem exitItem = new MenuItem
+            {
+                Header = "Remove",
+                Height = 34,
+                Foreground = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#FFFC6060")),
+                Icon = new SymbolIcon(SymbolRegular.Delete20)
+
+            };
+
             exitItem.Click += async (s, args) =>
             {
                 var dialog = new MessageBox
@@ -1412,7 +1455,12 @@ namespace DeskFrame
                 }
             };
 
-            MenuItem sortByMenuItem = new MenuItem { Header = "Sort by", Height = 34 };
+            MenuItem sortByMenuItem = new MenuItem
+            {
+                Header = "Sort by",
+                Height = 34,
+                Icon = new SymbolIcon(SymbolRegular.ArrowSort20)
+            };
             nameMenuItem = new MenuItem { Header = "Name", Height = 34, StaysOpenOnClick = true };
             dateModifiedMenuItem = new MenuItem { Header = "Date Modified", Height = 34, StaysOpenOnClick = true };
             ascendingMenuItem = new MenuItem { Header = "Ascending", Height = 34, StaysOpenOnClick = true };
@@ -1464,12 +1512,36 @@ namespace DeskFrame
                 SortItems();
             };
 
+            MenuItem FrameInfoItem = new MenuItem
+            {
+                StaysOpenOnClick = true,
+                IsEnabled = false,
+            };
+            TextBlock InfoText = new TextBlock
+            {
+                HorizontalAlignment = System.Windows.HorizontalAlignment.Left,
+                VerticalAlignment = VerticalAlignment.Top,
+                Margin = new Thickness(10),
+                FontSize = 12,
+                TextWrapping = TextWrapping.Wrap,
+            };
 
-            contextMenu.Items.Add(lockFrame);
-            contextMenu.Items.Add(reloadItems);
-            contextMenu.Items.Add(toggleHiddenFiles);
-            contextMenu.Items.Add(toggleFileExtension);
-            contextMenu.Items.Add(frameSettings);
+            InfoText.Inlines.Add(new Run($"Files: ") { Foreground = Brushes.White });
+            InfoText.Inlines.Add(new Run($"{_fileCount}") { Foreground = Brushes.CornflowerBlue });
+            InfoText.Inlines.Add(new Run("\n"));
+
+            InfoText.Inlines.Add(new Run($"Folders: ") { Foreground = Brushes.White });
+            InfoText.Inlines.Add(new Run($"{_folderCount}") { Foreground = Brushes.CornflowerBlue });
+            InfoText.Inlines.Add(new Run("\n"));
+
+            InfoText.Inlines.Add(new Run($"Folder Size: ") { Foreground = Brushes.White });
+            InfoText.Inlines.Add(new Run($"{_folderSize}") { Foreground = Brushes.CornflowerBlue });
+            InfoText.Inlines.Add(new Run("\n"));
+
+            InfoText.Inlines.Add(new Run($"Last Updated: ") { Foreground = Brushes.White });
+            InfoText.Inlines.Add(new Run($"{_lastUpdated.ToString("hh:mm tt")}") { Foreground = Brushes.CornflowerBlue });
+
+            FrameInfoItem.Header = InfoText;
 
             sortByMenuItem.Items.Add(nameMenuItem);
             sortByMenuItem.Items.Add(dateModifiedMenuItem);
@@ -1478,7 +1550,15 @@ namespace DeskFrame
             sortByMenuItem.Items.Add(descendingMenuItem);
 
             contextMenu.Items.Add(sortByMenuItem);
-
+            contextMenu.Items.Add(new Separator());
+            contextMenu.Items.Add(lockFrame);
+            contextMenu.Items.Add(reloadItems);
+            contextMenu.Items.Add(frameSettings);
+            contextMenu.Items.Add(new Separator());
+            contextMenu.Items.Add(toggleHiddenFiles);
+            contextMenu.Items.Add(toggleFileExtension);
+            contextMenu.Items.Add(new Separator());
+            contextMenu.Items.Add(FrameInfoItem);
             contextMenu.Items.Add(new Separator());
             contextMenu.Items.Add(exitItem);
 
@@ -1489,6 +1569,16 @@ namespace DeskFrame
         {
             KeepWindowBehind();
             Debug.WriteLine("Window_StateChanged hide");
+        }
+        static String BytesToString(long byteCount)
+        {
+            string[] suffix = { "B", "KB", "MB", "GB", "TB", "PB", "EB" };
+            if (byteCount == 0)
+                return "0" + suffix[0];
+            long bytes = Math.Abs(byteCount);
+            int place = Convert.ToInt32(Math.Floor(Math.Log(bytes, 1024)));
+            double num = Math.Round(bytes / Math.Pow(1024, place), 1);
+            return (Math.Sign(byteCount) * num).ToString() + suffix[place];
         }
 
 
