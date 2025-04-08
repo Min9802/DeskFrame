@@ -24,6 +24,7 @@ public class Instance : INotifyPropertyChanged
     private Forms.HorizontalAlignment _titleTextAlignment = Forms.HorizontalAlignment.Center;
     private string? _titleText;
     private string _fileFilterRegex = "";
+    private string _fileFilterHideRegex = "";
     private string _listViewBackgroundColor = "#0C000000";
     private int _opacity = 26;
     private int _sortBy = 1;
@@ -232,6 +233,18 @@ public class Instance : INotifyPropertyChanged
             }
         }
     }
+    public string FileFilterHideRegex
+    {
+        get => _fileFilterHideRegex;
+        set
+        {
+            if (_fileFilterHideRegex != value)
+            {
+                _fileFilterHideRegex = value;
+                OnPropertyChanged(nameof(FileFilterHideRegex), value);
+            }
+        }
+    }
 
     public string ListViewBackgroundColor
     {
@@ -288,6 +301,7 @@ public class Instance : INotifyPropertyChanged
         _borderEnabled = instance._borderEnabled;
         _titleTextAlignment = instance._titleTextAlignment;
         _fileFilterRegex = instance._fileFilterRegex;
+        _fileFilterHideRegex = instance._fileFilterHideRegex;
         _listViewBackgroundColor = instance._listViewBackgroundColor;
         _opacity = instance._opacity;
         _sortBy = instance._sortBy;

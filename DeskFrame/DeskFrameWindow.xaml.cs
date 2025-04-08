@@ -895,6 +895,11 @@ namespace DeskFrame
 
                         if (existingItem == null)
                         {
+                            if (Instance.FileFilterHideRegex != null && Instance.FileFilterHideRegex != ""
+                                && new Regex(Instance.FileFilterHideRegex).IsMatch(entry.Name))
+                            {
+                                continue;
+                            }
                             var fileItem = new FileItem
                             {
                                 Name = entry.Name,
@@ -902,7 +907,6 @@ namespace DeskFrame
                                 DateModified = entry is FileInfo fileInfo ? fileInfo.LastWriteTime : ((DirectoryInfo)entry).LastWriteTime,
                                 Thumbnail = await GetThumbnailAsync(entry.FullName)
                             };
-
                             FileItems.Add(fileItem);
                         }
                         else
@@ -915,7 +919,12 @@ namespace DeskFrame
                     FileItems.Clear();
                     foreach (var fileItem in sortedList)
                     {
-                     FileItems.Add(fileItem);
+                        if (Instance.FileFilterHideRegex != null && Instance.FileFilterHideRegex != ""
+                          && new Regex(Instance.FileFilterHideRegex).IsMatch(fileItem.Name))
+                        {
+                            continue;
+                        }
+                        FileItems.Add(fileItem);
                     }
                     Debug.WriteLine("LOADEDDDDDDDD");
                 });

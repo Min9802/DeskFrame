@@ -19,17 +19,23 @@ public class InstanceController
 
             using (RegistryKey key = Registry.CurrentUser.CreateSubKey(@$"SOFTWARE\{appName}\Instances\{instance.Name}"))
             {
-                key.SetValue("Folder", instance.Folder!);
                 key.SetValue("Name", instance.Name!);
                 key.SetValue("PosX", instance.PosX!);
                 key.SetValue("PosY", instance.PosY!);
                 key.SetValue("Width", instance.Width!);
                 key.SetValue("Height", instance.Height!);
                 key.SetValue("Minimized", instance.Minimized!);
+                key.SetValue("Folder", instance.Folder!);
                 key.SetValue("ShowHiddenFiles", instance.ShowHiddenFiles!);
                 key.SetValue("IsLocked", instance.IsLocked!);
                 key.SetValue("TitleBarColor", instance.TitleBarColor!);
                 key.SetValue("TitleTextColor", instance.TitleTextColor!);
+                key.SetValue("TitleTextAlignment", instance.TitleTextAlignment.ToString());
+                key.SetValue("TitleText", instance.TitleText);
+                key.SetValue("BorderColor", instance.BorderColor!);
+                key.SetValue("BorderEnabled", instance.BorderEnabled!);
+                key.SetValue("FileFilterRegex", instance.FileFilterRegex!);
+                key.SetValue("FileFilterHideRegex", instance.FileFilterHideRegex!);
                 key.SetValue("ListViewBackgroundColor", instance.ListViewBackgroundColor!);
                 key.SetValue("Opacity", instance.Opacity);
                 key.SetValue("SortBy", instance.SortBy);
@@ -71,6 +77,7 @@ public class InstanceController
                 key.SetValue("BorderColor", instance.BorderColor!);
                 key.SetValue("BorderEnabled", instance.BorderEnabled!);
                 key.SetValue("FileFilterRegex", instance.FileFilterRegex!);
+                key.SetValue("FileFilterHideRegex", instance.FileFilterHideRegex!);
                 key.SetValue("ListViewBackgroundColor", instance.ListViewBackgroundColor!);
                 key.SetValue("Opacity", instance.Opacity);
                 key.SetValue("SortBy", instance.SortBy);
@@ -247,6 +254,10 @@ public class InstanceController
                                             case "FileFilterRegex":
                                                 temp.FileFilterRegex = value.ToString()!;
                                                 Debug.WriteLine($"FileFilterRegex added\t{temp.FileFilterRegex}");
+                                                break;
+                                            case "FileFilterHideRegex":
+                                                temp.FileFilterHideRegex = value.ToString()!;
+                                                Debug.WriteLine($"FileFilterHideRegex added\t{temp.FileFilterHideRegex}");
                                                 break;
                                             case "ListViewBackgroundColor":
                                                 temp.ListViewBackgroundColor = value.ToString()!;

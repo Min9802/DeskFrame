@@ -17,6 +17,7 @@ namespace DeskFrame
         private bool _isValidTitleTextAlignment = true;
         private bool _isValidBorderColor = false;
         private bool _isValidFileFilterRegex = true;
+        private bool _isValidFileFilterHideRegex = true;
         private bool _isReverting = false;
         private bool _initDone = false;
         public FrameSettingsDialog(DeskFrameWindow frame)
@@ -32,6 +33,7 @@ namespace DeskFrame
             TitleTextBox.Text = _instance.TitleText ?? _instance.Name;
             _originalInstance.TitleText = TitleTextBox.Text;
             FileFilterRegexTextBox.Text = _instance.FileFilterRegex;
+            FileFilterHideRegexTextBox.Text = _instance.FileFilterHideRegex;
             TitleTextAlignmentComboBox.SelectedIndex = (int)_instance.TitleTextAlignment;
             OpacitySlider.Value = _instance.Opacity;
             OpacityLabel.Content = $"Opacity: {(int)((OpacitySlider.Value / 255) * 100)}%";
@@ -65,10 +67,12 @@ namespace DeskFrame
             _isValidTitleTextColor = TryParseColor(TitleTextColorTextBox.Text);
             _isValidBorderColor = BorderEnabledCheckBox.IsChecked == true ? TryParseColor(BorderColorTextBox.Text) : true;
             _isValidFileFilterRegex = TryParseRegex(FileFilterRegexTextBox.Text);
+            _isValidFileFilterHideRegex = TryParseRegex(FileFilterHideRegexTextBox.Text);
+
             _isValidTitleTextAlignment = TitleTextAlignmentComboBox.SelectedIndex >= 0;
             bool isValidListViewBackgroundColor = TryParseColor(ListViewBackgroundColorTextBox.Text);
 
-            if (_isValidTitleBarColor && _isValidTitleTextColor && _isValidTitleTextAlignment && _isValidBorderColor && _isValidFileFilterRegex && isValidListViewBackgroundColor)
+            if (_isValidTitleBarColor && _isValidTitleTextColor && _isValidTitleTextAlignment && _isValidBorderColor && _isValidFileFilterRegex && _isValidFileFilterHideRegex && isValidListViewBackgroundColor)
             {
                 _instance.TitleBarColor = string.IsNullOrEmpty(TitleBarColorTextBox.Text) ? "#0C000000" : TitleBarColorTextBox.Text;
                 _instance.TitleTextColor = TitleTextColorTextBox.Text;
@@ -77,6 +81,7 @@ namespace DeskFrame
                 _instance.TitleTextAlignment = (System.Windows.HorizontalAlignment)TitleTextAlignmentComboBox.SelectedIndex;
                 _instance.TitleText = TitleTextBox.Text;
                 _instance.FileFilterRegex = FileFilterRegexTextBox.Text;
+                _instance.FileFilterHideRegex = FileFilterHideRegexTextBox.Text;
                 _instance.ListViewBackgroundColor = ListViewBackgroundColorTextBox.Text;
                 _instance.Opacity = (int)OpacitySlider.Value;
                 _frame.titleBar.Background = new SolidColorBrush((Color)System.Windows.Media.ColorConverter.ConvertFromString(_instance.TitleBarColor));
@@ -145,6 +150,7 @@ namespace DeskFrame
                 _instance.BorderEnabled = _originalInstance.BorderEnabled;
                 _instance.TitleText = _originalInstance.TitleText ?? _originalInstance.Name;
                 _instance.FileFilterRegex = _originalInstance.FileFilterRegex;
+                _instance.FileFilterHideRegex = _originalInstance.FileFilterHideRegex;
                 _instance.TitleTextAlignment = _originalInstance.TitleTextAlignment;
                 _instance.ListViewBackgroundColor = _originalInstance.ListViewBackgroundColor;
                 _instance.Opacity = _originalInstance.Opacity;
@@ -155,6 +161,8 @@ namespace DeskFrame
                 BorderEnabledCheckBox.IsChecked = _instance.BorderEnabled;
                 TitleTextBox.Text = _instance.TitleText ?? _instance.Name;
                 FileFilterRegexTextBox.Text = _instance.FileFilterRegex;
+                FileFilterHideRegexTextBox.Text = _instance.FileFilterHideRegex;
+
                 TitleTextAlignmentComboBox.SelectedIndex = (int)_instance.TitleTextAlignment;
                 ListViewBackgroundColorTextBox.Text = _instance.ListViewBackgroundColor;
                 OpacitySlider.Value = _instance.Opacity;
@@ -193,6 +201,11 @@ namespace DeskFrame
         private void TitleBarColorButton_Click(object sender, RoutedEventArgs e)
         {
             OpenColorPicker(TitleBarColorTextBox);
+        }
+
+        private void Titlebar_CloseClicked(TitleBar sender, RoutedEventArgs args)
+        {
+            this.DialogResult = true;
         }
     }
 }

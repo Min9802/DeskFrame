@@ -17,7 +17,7 @@
         MinWidth="0"
         MinHeight="0">
     <Grid>
-        <ui:TitleBar Title="Frame Settings" Name="Titlebar" Padding="8,0,0,0" Height="30" CanMaximize="False" ShowMinimize="False" ApplicationTheme="Dark" ShowMaximize="False">
+        <ui:TitleBar Title="Frame Settings" Name="Titlebar" Padding="8,0,0,0" Height="30" CanMaximize="False" ShowMinimize="False" ApplicationTheme="Dark" ShowMaximize="False" CloseClicked="Titlebar_CloseClicked">
             <ui:TitleBar.Icon>
                 <ui:ImageIcon Source="/ico.png" Margin="0,0,6,0" />
             </ui:TitleBar.Icon>
@@ -38,8 +38,11 @@
                     <Label Content="Border Color (hex):"  VerticalAlignment="Center"/>
                 </StackPanel>
                 <TextBox x:Name="BorderColorTextBox" Margin="0,0,0,20" TextChanged="TextChangedHandler"/>
-                <Label Content="File Filter (regex):" Height="30" />
+                <Label Content="Show Files (regex):" Height="30" />
                 <TextBox x:Name="FileFilterRegexTextBox" Margin="0,0,0,20" TextChanged="TextChangedHandler"/>
+                
+                <Label Content="Hide Files (regex):" Height="30"/>
+                <TextBox x:Name="FileFilterHideRegexTextBox" Margin="0,0,0,20" TextChanged="TextChangedHandler"/>
 
                 <StackPanel Orientation="Horizontal">
                     <ui:Button  x:Name="FilesBackgroundColorButton" HorizontalAlignment="Center" VerticalAlignment="Top" Margin="1,1,5,0" Icon="{ui:SymbolIcon Color24}" Padding="-10" Click="FilesBackgroundColorButton_Click"/>
