@@ -37,6 +37,8 @@ namespace DeskFrame
             FileFilterRegexTextBox.Text = _instance.FileFilterRegex;
             FileFilterHideRegexTextBox.Text = _instance.FileFilterHideRegex;
             TitleTextAlignmentComboBox.SelectedIndex = (int)_instance.TitleTextAlignment;
+            ShowFileExtensionIconCheckBox.IsChecked = _instance.ShowFileExtensionIcon;
+            ShowHiddenFilesIconCheckBox.IsChecked = _instance.ShowHiddenFilesIcon;
 
             UpdateBorderColorEnabled();
             ValidateSettings();
@@ -201,6 +203,18 @@ namespace DeskFrame
         private void Titlebar_CloseClicked(TitleBar sender, RoutedEventArgs args)
         {
             this.DialogResult = true;
+        }
+
+        private void ShowFileExtensionIconCheckBox_Checked(object sender, RoutedEventArgs e)
+        {
+            _instance.ShowFileExtensionIcon = ShowFileExtensionIconCheckBox.IsChecked ?? false;
+            _frame.UpdateIconVisibility();
+        }
+
+        private void ShowHiddenFilesIconCheckBox_Checked(object sender, RoutedEventArgs e)
+        {
+            _instance.ShowHiddenFilesIcon = ShowHiddenFilesIconCheckBox.IsChecked ?? false;
+            _frame.UpdateIconVisibility();
         }
     }
 }

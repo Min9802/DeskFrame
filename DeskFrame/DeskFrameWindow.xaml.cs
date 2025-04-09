@@ -1,43 +1,39 @@
-﻿using System;
-using System.IO;
-using System.Linq;
-using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Media.Imaging;
-using System.Runtime.InteropServices;
-using System.Windows.Media;
-using System.Windows.Input;
-using System.Windows.Interop;
+﻿using DeskFrame.Util;
+using Microsoft.Win32;
+using System.Collections;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Diagnostics;
+using System.IO;
+using System.Runtime.InteropServices;
+using System.Text.RegularExpressions;
+using System.Windows;
+using System.Windows.Controls;
+using System.Windows.Data;
+using System.Windows.Documents;
+using System.Windows.Input;
+using System.Windows.Interop;
+using System.Windows.Media;
 using System.Windows.Media.Animation;
-using Point = System.Drawing.Point;
+using System.Windows.Media.Imaging;
+using System.Windows.Shell;
+using Wpf.Ui.Controls;
+using Application = System.Windows.Application;
+using Brush = System.Windows.Media.Brush;
+using Brushes = System.Windows.Media.Brushes;
+using Color = System.Windows.Media.Color;
+using ColorConverter = System.Windows.Media.ColorConverter;
 using DataFormats = System.Windows.DataFormats;
-using DragEventArgs = System.Windows.DragEventArgs;
 using DataObject = System.Windows.DataObject;
 using DragDropEffects = System.Windows.DragDropEffects;
-using MouseEventArgs = System.Windows.Input.MouseEventArgs;
-using Color = System.Windows.Media.Color;
-using Application = System.Windows.Application;
-using Brushes = System.Windows.Media.Brushes;
-using Brush = System.Windows.Media.Brush;
-using DeskFrame.Util;
+using DragEventArgs = System.Windows.DragEventArgs;
 using MenuItem = Wpf.Ui.Controls.MenuItem;
-using Microsoft.Win32;
-using MessageBoxResult = Wpf.Ui.Controls.MessageBoxResult;
 using MessageBox = Wpf.Ui.Controls.MessageBox;
-using System.Windows.Data;
-using System.Text.RegularExpressions;
-using System.Collections;
-using Windows.Foundation.Collections;
-using System.Windows.Shell;
-using static System.Windows.Forms.VisualStyles.VisualStyleElement;
-using System.Windows.Controls.Primitives;
-using Wpf.Ui.Controls;
-using ColorConverter = System.Windows.Media.ColorConverter;
+using MessageBoxResult = Wpf.Ui.Controls.MessageBoxResult;
+using MouseEventArgs = System.Windows.Input.MouseEventArgs;
+using Point = System.Drawing.Point;
 using TextBlock = Wpf.Ui.Controls.TextBlock;
-using System.Windows.Documents;
+
 namespace DeskFrame
 {
     public partial class DeskFrameWindow : System.Windows.Window
@@ -760,6 +756,52 @@ namespace DeskFrame
             HandleWindowMove();
         }
 
+        private void ToggleFileExtension_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
+        {
+            ToggleFileExtension();
+            LoadFiles(_path);
+            UpdateFileExtensionIcon();
+        }
+
+        private void ToggleHiddenFiles_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
+        {
+            ToggleHiddenFiles();
+            LoadFiles(_path);
+            UpdateHiddenFilesIcon();
+        }
+
+        private void UpdateFileExtensionIcon()
+        {
+            if (Instance.ShowFileExtension)
+            {
+                FileExtensionIcon.Symbol = SymbolRegular.Document48;
+                FileExtensionScale.ScaleX = 1;
+                FileExtensionScale.ScaleY = 1;
+            }
+            else
+            {
+                FileExtensionIcon.Symbol = SymbolRegular.Document48;
+                FileExtensionScale.ScaleX = 0.6;
+                FileExtensionScale.ScaleY = 0.6;
+            }
+        }
+
+        private void UpdateHiddenFilesIcon()
+        {
+            if (Instance.ShowHiddenFiles)
+            {
+                HiddenFilesIcon.Symbol = SymbolRegular.Eye48;
+                HiddenFilesScale.ScaleX = 1;
+                HiddenFilesScale.ScaleY = 1;
+            }
+            else
+            {
+                HiddenFilesIcon.Symbol = SymbolRegular.Eye48;
+                HiddenFilesScale.ScaleX = 0.6;
+                HiddenFilesScale.ScaleY = 0.6;
+            }
+        }
+
         private void AnimateWindowHeight(double targetHeight)
         {
             var animation = new DoubleAnimation
@@ -1236,6 +1278,9 @@ namespace DeskFrame
 
         private void Window_Loaded(object sender, RoutedEventArgs e)
         {
+            UpdateFileExtensionIcon();
+            UpdateHiddenFilesIcon();
+            UpdateIconVisibility();
             AnimateChevron(_isMinimized, true);
             KeepWindowBehind();
             RegistryHelper rgh = new RegistryHelper("DeskFrame");
@@ -1244,7 +1289,6 @@ namespace DeskFrame
             {
                 toBlur = (bool)rgh.ReadKeyValueRoot("blurBackground");
             }
-
 
             BackgroundType(toBlur);
         }
@@ -1700,6 +1744,18 @@ namespace DeskFrame
                        Minimize_MouseLeftButtonDown(null, null);
                    });
                 });
+            }
+        }
+
+        public void UpdateIconVisibility()
+        {
+            if (FileExtensionIcon != null)
+            {
+                FileExtensionIconGrid.Visibility = Instance.ShowFileExtensionIcon ? Visibility.Visible : Visibility.Collapsed;
+            }
+            if (HiddenFilesIcon != null)
+            {
+                HiddenFilesIconGrid.Visibility = Instance.ShowHiddenFilesIcon ? Visibility.Visible : Visibility.Collapsed;
             }
         }
     }
