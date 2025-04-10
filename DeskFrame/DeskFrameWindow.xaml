@@ -40,7 +40,7 @@
         <!-- DataTemplate to display each file item -->
         <DataTemplate x:Key="FileItemTemplate">
             <Border Background="{Binding Background}" Margin="4,0,0,5" CornerRadius="5"
-            MouseLeftButtonDown="FileItem_Click"
+            MouseLeftButtonDown="FileItem_Click" MinHeight="77" MaxHeight="77"
             MouseEnter="FileItem_MouseEnter" MouseLeave="FileItem_MouseLeave"
             BorderThickness="1" MouseRightButtonDown="FileItem_RightClick">
                 <StackPanel Orientation="Vertical" HorizontalAlignment="Center">

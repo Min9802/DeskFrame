@@ -40,6 +40,7 @@ public class InstanceController
                 key.SetValue("ListViewBackgroundColor", instance.ListViewBackgroundColor!);
                 key.SetValue("Opacity", instance.Opacity);
                 key.SetValue("SortBy", instance.SortBy);
+                key.SetValue("FolderOrder", instance.FolderOrder);
             }
             Registry.CurrentUser.DeleteSubKey(@$"SOFTWARE\{appName}\Instances\{oldKey}", throwOnMissingSubKey: false);
         }
@@ -83,7 +84,7 @@ public class InstanceController
                 key.SetValue("ListViewBackgroundColor", instance.ListViewBackgroundColor!);
                 key.SetValue("Opacity", instance.Opacity);
                 key.SetValue("SortBy", instance.SortBy);
-
+                key.SetValue("FolderOrder", instance.FolderOrder);
             }
         }
         catch { }
@@ -284,6 +285,12 @@ public class InstanceController
                                                 else
                                                 {
                                                     temp.SortBy = 1;
+                                                }
+                                                break;
+                                            case "FolderOrder":
+                                                if (Int32.TryParse(value.ToString(), out int parsedFolderOrder))
+                                                {
+                                                    temp.FolderOrder = parsedFolderOrder;
                                                 }
                                                 break;
                                             default:

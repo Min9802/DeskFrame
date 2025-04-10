@@ -29,6 +29,7 @@ public class Instance : INotifyPropertyChanged
     private string _listViewBackgroundColor = "#0C000000";
     private int _opacity = 26;
     private int _sortBy = 1;
+    private int _folderOrder = 0;
     public double PosX
     {
         get => _posX;
@@ -295,7 +296,18 @@ public class Instance : INotifyPropertyChanged
             }
         }
     }
-
+    public int FolderOrder
+    {
+        get => _folderOrder;
+        set
+        {
+            if (_folderOrder != value)
+            {
+                _folderOrder = value;
+                OnPropertyChanged(nameof(FolderOrder), value.ToString());
+            }
+        }
+    }
     public Instance(Instance instance)
     {
         _posX = instance._posX;

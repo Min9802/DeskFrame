@@ -64,8 +64,14 @@ namespace DeskFrame
         DeskFrameWindow _wOnRight = null;
         MenuItem nameMenuItem;
         MenuItem dateModifiedMenuItem;
+        MenuItem dateCreatedMenuItem;
+        MenuItem fileTypeMenuItem;
         MenuItem ascendingMenuItem;
         MenuItem descendingMenuItem;
+        MenuItem folderOrderMenuItem;
+        MenuItem folderFirstMenuItem;
+        MenuItem folderLastMenuItem;
+        MenuItem folderNoneMenuItem;
 
         private string _fileCount;
         private int _folderCount = 0;
@@ -77,32 +83,66 @@ namespace DeskFrame
             NameAsc = 1,
             NameDesc = 2,
             DateModifiedAsc = 3,
-            DateModifiedDesc = 4
+            DateModifiedDesc = 4,
+            DateCreatedAsc = 5,
+            DateCreatedDesc = 6,
+            FileTypeAsc = 7,
+            FileTypeDesc = 8,
         }
 
-        public static ObservableCollection<FileItem> SortFileItems(ObservableCollection<FileItem> fileItems, int sortBy)
+        public static ObservableCollection<FileItem> SortFileItems(ObservableCollection<FileItem> fileItems, int sortBy, int folderOrder)
         {
+            IEnumerable<FileItem> items = fileItems;
+
             var sortOptions = new Dictionary<int, Func<IEnumerable<FileItem>, IOrderedEnumerable<FileItem>>>
             {
-                { (int)SortBy.NameAsc, items => items.OrderBy(i => i.Name, StringComparer.OrdinalIgnoreCase) },
-                { (int)SortBy.NameDesc, items => items.OrderByDescending(i => i.Name, StringComparer.OrdinalIgnoreCase) },
-                { (int)SortBy.DateModifiedAsc, items => items.OrderBy(i => i.DateModified) },
-                { (int)SortBy.DateModifiedDesc, items => items.OrderByDescending(i => i.DateModified) }
+                { (int)SortBy.NameAsc, x => x.OrderBy(i => string.IsNullOrEmpty(i.Name) ? string.Empty: Path.GetFileNameWithoutExtension(i.Name), StringComparer.OrdinalIgnoreCase)},
+                { (int)SortBy.NameDesc, x => x.OrderByDescending(i => string.IsNullOrEmpty(i.Name) ? string.Empty: Path.GetFileNameWithoutExtension(i.Name), StringComparer.OrdinalIgnoreCase)},
+                { (int)SortBy.DateModifiedAsc, x => x.OrderBy(i => i.DateModified) },
+                { (int)SortBy.DateModifiedDesc, x => x.OrderByDescending(i => i.DateModified) },
+                { (int)SortBy.DateCreatedAsc, x => x.OrderBy(i => i.DateCreated) },
+                { (int)SortBy.DateCreatedDesc, x => x.OrderByDescending(i => i.DateCreated) },
+                { (int)SortBy.FileTypeAsc, x => x.OrderBy(i => i.FileType) },
+                { (int)SortBy.FileTypeDesc, x => x.OrderByDescending(i => i.FileType) },
             };
-            var sortedItems = sortOptions.TryGetValue(sortBy, out var sorter) ? sorter(fileItems).ToList() : fileItems.ToList();
-            return new ObservableCollection<FileItem>(sortedItems);
+
+            if (sortOptions.TryGetValue(sortBy, out var sorter))
+                items = sorter(items);
+
+            if (folderOrder == 1)
+                items = items.OrderBy(i => i.IsFolder);
+            else if (folderOrder == 2)
+                items = items.OrderBy(i => !i.IsFolder);
+
+            return new ObservableCollection<FileItem>(items);
         }
-        public static List<FileSystemInfo> SortFileItemsToList(List<FileSystemInfo> fileItems, int sortBy)
+
+
+
+        public static List<FileSystemInfo> SortFileItemsToList(List<FileSystemInfo> fileItems, int sortBy, int folderOrder)
         {
             var sortOptions = new Dictionary<int, Func<IEnumerable<FileSystemInfo>, IOrderedEnumerable<FileSystemInfo>>>
             {
-                { (int)SortBy.NameAsc, items => items.OrderBy(i => i.Name, StringComparer.OrdinalIgnoreCase) },
-                { (int)SortBy.NameDesc, items => items.OrderByDescending(i => i.Name, StringComparer.OrdinalIgnoreCase) },
+                { (int)SortBy.NameAsc, x => x.OrderBy(i => string.IsNullOrEmpty(i.Name) ? string.Empty : Path.GetFileNameWithoutExtension(i.Name), StringComparer.OrdinalIgnoreCase) },
+                { (int)SortBy.NameDesc, x => x.OrderByDescending(i => string.IsNullOrEmpty(i.Name) ? string.Empty : Path.GetFileNameWithoutExtension(i.Name), StringComparer.OrdinalIgnoreCase) },
                 { (int)SortBy.DateModifiedAsc, items => items.OrderBy(i => i.LastWriteTime) },
-                { (int)SortBy.DateModifiedDesc, items => items.OrderByDescending(i => i.LastWriteTime) }
+                { (int)SortBy.DateModifiedDesc, items => items.OrderByDescending(i => i.LastWriteTime) },
+                { (int)SortBy.DateCreatedAsc, items => items.OrderBy(i => i.CreationTime) },
+                { (int)SortBy.DateCreatedDesc, items => items.OrderByDescending(i => i.CreationTime) },
+                { (int)SortBy.FileTypeAsc, items => items.OrderBy(i => i.Extension) },
+                { (int)SortBy.FileTypeDesc, items => items.OrderByDescending(i => i.Extension) },
+
             };
-            var sortedItems = sortOptions.TryGetValue(sortBy, out var sorter) ? sorter(fileItems).ToList() : fileItems.ToList();
-            return sortedItems;
+            IEnumerable<FileSystemInfo> sortedItems = sortOptions.TryGetValue(sortBy, out var sorter)
+                  ? sorter(fileItems)
+                  : fileItems;
+
+            if (folderOrder == 1)
+                sortedItems = sortedItems.OrderBy(i => i is FileInfo);
+            else if (folderOrder == 2)
+                sortedItems = sortedItems.OrderBy(i => i is DirectoryInfo);
+
+            return sortedItems.ToList();
         }
 
 
@@ -699,7 +739,13 @@ namespace DeskFrame
             Dispatcher.Invoke(() =>
             {
                 Debug.WriteLine($"File renamed: {e.OldFullPath} to {e.FullPath}");
-                LoadFiles(_path);
+                var renamedItem = FileItems.First(item => item.Name == Path.GetFileName(e.OldFullPath));
+
+                if (renamedItem != null)
+                {
+                    renamedItem.Name = Path.GetFileName(e.FullPath);
+                }
+                SortItems();
             });
         }
         private void KeepWindowBehind()
@@ -764,8 +810,16 @@ namespace DeskFrame
                     return;
                 }
 
-                fileEntries = SortFileItemsToList(fileEntries, (int)Instance.SortBy);
+                fileEntries = SortFileItemsToList(fileEntries, (int)Instance.SortBy, Instance.FolderOrder);
 
+                if (Instance.FolderOrder == 1)
+                {
+                    fileEntries = fileEntries.OrderBy(x => x is FileInfo).ToList();
+                }
+                else if (Instance.FolderOrder == 2)
+                {
+                    fileEntries = fileEntries.OrderByDescending(x => x is FileInfo).ToList();
+                }
                 var fileNames = new HashSet<string>(fileEntries.Select(f => f.Name));
 
 
@@ -805,21 +859,37 @@ namespace DeskFrame
 
                             var fileItem = new FileItem
                             {
-                                Name = Instance.ShowFileExtension ? entry.Name : Path.GetFileNameWithoutExtension(entry.FullName),
+                                Name = Instance.ShowFileExtension ?
+                                    entry.Name is FileInfo ?
+                                        string.IsNullOrEmpty(Path.GetFileNameWithoutExtension(entry.FullName)) ? entry.Name : Path.GetFileNameWithoutExtension(entry.FullName)
+                                    : entry.Name
+                                : entry.Name,
                                 FullPath = entry.FullName,
-                                DateModified = entry is FileInfo fileInfo ? fileInfo.LastWriteTime : ((DirectoryInfo)entry).LastWriteTime,
+                                IsFolder = entry is FileInfo,
+                                DateModified = entry is FileInfo ? entry.LastWriteTime : ((DirectoryInfo)entry).LastWriteTime,
+                                DateCreated = entry is FileInfo ? entry.CreationTime : ((DirectoryInfo)entry).CreationTime,
+                                FileType = entry is FileInfo ? entry.Extension : string.Empty,
                                 Thumbnail = await GetThumbnailAsync(entry.FullName)
                             };
                             FileItems.Add(fileItem);
                         }
                         else
                         {
-                            existingItem.Name = Instance.ShowFileExtension ? entry.Name : Path.GetFileNameWithoutExtension(entry.FullName);
-                            existingItem.DateModified = entry is FileInfo fileInfo ? fileInfo.LastWriteTime : ((DirectoryInfo)entry).LastWriteTime;
+                            existingItem.Name = Instance.ShowFileExtension ?
+                                    entry.Name is FileInfo ?
+                                        string.IsNullOrEmpty(Path.GetFileNameWithoutExtension(entry.FullName)) ? entry.Name : Path.GetFileNameWithoutExtension(entry.FullName)
+                                    : entry.Name
+                                : entry.Name;
+                            existingItem.FullPath = entry.FullName;
+                            existingItem.IsFolder = entry is FileInfo;
+                            existingItem.DateModified = entry is FileInfo ? entry.LastWriteTime : ((DirectoryInfo)entry).LastWriteTime;
+                            existingItem.DateCreated = entry is FileInfo ? entry.CreationTime : ((DirectoryInfo)entry).CreationTime;
+                            existingItem.FileType = entry is FileInfo ? entry.Extension : string.Empty;
                             existingItem.Thumbnail = await GetThumbnailAsync(entry.FullName);
                         }
                     }
-                    var sortedList = SortFileItems(FileItems, (int)Instance.SortBy);
+                    var sortedList = FileItems.ToList();
+
                     FileItems.Clear();
                     foreach (var fileItem in sortedList)
                     {
@@ -846,7 +916,7 @@ namespace DeskFrame
         }
         public void SortItems()
         {
-            var sortedList = SortFileItems(FileItems, (int)Instance.SortBy);
+            var sortedList = SortFileItems(FileItems, (int)Instance.SortBy, Instance.FolderOrder);
             FileItems.Clear();
             foreach (var fileItem in sortedList)
             {
@@ -1214,34 +1284,57 @@ namespace DeskFrame
 
         private void UpdateIcons()
         {
-            // Update Name menu icon
             nameMenuItem.Icon = (Instance.SortBy == 1 || Instance.SortBy == 2)
                 ? new SymbolIcon { Symbol = SymbolRegular.CircleSmall20, Filled = true }
                 : new SymbolIcon { Symbol = SymbolRegular.CircleSmall20, Foreground = Brushes.Transparent };
 
-            // Update DateModified menu icon
             dateModifiedMenuItem.Icon = (Instance.SortBy == 3 || Instance.SortBy == 4)
                 ? new SymbolIcon { Symbol = SymbolRegular.CircleSmall20, Filled = true }
                 : new SymbolIcon { Symbol = SymbolRegular.CircleSmall20, Foreground = Brushes.Transparent };
 
-            // Update Ascending menu icon
-            ascendingMenuItem.Icon = (Instance.SortBy == 1 || Instance.SortBy == 3)
+            dateCreatedMenuItem.Icon = (Instance.SortBy == 5 || Instance.SortBy == 6)
                 ? new SymbolIcon { Symbol = SymbolRegular.CircleSmall20, Filled = true }
                 : new SymbolIcon { Symbol = SymbolRegular.CircleSmall20, Foreground = Brushes.Transparent };
 
-            // Update Descending menu icon
-            descendingMenuItem.Icon = (Instance.SortBy == 2 || Instance.SortBy == 4)
+            fileTypeMenuItem.Icon = (Instance.SortBy == 7 || Instance.SortBy == 8)
                 ? new SymbolIcon { Symbol = SymbolRegular.CircleSmall20, Filled = true }
                 : new SymbolIcon { Symbol = SymbolRegular.CircleSmall20, Foreground = Brushes.Transparent };
+
+            ascendingMenuItem.Icon = (Instance.SortBy % 2 != 0)
+                ? new SymbolIcon { Symbol = SymbolRegular.CircleSmall20, Filled = true }
+                : new SymbolIcon { Symbol = SymbolRegular.CircleSmall20, Foreground = Brushes.Transparent };
+
+            descendingMenuItem.Icon = (Instance.SortBy % 2 == 0)
+                ? new SymbolIcon { Symbol = SymbolRegular.CircleSmall20, Filled = true }
+                : new SymbolIcon { Symbol = SymbolRegular.CircleSmall20, Foreground = Brushes.Transparent };
+
+            if (folderNoneMenuItem != null)
+            {
+                folderNoneMenuItem.Icon = (Instance.FolderOrder == 0)
+                    ? new SymbolIcon { Symbol = SymbolRegular.CircleSmall20, Filled = true }
+                    : new SymbolIcon { Symbol = SymbolRegular.CircleSmall20, Foreground = Brushes.Transparent };
+            }
+            if (folderFirstMenuItem != null)
+            {
+                folderFirstMenuItem.Icon = (Instance.FolderOrder == 1)
+                    ? new SymbolIcon { Symbol = SymbolRegular.CircleSmall20, Filled = true }
+                    : new SymbolIcon { Symbol = SymbolRegular.CircleSmall20, Foreground = Brushes.Transparent };
+            }
+            if (folderLastMenuItem != null)
+            {
+                folderLastMenuItem.Icon = (Instance.FolderOrder == 2)
+                    ? new SymbolIcon { Symbol = SymbolRegular.CircleSmall20, Filled = true }
+                    : new SymbolIcon { Symbol = SymbolRegular.CircleSmall20, Foreground = Brushes.Transparent };
+            }
         }
         private void titleBar_MouseRightButtonDown(object sender, MouseButtonEventArgs e)
         {
             ContextMenu contextMenu = new ContextMenu();
 
-            ToggleSwitch toggleHiddenFiles = new ToggleSwitch { Content = "Hidden Files" };
+            ToggleSwitch toggleHiddenFiles = new ToggleSwitch { Content = "Hidden files" };
             toggleHiddenFiles.Click += (s, args) => { ToggleHiddenFiles(); LoadFiles(_path); };
 
-            ToggleSwitch toggleFileExtension = new ToggleSwitch { Content = "File Extensions" };
+            ToggleSwitch toggleFileExtension = new ToggleSwitch { Content = "File extensions" };
             toggleFileExtension.Click += (_, _) => { ToggleFileExtension(); LoadFiles(_path); };
 
             toggleHiddenFiles.IsChecked = Instance.ShowHiddenFiles;
@@ -1273,7 +1366,7 @@ namespace DeskFrame
 
             MenuItem lockFrame = new MenuItem
             {
-                Header = Instance.IsLocked ? "Unlock Frame" : "Lock Frame",
+                Header = Instance.IsLocked ? "Unlock frame" : "Lock frame",
                 Height = 34,
                 Icon = Instance.IsLocked ? new SymbolIcon(SymbolRegular.LockClosed20) : new SymbolIcon(SymbolRegular.LockOpen20)
             };
@@ -1341,52 +1434,55 @@ namespace DeskFrame
                 Icon = new SymbolIcon(SymbolRegular.ArrowSort20)
             };
             nameMenuItem = new MenuItem { Header = "Name", Height = 34, StaysOpenOnClick = true };
-            dateModifiedMenuItem = new MenuItem { Header = "Date Modified", Height = 34, StaysOpenOnClick = true };
+            dateModifiedMenuItem = new MenuItem { Header = "Date modified", Height = 34, StaysOpenOnClick = true };
+            dateCreatedMenuItem = new MenuItem { Header = "Date created", Height = 34, StaysOpenOnClick = true };
+            fileTypeMenuItem = new MenuItem { Header = "File type", Height = 34, StaysOpenOnClick = true };
             ascendingMenuItem = new MenuItem { Header = "Ascending", Height = 34, StaysOpenOnClick = true };
             descendingMenuItem = new MenuItem { Header = "Descending", Height = 34, StaysOpenOnClick = true };
 
 
-            nameMenuItem.Icon = (Instance.SortBy == 1 || Instance.SortBy == 2)
-                ? new SymbolIcon { Symbol = SymbolRegular.CircleSmall20, Filled = true }
-                : new SymbolIcon { Symbol = SymbolRegular.CircleSmall20, Foreground = Brushes.Transparent };
-            dateModifiedMenuItem.Icon = (Instance.SortBy == 3 || Instance.SortBy == 4)
-                ? new SymbolIcon { Symbol = SymbolRegular.CircleSmall20, Filled = true }
-                : new SymbolIcon { Symbol = SymbolRegular.CircleSmall20, Foreground = Brushes.Transparent };
-
-            ascendingMenuItem.Icon = (Instance.SortBy == 1 || Instance.SortBy == 3)
-                ? new SymbolIcon { Symbol = SymbolRegular.CircleSmall20, Filled = true }
-                : new SymbolIcon { Symbol = SymbolRegular.CircleSmall20, Foreground = Brushes.Transparent };
-            descendingMenuItem.Icon = (Instance.SortBy == 2 || Instance.SortBy == 4)
-                ? new SymbolIcon { Symbol = SymbolRegular.CircleSmall20, Filled = true }
-                : new SymbolIcon { Symbol = SymbolRegular.CircleSmall20, Foreground = Brushes.Transparent };
 
             nameMenuItem.Click += async (s, args) =>
             {
-                if (Instance.SortBy == 3) Instance.SortBy = 1;
-                if (Instance.SortBy == 4) Instance.SortBy = 2;
+                if (Instance.SortBy % 2 != 0 || Instance.SortBy != 1) Instance.SortBy = 1;
+                else Instance.SortBy = 2;
                 UpdateIcons();
                 SortItems();
             };
             dateModifiedMenuItem.Click += async (s, args) =>
             {
-                if (Instance.SortBy == 1) Instance.SortBy = 3;
-                if (Instance.SortBy == 2) Instance.SortBy = 4;
+                if (Instance.SortBy % 2 != 0 || Instance.SortBy != 3) Instance.SortBy = 3;
+                else Instance.SortBy = 4;
                 UpdateIcons();
                 SortItems();
             };
 
+            dateCreatedMenuItem.Click += async (s, args) =>
+            {
+                if (Instance.SortBy % 2 != 0 || Instance.SortBy != 5) Instance.SortBy = 5;
+                else Instance.SortBy = 6;
+                UpdateIcons();
+                SortItems();
+            };
+            fileTypeMenuItem.Click += async (s, args) =>
+            {
+                if (Instance.SortBy % 2 != 0 || Instance.SortBy != 7) Instance.SortBy = 7;
+                else Instance.SortBy = 8;
+                UpdateIcons();
+                SortItems();
+            };
+
+
             ascendingMenuItem.Click += async (s, args) =>
             {
-                if (Instance.SortBy == 2) Instance.SortBy = 1;
-                if (Instance.SortBy == 4) Instance.SortBy = 3;
+                if (Instance.SortBy % 2 == 0) Instance.SortBy -= 1;
                 UpdateIcons();
                 SortItems();
             };
 
             descendingMenuItem.Click += async (s, args) =>
             {
-                if (Instance.SortBy == 1) Instance.SortBy = 2;
-                if (Instance.SortBy == 3) Instance.SortBy = 4;
+                if (Instance.SortBy % 2 != 0) Instance.SortBy += 1;
                 UpdateIcons();
                 SortItems();
             };
@@ -1400,7 +1496,6 @@ namespace DeskFrame
             {
                 HorizontalAlignment = System.Windows.HorizontalAlignment.Left,
                 VerticalAlignment = VerticalAlignment.Top,
-                Margin = new Thickness(10),
                 FontSize = 12,
                 TextWrapping = TextWrapping.Wrap,
             };
@@ -1422,8 +1517,51 @@ namespace DeskFrame
 
             FrameInfoItem.Header = InfoText;
 
+
+            folderOrderMenuItem = new MenuItem
+            {
+                Header = "Folder order",
+                Height = 36,
+                StaysOpenOnClick = true,
+                Icon = new SymbolIcon { Symbol = SymbolRegular.Folder20 }
+            };
+
+            folderNoneMenuItem = new MenuItem { Header = "None", Height = 34, StaysOpenOnClick = true };
+            folderFirstMenuItem = new MenuItem { Header = "First", Height = 34, StaysOpenOnClick = true };
+            folderLastMenuItem = new MenuItem { Header = "Last", Height = 34, StaysOpenOnClick = true };
+
+            folderNoneMenuItem.Click += (s, args) =>
+            {
+                Instance.FolderOrder = 0;
+                UpdateIcons();
+                SortItems();
+            };
+            folderFirstMenuItem.Click += (s, args) =>
+            {
+                Instance.FolderOrder = 1;
+                UpdateIcons();
+                SortItems();
+            };
+            folderLastMenuItem.Click += (s, args) =>
+            {
+                Instance.FolderOrder = 2;
+                UpdateIcons();
+                SortItems();
+            };
+
+            UpdateIcons();
+
+            folderOrderMenuItem.Items.Add(folderNoneMenuItem);
+            folderOrderMenuItem.Items.Add(folderFirstMenuItem);
+            folderOrderMenuItem.Items.Add(folderLastMenuItem);
+
+
+            sortByMenuItem.Items.Add(folderOrderMenuItem);
+            sortByMenuItem.Items.Add(new Separator());
             sortByMenuItem.Items.Add(nameMenuItem);
             sortByMenuItem.Items.Add(dateModifiedMenuItem);
+            sortByMenuItem.Items.Add(dateCreatedMenuItem);
+            sortByMenuItem.Items.Add(fileTypeMenuItem);
             sortByMenuItem.Items.Add(new Separator());
             sortByMenuItem.Items.Add(ascendingMenuItem);
             sortByMenuItem.Items.Add(descendingMenuItem);
@@ -1457,7 +1595,7 @@ namespace DeskFrame
             long bytes = Math.Abs(byteCount);
             int place = Convert.ToInt32(Math.Floor(Math.Log(bytes, 1024)));
             double num = Math.Round(bytes / Math.Pow(1024, place), 1);
-            return (Math.Sign(byteCount) * num).ToString() + suffix[place];
+            return (Math.Sign(byteCount) * num).ToString() + " " + suffix[place];
         }
 
 
@@ -1466,6 +1604,7 @@ namespace DeskFrame
             public event PropertyChangedEventHandler? PropertyChanged;
 
             private bool _isSelected;
+            public bool IsFolder { get; set; }
             private Brush _background = Brushes.Transparent;
             private int _maxHeight = 40;
             private TextTrimming _textTrimming = TextTrimming.CharacterEllipsis;
@@ -1474,6 +1613,8 @@ namespace DeskFrame
             public string? FullPath { get; set; }
             public BitmapSource? Thumbnail { get; set; }
             public DateTime DateModified { get; set; }
+            public DateTime DateCreated { get; set; }
+            public string? FileType { get; set; }
 
             public string DisplayName
             {
