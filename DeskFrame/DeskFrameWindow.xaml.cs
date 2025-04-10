@@ -774,15 +774,11 @@ namespace DeskFrame
         {
             if (Instance.ShowFileExtension)
             {
-                FileExtensionIcon.Symbol = SymbolRegular.Document48;
-                FileExtensionScale.ScaleX = 1;
-                FileExtensionScale.ScaleY = 1;
+                FileExtensionIcon.Symbol = SymbolRegular.DocumentSplitHint24;
             }
             else
             {
-                FileExtensionIcon.Symbol = SymbolRegular.Document48;
-                FileExtensionScale.ScaleX = 0.6;
-                FileExtensionScale.ScaleY = 0.6;
+                FileExtensionIcon.Symbol = SymbolRegular.DocumentSplitHintOff24;
             }
         }
 
@@ -790,15 +786,11 @@ namespace DeskFrame
         {
             if (Instance.ShowHiddenFiles)
             {
-                HiddenFilesIcon.Symbol = SymbolRegular.Eye48;
-                HiddenFilesScale.ScaleX = 1;
-                HiddenFilesScale.ScaleY = 1;
+                HiddenFilesIcon.Symbol = SymbolRegular.Eye24;
             }
             else
             {
-                HiddenFilesIcon.Symbol = SymbolRegular.Eye48;
-                HiddenFilesScale.ScaleX = 0.6;
-                HiddenFilesScale.ScaleY = 0.6;
+                HiddenFilesIcon.Symbol = SymbolRegular.EyeOff24;
             }
         }
 
