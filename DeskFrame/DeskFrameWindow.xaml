@@ -75,10 +75,12 @@
 
         <Grid>
 
-            <Border MouseRightButtonDown="titleBar_MouseRightButtonDown"  x:Name="titleBar" Background="White" Height="30"
+            <Border MouseRightButtonDown="titleBar_MouseRightButtonDown" x:Name="titleBar" Background="#0C000000" 
+                    Height="{Binding Instance.BorderEnabled, Converter={StaticResource TitleBarBoolToHeightConverter}}"
+                    Margin="{Binding Instance.BorderEnabled, Converter={StaticResource BooleanToBorderThicknessConverter}}"
+                   
                     VerticalAlignment="Top" Cursor="SizeAll" CornerRadius="5,5,0,0">
-
-                <Grid  >
+                <Grid  Margin="{Binding Instance.BorderEnabled, Converter={StaticResource MarginToBorderThicknessConverter}}" >
                     <StackPanel  Orientation="Horizontal" HorizontalAlignment="{Binding Instance.TitleTextAlignment}" Margin="{Binding Instance.TitleTextAlignment, Converter={StaticResource TitleTextAlignmentToMarginConverter}}" VerticalAlignment="Center" >
                         <TextBlock x:Name="title" VerticalAlignment="Center"  HorizontalAlignment="Left" Margin="10,0" Foreground="White"  FontSize="13">
                         </TextBlock>

@@ -28,6 +28,8 @@ public class InstanceController
                 key.SetValue("Folder", instance.Folder!);
                 key.SetValue("ShowHiddenFiles", instance.ShowHiddenFiles!);
                 key.SetValue("ShowFileExtension", instance.ShowFileExtension!);
+                key.SetValue("ShowFileExtensionIcon", instance.ShowFileExtensionIcon!);
+                key.SetValue("ShowHiddenFilesIcon", instance.ShowHiddenFilesIcon!);
                 key.SetValue("IsLocked", instance.IsLocked!);
                 key.SetValue("TitleBarColor", instance.TitleBarColor!);
                 key.SetValue("TitleTextColor", instance.TitleTextColor!);
@@ -72,6 +74,8 @@ public class InstanceController
                 key.SetValue("Folder", instance.Folder!);
                 key.SetValue("ShowHiddenFiles", instance.ShowHiddenFiles!);
                 key.SetValue("ShowFileExtension", instance.ShowFileExtension!);
+                key.SetValue("ShowFileExtensionIcon", instance.ShowFileExtensionIcon!);
+                key.SetValue("ShowHiddenFilesIcon", instance.ShowHiddenFilesIcon!);
                 key.SetValue("IsLocked", instance.IsLocked!);
                 key.SetValue("TitleBarColor", instance.TitleBarColor!);
                 key.SetValue("TitleTextColor", instance.TitleTextColor!);
@@ -227,6 +231,14 @@ public class InstanceController
                                             case "ShowFileExtension":
                                                 temp.ShowFileExtension = bool.Parse(value.ToString()!);
                                                 Debug.WriteLine($"ShowFileExtension added\t{temp.ShowFileExtension}");
+                                                break;
+                                            case "ShowFileExtensionIcon":
+                                                temp.ShowFileExtensionIcon = bool.Parse(value.ToString()!);
+                                                Debug.WriteLine($"ShowFileExtensionIcon added\t{temp.ShowFileExtensionIcon}");
+                                                break;
+                                            case "ShowHiddenFilesIcon":
+                                                temp.ShowHiddenFilesIcon = bool.Parse(value.ToString()!);
+                                                Debug.WriteLine($"ShowHiddenFilesIcon added\t{temp.ShowHiddenFilesIcon}");
                                                 break;
                                             case "IsLocked":
                                                 temp.IsLocked = bool.Parse(value.ToString()!);
