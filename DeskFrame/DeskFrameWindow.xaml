@@ -87,11 +87,12 @@
                     </Grid.ColumnDefinitions>
                     <Grid>
                         <StackPanel  Orientation="Horizontal" HorizontalAlignment="{Binding Instance.TitleTextAlignment}" Margin="{Binding Instance.TitleTextAlignment, Converter={StaticResource TitleTextAlignmentToMarginConverter}}" VerticalAlignment="Center" >
-                            <StackPanel Grid.Column="0" Orientation="Horizontal" HorizontalAlignment="{Binding Instance.TitleTextAlignment}" Margin="{Binding Instance.TitleTextAlignment, Converter={StaticResource TitleTextAlignmentToMarginConverter}}" VerticalAlignment="Center" >
-                                <TextBlock x:Name="title" VerticalAlignment="Center"  HorizontalAlignment="Left" Margin="10,0" Foreground="White" FontSize="13">
+                            <StackPanel Grid.Column="0" Orientation="Horizontal" Margin="{Binding Instance.TitleTextAlignment, Converter={StaticResource TitleTextAlignmentToMarginConverter}}" VerticalAlignment="Center" >
+                                <TextBlock x:Name="title" VerticalAlignment="Center"  HorizontalAlignment="Left" Margin="10,0,50,0" Foreground="White" FontSize="13">
                                 </TextBlock>
                             </StackPanel>
-                            <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center" Margin="0,0,0,0">
+                        </StackPanel>
+                        <StackPanel Grid.Column="1" Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Center" Margin="0,0,0,0">
                                 <Grid Cursor="Hand" MouseLeftButtonDown="ToggleHiddenFiles_MouseLeftButtonDown" Width="30" Background="#02000000" Name="HiddenFilesIconGrid">
                                     <ui:SymbolIcon x:Name="HiddenFilesIcon" Symbol="Eye48" Foreground="{Binding ElementName=title, Path=Foreground}" Width="20" Height="20" FontSize="20">
                                         <ui:SymbolIcon.RenderTransform>
@@ -118,11 +119,10 @@
                                 </Grid>
                             </StackPanel>
                             <ui:TextBox x:Name="FilterTextBox"  HorizontalAlignment="Left"  Width="0"  Height="0" TextChanged="FilterTextBox_TextChanged" />
-                            <StackPanel x:Name="Search" Visibility="Collapsed" HorizontalAlignment="Left" Orientation="Horizontal">
-                                <ui:SymbolIcon Symbol="Search48" Margin="4,0,0,0" Foreground="White" VerticalAlignment="Center" FontSize="22"/>
-                                <Label HorizontalAlignment="Left" VerticalAlignment="Center" FontSize="14" Content=":  "  FontWeight="Bold"/>
-                                <Label x:Name="searchQuery" HorizontalAlignment="Left" VerticalAlignment="Center" FontSize="16" />
-                            </StackPanel>
+                        <StackPanel x:Name="Search" Visibility="Collapsed" HorizontalAlignment="Left" Orientation="Horizontal">
+                            <ui:SymbolIcon Symbol="Search48" Margin="4,0,0,0" Foreground="White" VerticalAlignment="Center" FontSize="22"/>
+                            <Label HorizontalAlignment="Left" VerticalAlignment="Center" FontSize="14" Content=":  "  FontWeight="Bold"/>
+                            <Label x:Name="searchQuery" HorizontalAlignment="Left" VerticalAlignment="Center" FontSize="16" />
                         </StackPanel>
                     </Grid>
                 </Grid>
