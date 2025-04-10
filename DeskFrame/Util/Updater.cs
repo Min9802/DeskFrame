@@ -10,7 +10,7 @@ namespace DeskFrame
         private static string _url = "";
         private static string _downloadUrl = "";
         private static int updateCount = 0;
-        public static async Task CheckUpdateAsync(string url)
+        public static async Task CheckUpdateAsync(string url, bool showToastIfNoUpdate)
         {
             _url = url;
             string currentVersion = Process.GetCurrentProcess().MainModule!.FileVersionInfo.FileVersion!.ToString();
@@ -53,7 +53,7 @@ namespace DeskFrame
                                      .SetBackgroundActivation());
                             toastBuilder.Show();
                         }
-                        else 
+                        else if(showToastIfNoUpdate)
                         {
                             var toastBuilder = new ToastContentBuilder()
                                .AddText("You are up to date!", AdaptiveTextStyle.Header)

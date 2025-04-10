@@ -23,6 +23,7 @@
             <StackPanel Orientation="Vertical" Margin="10,25,0,0" >
             </StackPanel>
             <ui:Button x:Name="ExportSettingsButton" Content="Export settings" Click="ExportSettingsButton_Click"/>
+            <ui:ToggleSwitch x:Name="AutoUpdateToggleSwitch" Content="Auto update on start" Click="AutoUpdateToggleSwitch_Click"/>
 
         </StackPanel>
         

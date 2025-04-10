@@ -22,6 +22,19 @@ namespace DeskFrame
             if (_controller.reg.KeyExistsRoot("startOnLogin")) startOnLogin = (bool)_controller.reg.ReadKeyValueRoot("startOnLogin");
             AutorunToggle.IsChecked = startOnLogin;
             if (_controller.reg.KeyExistsRoot("blurBackground")) BlurToggle.IsChecked = (bool)_controller.reg.ReadKeyValueRoot("blurBackground");
+            if (_controller.reg.KeyExistsRoot("AutoUpdate") && (bool)_controller.reg.ReadKeyValueRoot("AutoUpdate"))
+            {
+                Update();
+                Debug.WriteLine("Auto update checking for update");
+            }
+            else
+            {
+                _controller.reg.WriteToRegistryRoot("AutoUpdate", "True");
+            }
+        }
+        private async void Update()
+        {
+            await Updater.CheckUpdateAsync(url,false);
         }
 
         private void addDesktopFrame_Click(object sender, RoutedEventArgs e)
@@ -61,7 +74,7 @@ namespace DeskFrame
 
         private async void Update_Button_Click(object sender, RoutedEventArgs e)
         {
-            await Updater.CheckUpdateAsync(url);
+            await Updater.CheckUpdateAsync(url,true);
 
         }
         private void BlurToggle_CheckChanged(object sender, System.Windows.RoutedEventArgs e)

@@ -16,6 +16,7 @@ namespace DeskFrame
 
             _controller = controller;
            // if (_controller.reg.KeyExistsRoot("blurBackground")) blurToggle.IsChecked = (bool)_controller.reg.ReadKeyValueRoot("blurBackground");
+           if (_controller.reg.KeyExistsRoot("AutoUpdate")) AutoUpdateToggleSwitch.IsChecked = (bool)_controller.reg.ReadKeyValueRoot("AutoUpdate");
         }
 
         private void blurToggle_CheckChanged(object sender, System.Windows.RoutedEventArgs e)
@@ -57,5 +58,18 @@ namespace DeskFrame
             }
         }
 
+        private void AutoUpdateToggleSwitch_Click(object sender, RoutedEventArgs e)
+        {
+            if ((bool)AutoUpdateToggleSwitch.IsChecked!)
+            {
+
+                _controller.reg.AddToAutoRun("DeskFrame", Process.GetCurrentProcess().MainModule!.FileName);
+            }
+            else
+            {
+                _controller.reg.RemoveFromAutoRun("DeskFrame");
+            }
+            _controller.reg.WriteToRegistryRoot("AutoUpdate", AutoUpdateToggleSwitch.IsChecked);
+        }
     }
 }
