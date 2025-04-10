@@ -5,6 +5,7 @@ using System.Windows.Media;
 using Wpf.Ui.Controls;
 using Color = System.Windows.Media.Color;
 using DeskFrame.ColorPicker;
+using System.IO;
 namespace DeskFrame
 {
     public partial class FrameSettingsDialog : FluentWindow
@@ -21,10 +22,13 @@ namespace DeskFrame
         private bool _isValidListViewBackgroundColor = true;
         private bool _isReverting = false;
         private bool _initDone = false;
+        string _lastInstanceName;
+
         public FrameSettingsDialog(DeskFrameWindow frame)
         {
             InitializeComponent();
             _originalInstance = new Instance(frame.Instance);
+            _lastInstanceName = _originalInstance.Name;
             _instance = frame.Instance;
             _frame = frame;
             TitleBarColorTextBox.Text = _instance.TitleBarColor;
@@ -152,6 +156,24 @@ namespace DeskFrame
                 _instance.TitleTextAlignment = _originalInstance.TitleTextAlignment;
                 _instance.ListViewBackgroundColor = _originalInstance.ListViewBackgroundColor;
                 _instance.Opacity = _originalInstance.Opacity;
+                if (_originalInstance.Folder != _instance.Folder)
+                {
+                    _instance.Folder = _originalInstance.Folder;
+                    _frame._path = _originalInstance.Folder;
+                    string name = _instance.Name;
+
+                    _frame.title.Text = Path.GetFileName(_frame._path);
+                    _instance.Name = Path.GetFileName(_originalInstance.Name);
+
+                    MainWindow._controller.WriteOverInstanceToKey(_instance, name);
+                    _frame.LoadFiles(_frame._path);
+                    DataContext = this;
+                    _frame.InitializeFileWatcher();
+
+                }
+                _instance.Folder = _originalInstance.Folder;
+                _instance.Name = _originalInstance.Name;
+                _instance.TitleText = _originalInstance.TitleText;
 
                 TitleBarColorTextBox.Text = _instance.TitleBarColor;
                 TitleTextColorTextBox.Text = _instance.TitleTextColor;
@@ -215,6 +237,26 @@ namespace DeskFrame
         {
             _instance.ShowHiddenFilesIcon = ShowHiddenFilesIconCheckBox.IsChecked ?? false;
             _frame.UpdateIconVisibility();
+        }
+        private void ChangeFolderButton_Click(object sender, RoutedEventArgs e)
+        {
+            var folderDialog = new FolderBrowserDialog
+            {
+                Description = "Select a folder",
+                ShowNewFolderButton = true
+            };
+            if (folderDialog.ShowDialog() == System.Windows.Forms.DialogResult.OK)
+            {
+                _instance.Folder = folderDialog.SelectedPath;
+                _frame._path = _instance.Folder;
+                _frame.title.Text = Path.GetFileName(_frame._path);
+                _instance.Name = Path.GetFileName(folderDialog.SelectedPath);
+                MainWindow._controller.WriteOverInstanceToKey(_instance,_lastInstanceName);
+                _lastInstanceName = _instance.Name;
+                _frame.LoadFiles(_frame._path);
+                DataContext = this;
+                _frame.InitializeFileWatcher();
+            }
         }
     }
 }

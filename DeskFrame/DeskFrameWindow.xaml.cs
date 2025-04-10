@@ -747,8 +747,9 @@ namespace DeskFrame
             this.BeginAnimation(HeightProperty, animation);
         }
 
-        private void InitializeFileWatcher()
+        public void InitializeFileWatcher()
         {
+            _fileWatcher = null;
             _fileWatcher = new FileSystemWatcher(_path)
             {
                 NotifyFilter = NotifyFilters.FileName | NotifyFilters.DirectoryName | NotifyFilters.LastWrite,
@@ -800,7 +801,7 @@ namespace DeskFrame
         private void ToggleIsLocked() => Instance.IsLocked = !Instance.IsLocked;
         private void ToggleFileExtension() => Instance.ShowFileExtension = !Instance.ShowFileExtension;
 
-        private async void LoadFiles(string path)
+        public async void LoadFiles(string path)
         {
             loadFilesCancellationToken.Cancel();
             loadFilesCancellationToken.Dispose();
