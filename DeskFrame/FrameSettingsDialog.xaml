@@ -57,7 +57,7 @@
                 </StackPanel>
 
             </StackPanel>
-            <Separator HorizontalAlignment="Center"  Grid.Column="1" Height="368"/>
+            <Separator HorizontalAlignment="Center"  Grid.Column="1" Height="420"/>
 
             <StackPanel  Orientation="Vertical" Margin="10,48,10,0" Grid.Column="2">
 
@@ -88,9 +88,9 @@
                 </ComboBox>
 
 
-                <Button x:Name="RevertButton" HorizontalAlignment="Right" Content="Revert" Height="30" Click="RevertButton_Click" />
             </StackPanel>
-         
+            <Button x:Name="RevertButton" Grid.Column="2" HorizontalAlignment="Right" Content="Revert" Margin="10" Height="30" Click="RevertButton_Click"  VerticalAlignment="Bottom"/>
+
         </Grid>
                  
        
