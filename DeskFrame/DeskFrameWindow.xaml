@@ -76,77 +76,84 @@
     </WindowChrome.WindowChrome>
     <Border CornerRadius="5" x:Name="windowBorder" Background="#02000000" BorderThickness="{Binding Instance.BorderEnabled, Converter={StaticResource BooleanToBorderThicknessConverter}}" BorderBrush="{Binding Instance.BorderColor}">
 
-        <Grid Margin="{Binding Instance.BorderEnabled, Converter={StaticResource MarginToBorderThicknessConverter}}">
+        <Grid>
 
-            <Border MouseRightButtonDown="titleBar_MouseRightButtonDown" x:Name="titleBar" Background="#0C000000" 
-                    Height="{Binding Instance.BorderEnabled, Converter={StaticResource TitleBarBoolToHeightConverter}}"
-                    Margin="{Binding Instance.BorderEnabled, Converter={StaticResource BooleanToBorderThicknessConverter}}"
-                   
+            <Border MouseRightButtonDown="titleBar_MouseRightButtonDown" x:Name="titleBar" Background="White" Height="30"                   
                     VerticalAlignment="Top" Cursor="SizeAll" CornerRadius="5,5,0,0">
                 <Grid  Margin="{Binding Instance.BorderEnabled, Converter={StaticResource MarginToBorderThicknessConverter}}" >
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="*"/>
                         <ColumnDefinition Width="Auto"/>
                     </Grid.ColumnDefinitions>
-                    <StackPanel Grid.Column="0" Orientation="Horizontal" HorizontalAlignment="{Binding Instance.TitleTextAlignment}" Margin="{Binding Instance.TitleTextAlignment, Converter={StaticResource TitleTextAlignmentToMarginConverter}}" VerticalAlignment="Center" >
-                        <TextBlock x:Name="title" VerticalAlignment="Center"  HorizontalAlignment="Left" Margin="10,0" Foreground="White"  FontSize="13">
-                        </TextBlock>
-                    </StackPanel>
-                    <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center" Margin="0,0,5,0">
-                        <Grid Cursor="Hand" MouseLeftButtonDown="ToggleHiddenFiles_MouseLeftButtonDown" Width="30" Background="#02000000" Name="HiddenFilesIconGrid">
-                            <ui:SymbolIcon x:Name="HiddenFilesIcon" Symbol="Eye48" Foreground="{Binding ElementName=title, Path=Foreground}" Width="20" Height="20" FontSize="20">
-                                <ui:SymbolIcon.RenderTransform>
-                                    <ScaleTransform x:Name="HiddenFilesScale" ScaleX="1" ScaleY="1" CenterX="0.5" CenterY="0.5" />
-                                </ui:SymbolIcon.RenderTransform>
-                            </ui:SymbolIcon>
-                        </Grid>
-                        <Grid Cursor="Hand" MouseLeftButtonDown="ToggleFileExtension_MouseLeftButtonDown" Width="30" Background="#02000000" Name="FileExtensionIconGrid">
-                            <ui:SymbolIcon x:Name="FileExtensionIcon" Symbol="Document48" Foreground="{Binding ElementName=title, Path=Foreground}" Width="20" Height="20" FontSize="20">
-                                <ui:SymbolIcon.RenderTransform>
-                                    <ScaleTransform x:Name="FileExtensionScale" ScaleX="1" ScaleY="1" CenterX="0.5" CenterY="0.5" />
-                                </ui:SymbolIcon.RenderTransform>
-                            </ui:SymbolIcon>
-                        </Grid>
-                        <Grid Cursor="Hand" MouseLeftButtonDown="Minimize_MouseLeftButtonDown" Width="30" Background="#02000000">
-                            <ui:SymbolIcon x:Name="ChevronIcon" Symbol="ChevronDown48" Foreground="{Binding ElementName=title, Path=Foreground}" Width="20" Height="20" FontSize="20">
-                                <ui:SymbolIcon.RenderTransform>
-                                    <RotateTransform x:Name="ChevronRotate" Angle="0" CenterX="0.5" CenterY="0.5" />
-                                </ui:SymbolIcon.RenderTransform>
-                                <ui:SymbolIcon.RenderTransformOrigin>
-                                    <Point X="0.5" Y="0.5"/>
-                                </ui:SymbolIcon.RenderTransformOrigin>
-                            </ui:SymbolIcon>
-                        </Grid>
-                    </StackPanel>
-                    <ui:TextBox x:Name="FilterTextBox"  HorizontalAlignment="Left"  Width="0"  Height="0" TextChanged="FilterTextBox_TextChanged" />
-                    <StackPanel x:Name="Search" Visibility="Hidden" HorizontalAlignment="Left" Orientation="Horizontal">
-                        <ui:SymbolIcon Symbol="Search48" Margin="4,0,0,0" Foreground="White" VerticalAlignment="Center" FontSize="22"/>
-                        <Label HorizontalAlignment="Left" VerticalAlignment="Center" FontSize="14" Content=":  "  FontWeight="Bold"/>
-                        <Label x:Name="searchQuery" HorizontalAlignment="Left" VerticalAlignment="Center" FontSize="16" />
-                    </StackPanel>
+                    <Grid>
+                        <StackPanel  Orientation="Horizontal" HorizontalAlignment="{Binding Instance.TitleTextAlignment}" Margin="{Binding Instance.TitleTextAlignment, Converter={StaticResource TitleTextAlignmentToMarginConverter}}" VerticalAlignment="Center" >
+                            <StackPanel Grid.Column="0" Orientation="Horizontal" HorizontalAlignment="{Binding Instance.TitleTextAlignment}" Margin="{Binding Instance.TitleTextAlignment, Converter={StaticResource TitleTextAlignmentToMarginConverter}}" VerticalAlignment="Center" >
+                                <TextBlock x:Name="title" VerticalAlignment="Center"  HorizontalAlignment="Left" Margin="10,0" Foreground="White" FontSize="13">
+                                </TextBlock>
+                            </StackPanel>
+                            <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center" Margin="0,0,0,0">
+                                <Grid Cursor="Hand" MouseLeftButtonDown="ToggleHiddenFiles_MouseLeftButtonDown" Width="30" Background="#02000000" Name="HiddenFilesIconGrid">
+                                    <ui:SymbolIcon x:Name="HiddenFilesIcon" Symbol="Eye48" Foreground="{Binding ElementName=title, Path=Foreground}" Width="20" Height="20" FontSize="20">
+                                        <ui:SymbolIcon.RenderTransform>
+                                            <ScaleTransform x:Name="HiddenFilesScale" ScaleX="1" ScaleY="1" CenterX="0.5" CenterY="0.5" />
+                                        </ui:SymbolIcon.RenderTransform>
+                                    </ui:SymbolIcon>
+                                </Grid>
+                                <Grid Cursor="Hand" MouseLeftButtonDown="ToggleFileExtension_MouseLeftButtonDown" Width="30" Background="#02000000" Name="FileExtensionIconGrid">
+                                    <ui:SymbolIcon x:Name="FileExtensionIcon" Symbol="Document48" Foreground="{Binding ElementName=title, Path=Foreground}" Width="20" Height="20" FontSize="20">
+                                        <ui:SymbolIcon.RenderTransform>
+                                            <ScaleTransform x:Name="FileExtensionScale" ScaleX="1" ScaleY="1" CenterX="0.5" CenterY="0.5" />
+                                        </ui:SymbolIcon.RenderTransform>
+                                    </ui:SymbolIcon>
+                                </Grid>
+                                <Grid Cursor="Hand" MouseLeftButtonDown="Minimize_MouseLeftButtonDown" Width="30" Background="#02000000">
+                                    <ui:SymbolIcon x:Name="ChevronIcon" Symbol="ChevronDown48" Foreground="{Binding ElementName=title, Path=Foreground}" Width="20" Height="20" FontSize="20">
+                                        <ui:SymbolIcon.RenderTransform>
+                                            <RotateTransform x:Name="ChevronRotate" Angle="0" CenterX="0.5" CenterY="0.5" />
+                                        </ui:SymbolIcon.RenderTransform>
+                                        <ui:SymbolIcon.RenderTransformOrigin>
+                                            <Point X="0.5" Y="0.5"/>
+                                        </ui:SymbolIcon.RenderTransformOrigin>
+                                    </ui:SymbolIcon>
+                                </Grid>
+                            </StackPanel>
+                            <ui:TextBox x:Name="FilterTextBox"  HorizontalAlignment="Left"  Width="0"  Height="0" TextChanged="FilterTextBox_TextChanged" />
+                            <StackPanel x:Name="Search" Visibility="Collapsed" HorizontalAlignment="Left" Orientation="Horizontal">
+                                <ui:SymbolIcon Symbol="Search48" Margin="4,0,0,0" Foreground="White" VerticalAlignment="Center" FontSize="22"/>
+                                <Label HorizontalAlignment="Left" VerticalAlignment="Center" FontSize="14" Content=":  "  FontWeight="Bold"/>
+                                <Label x:Name="searchQuery" HorizontalAlignment="Left" VerticalAlignment="Center" FontSize="16" />
+                            </StackPanel>
+                        </StackPanel>
+                    </Grid>
                 </Grid>
             </Border>
 
-
-            <Grid>
-                <Grid x:Name="showFolder">
-                    <ui:DynamicScrollViewer  x:Name="scrollViewer"  IsTabStop="False" VerticalScrollBarVisibility="Auto" Margin="0,30,0,0" >
-                        <ItemsControl Margin="0,5,0,0" x:Name="FileWrapPanel" IsTabStop="False" ItemsSource="{Binding FileItems}" ItemTemplate="{StaticResource FileItemTemplate}">
-                            <ItemsControl.ItemsPanel>
-                                <ItemsPanelTemplate>
-                                    <WrapPanel ItemWidth="85" HorizontalAlignment="Left" VerticalAlignment="Top" ClipToBounds="True"/>
-                                </ItemsPanelTemplate>
-                            </ItemsControl.ItemsPanel>
-                        </ItemsControl>
-                    </ui:DynamicScrollViewer>
+            <Border >
+                <Grid>
+                    <Grid x:Name="showFolder">
+                        <ui:DynamicScrollViewer  x:Name="scrollViewer"  IsTabStop="False" VerticalScrollBarVisibility="Auto" Margin="0,30,0,0" >
+                            <ItemsControl Padding="0,5,0,0" x:Name="FileWrapPanel" IsTabStop="False" ItemsSource="{Binding FileItems}" ItemTemplate="{StaticResource FileItemTemplate}">
+                                <ItemsControl.ItemsPanel>
+                                    <ItemsPanelTemplate>
+                                        <WrapPanel ItemWidth="85" HorizontalAlignment="Left" VerticalAlignment="Top" ClipToBounds="True"/>
+                                    </ItemsPanelTemplate>
+                                </ItemsControl.ItemsPanel>
+                            </ItemsControl>
+                        </ui:DynamicScrollViewer>
+                    </Grid>
+                    <Grid x:Name="addFolder" Visibility="Hidden">
+                        <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center" >
+                            <TextBlock Text="Drop a folder" HorizontalAlignment="Center" Foreground="White" FontSize="14" Padding="0,0,0,10"/>
+                            <ui:SymbolIcon Symbol="Add48" FontSize="88" Foreground="White" OpacityMask="#4CFFFFFF"/>
+                        </StackPanel>
+                    </Grid>
                 </Grid>
-                <Grid x:Name="addFolder" Visibility="Hidden">
-                    <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center" >
-                        <TextBlock Text="Drop a folder" HorizontalAlignment="Center" Foreground="White" FontSize="14" Padding="0,0,0,10"/>
-                        <ui:SymbolIcon Symbol="Add48" FontSize="88" Foreground="White" OpacityMask="#4CFFFFFF"/>
-                    </StackPanel>
-                </Grid>
-            </Grid>
+            </Border>
+            <Border x:Name="WindowBorder" 
+                    CornerRadius="5"
+                    BorderThickness="{Binding Instance.BorderEnabled, Converter={StaticResource BooleanToBorderThicknessConverter}}" 
+                    BorderBrush="{Binding Instance.BorderColor}"
+             />
 
         </Grid>
     </Border>

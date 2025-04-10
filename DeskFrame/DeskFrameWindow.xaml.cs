@@ -545,7 +545,7 @@ namespace DeskFrame
         {
             if (string.IsNullOrEmpty(FilterTextBox.Text))
             {
-                Search.Visibility = Visibility.Hidden;
+                Search.Visibility = Visibility.Collapsed;
                 title.Visibility = Visibility.Visible;
             }
             else
