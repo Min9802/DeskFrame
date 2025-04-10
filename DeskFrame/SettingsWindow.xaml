@@ -21,8 +21,9 @@
                 </ui:TitleBar.Icon>
             </ui:TitleBar>
             <StackPanel Orientation="Vertical" Margin="10,25,0,0" >
-                <ui:ToggleSwitch x:Name="blurToggle"  Content="Enable blur" Margin="0,0,0,30" VerticalAlignment="Top" Checked="blurToggle_CheckChanged" Unchecked="blurToggle_CheckChanged"/>
             </StackPanel>
+            <ui:Button x:Name="ExportSettingsButton" Content="Export settings" Click="ExportSettingsButton_Click"/>
+
         </StackPanel>
         
         <StackPanel Orientation="Horizontal"  HorizontalAlignment="Right" Margin="0,0,10,5" VerticalAlignment="Bottom">

@@ -26,9 +26,9 @@
                 Checked="BlurToggle_CheckChanged"  Unchecked="BlurToggle_CheckChanged" />
                 
                 <Separator Margin="0,3,0,3"/>
-                
-                <!--<ui:MenuItem x:Name="Settings_Button" Header="Settings" 
-                             Icon="{ui:SymbolIcon Symbol=Settings20}" Click="Settings_Button_Click" />-->
+
+                <ui:MenuItem x:Name="Settings_Button" Header="Settings" 
+                             Icon="{ui:SymbolIcon Symbol=Settings20}" Click="Settings_Button_Click" />
 
                 <MenuItem Name="addDesktopFrame" Height="34" Header="Add frame" Click="addDesktopFrame_Click" Icon="{ui:SymbolIcon Symbol=Add20}"/>
                 <MenuItem x:Name="Exit_Button" Height="34" 

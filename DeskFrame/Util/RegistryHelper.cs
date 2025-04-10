@@ -3,7 +3,7 @@ using System.Diagnostics;
 
 public class RegistryHelper
 {
-    private string regKeyName;
+    public string regKeyName;
     public RegistryHelper(string regkeyname)
     {
         this.regKeyName = regkeyname;
