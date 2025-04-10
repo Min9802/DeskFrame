@@ -893,11 +893,11 @@ namespace DeskFrame
 
                             var fileItem = new FileItem
                             {
-                                Name = Instance.ShowFileExtension ?
-                                    entry.Name is FileInfo ?
-                                        string.IsNullOrEmpty(Path.GetFileNameWithoutExtension(entry.FullName)) ? entry.Name : Path.GetFileNameWithoutExtension(entry.FullName)
-                                    : entry.Name
-                                : entry.Name,
+                                Name = Instance.ShowFileExtension
+                                ? entry.Name
+                                : (!string.IsNullOrEmpty(Path.GetFileNameWithoutExtension(entry.FullName))
+                                    ? Path.GetFileNameWithoutExtension(entry.FullName)
+                                    : entry.Name),
                                 FullPath = entry.FullName,
                                 IsFolder = entry is FileInfo,
                                 DateModified = entry is FileInfo ? entry.LastWriteTime : ((DirectoryInfo)entry).LastWriteTime,
@@ -909,11 +909,11 @@ namespace DeskFrame
                         }
                         else
                         {
-                            existingItem.Name = Instance.ShowFileExtension ?
-                                    entry.Name is FileInfo ?
-                                        string.IsNullOrEmpty(Path.GetFileNameWithoutExtension(entry.FullName)) ? entry.Name : Path.GetFileNameWithoutExtension(entry.FullName)
-                                    : entry.Name
-                                : entry.Name;
+                            existingItem.Name = Instance.ShowFileExtension
+                                ? entry.Name
+                                : (!string.IsNullOrEmpty(Path.GetFileNameWithoutExtension(entry.FullName))
+                                    ? Path.GetFileNameWithoutExtension(entry.FullName)
+                                    : entry.Name);
                             existingItem.FullPath = entry.FullName;
                             existingItem.IsFolder = entry is FileInfo;
                             existingItem.DateModified = entry is FileInfo ? entry.LastWriteTime : ((DirectoryInfo)entry).LastWriteTime;
