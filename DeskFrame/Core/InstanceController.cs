@@ -26,6 +26,7 @@ public class InstanceController
                 key.SetValue("Height", instance.Height!);
                 key.SetValue("Minimized", instance.Minimized!);
                 key.SetValue("Folder", instance.Folder!);
+                key.SetValue("TitleFontFamily", instance.TitleFontFamily!);
                 key.SetValue("ShowHiddenFiles", instance.ShowHiddenFiles!);
                 key.SetValue("ShowFileExtension", instance.ShowFileExtension!);
                 key.SetValue("ShowFileExtensionIcon", instance.ShowFileExtensionIcon!);
@@ -72,6 +73,7 @@ public class InstanceController
                 key.SetValue("Height", instance.Height!);
                 key.SetValue("Minimized", instance.Minimized!);
                 key.SetValue("Folder", instance.Folder!);
+                key.SetValue("TitleFontFamily", instance.TitleFontFamily!);
                 key.SetValue("ShowHiddenFiles", instance.ShowHiddenFiles!);
                 key.SetValue("ShowFileExtension", instance.ShowFileExtension!);
                 key.SetValue("ShowFileExtensionIcon", instance.ShowFileExtensionIcon!);
@@ -214,11 +216,14 @@ public class InstanceController
                                                 temp.Name = value.ToString()!;
                                                 Debug.WriteLine($"Name added\t{temp.Name}");
                                                 break;
-
                                             case "Folder":
                                                 Debug.WriteLine("+trest:  " + value.ToString());
                                                 temp.Folder = value.ToString()!;
                                                 Debug.WriteLine($"Folder added\t{temp.Folder}");
+                                                break;
+                                            case "TitleFontFamily":
+                                                temp.TitleFontFamily = value.ToString()!;
+                                                Debug.WriteLine($"TitleFontFamily added\t{temp.TitleFontFamily}");
                                                 break;
                                             case "Minimized":
                                                 temp.Minimized = bool.Parse(value.ToString()!);

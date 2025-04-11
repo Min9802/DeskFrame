@@ -581,6 +581,16 @@ namespace DeskFrame
             _originalHeight = this.Height;
             titleBar.Background = new SolidColorBrush((Color)System.Windows.Media.ColorConverter.ConvertFromString(Instance.TitleBarColor));
             title.Foreground = new SolidColorBrush((Color)System.Windows.Media.ColorConverter.ConvertFromString(Instance.TitleTextColor));
+            if (Instance.TitleFontFamily != null)
+            {
+                try
+                {
+                    title.FontFamily = new System.Windows.Media.FontFamily(Instance.TitleFontFamily);
+                }
+                catch
+                {
+                }
+            }
             ChangeBackgroundOpacity(Instance.Opacity);
         }
         private void Window_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)

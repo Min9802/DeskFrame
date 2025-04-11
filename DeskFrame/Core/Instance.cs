@@ -14,6 +14,7 @@ public class Instance : INotifyPropertyChanged
     private double _height;
     private string _name;
     private string _folder;
+    private string _titleFontFamily;
     private bool _minimized;
     private bool _showHiddenFiles;
     private bool _showFileExtension;
@@ -105,6 +106,18 @@ public class Instance : INotifyPropertyChanged
             {
                 _folder = value;
                 OnPropertyChanged(nameof(Folder), value);
+            }
+        }
+    }
+    public string TitleFontFamily
+    {
+        get => _titleFontFamily;
+        set
+        {
+            if (_titleFontFamily != value)
+            {
+                _titleFontFamily = value;
+                OnPropertyChanged(nameof(TitleFontFamily), value);
             }
         }
     }

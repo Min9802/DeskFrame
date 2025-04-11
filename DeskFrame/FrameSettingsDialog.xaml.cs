@@ -6,6 +6,8 @@ using Wpf.Ui.Controls;
 using Color = System.Windows.Media.Color;
 using DeskFrame.ColorPicker;
 using System.IO;
+using System.Drawing.Text;
+using System.Collections.ObjectModel;
 namespace DeskFrame
 {
     public partial class FrameSettingsDialog : FluentWindow
@@ -23,10 +25,12 @@ namespace DeskFrame
         private bool _isReverting = false;
         private bool _initDone = false;
         string _lastInstanceName;
+        public ObservableCollection<string> FontList;
 
         public FrameSettingsDialog(DeskFrameWindow frame)
         {
             InitializeComponent();
+            DataContext = this;
             _originalInstance = new Instance(frame.Instance);
             _lastInstanceName = _originalInstance.Name;
             _instance = frame.Instance;
@@ -46,6 +50,22 @@ namespace DeskFrame
 
             UpdateBorderColorEnabled();
             ValidateSettings();
+
+            FontList = new ObservableCollection<string>();
+            InstalledFontCollection fonts = new InstalledFontCollection();
+            foreach (System.Drawing.FontFamily font in fonts.Families)
+            {
+                FontList.Add(font.Name);
+            }
+
+            TitleTextAutoSuggestionBox.OriginalItemsSource = FontList;
+            TitleTextAutoSuggestionBox.TextChanged += (sender, args) =>
+            {
+                _frame.title.FontFamily = new System.Windows.Media.FontFamily(TitleTextAutoSuggestionBox.Text);
+                _instance.TitleFontFamily = TitleTextAutoSuggestionBox.Text;
+            };
+
+
             _initDone = true;
         }
 
@@ -93,11 +113,11 @@ namespace DeskFrame
 
                 _instance.ListViewBackgroundColor = string.IsNullOrEmpty(ListViewBackgroundColorTextBox.Text) ? "#0C000000" : ListViewBackgroundColorTextBox.Text;
                 _instance.Opacity = ((Color)System.Windows.Media.ColorConverter.ConvertFromString(_instance.ListViewBackgroundColor)).A;
-               
+
                 _frame.titleBar.Background = new SolidColorBrush((Color)System.Windows.Media.ColorConverter.ConvertFromString(_instance.TitleBarColor));
                 _frame.title.Foreground = new SolidColorBrush((Color)System.Windows.Media.ColorConverter.ConvertFromString(_instance.TitleTextColor));
                 _frame.title.Text = TitleTextBox.Text ?? _frame.Instance.Name;
-                _frame.WindowBackground.Background = new SolidColorBrush((Color)System.Windows.Media.ColorConverter.ConvertFromString(_instance.ListViewBackgroundColor));;
+                _frame.WindowBackground.Background = new SolidColorBrush((Color)System.Windows.Media.ColorConverter.ConvertFromString(_instance.ListViewBackgroundColor)); ;
             }
         }
 
@@ -132,7 +152,7 @@ namespace DeskFrame
 
         private async void RevertButton_Click(object sender, RoutedEventArgs e)
         {
-           
+
             var dialog = new Wpf.Ui.Controls.MessageBox
             {
                 Title = "Confirm",
@@ -251,7 +271,7 @@ namespace DeskFrame
                 _frame._path = _instance.Folder;
                 _frame.title.Text = Path.GetFileName(_frame._path);
                 _instance.Name = Path.GetFileName(folderDialog.SelectedPath);
-                MainWindow._controller.WriteOverInstanceToKey(_instance,_lastInstanceName);
+                MainWindow._controller.WriteOverInstanceToKey(_instance, _lastInstanceName);
                 _lastInstanceName = _instance.Name;
                 _frame.LoadFiles(_frame._path);
                 DataContext = this;
