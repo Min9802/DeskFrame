@@ -155,7 +155,7 @@
                             <Binding ElementName="FileExtensionIconGrid" Path="Visibility"/>
                         </MultiBinding>
                     </StackPanel.Margin>
-                    <TextBlock x:Name="title" VerticalAlignment="Top" HorizontalAlignment="Center" Margin="0,5,0,0" Foreground="White" FontSize="13"/>
+                    <TextBlock x:Name="title" VerticalAlignment="Top" IsHitTestVisible="False" HorizontalAlignment="Center" Margin="0,5,0,0" Foreground="White" FontSize="13"/>
                 </StackPanel>
             </StackPanel>
         </Grid>
