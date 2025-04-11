@@ -20,6 +20,7 @@ public class Instance : INotifyPropertyChanged
     private bool _showFileExtension;
     private bool _showFileExtensionIcon;
     private bool _showHiddenFilesIcon;
+    private bool _showDisplayName = true;
     private bool _isLocked;
     private string _titleBarColor = "#0C000000";
     private string _titleTextColor = "#FFFFFF";
@@ -181,6 +182,19 @@ public class Instance : INotifyPropertyChanged
             {
                 _showHiddenFilesIcon = value;
                 OnPropertyChanged(nameof(ShowHiddenFilesIcon), value.ToString());
+            }
+        }
+    }
+
+    public bool ShowDisplayName
+    {
+        get => _showDisplayName;
+        set
+        {
+            if (_showDisplayName != value)
+            {
+                _showDisplayName = value;
+                OnPropertyChanged(nameof(ShowDisplayName), value.ToString());
             }
         }
     }

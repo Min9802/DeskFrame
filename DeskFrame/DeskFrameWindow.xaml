@@ -36,16 +36,17 @@
 
         <local:BooleanToBorderThicknessConverter x:Key="BooleanToBorderThicknessConverter"/>
         <local:TitleTextAlignmentToMarginConverter x:Key="TitleTextAlignmentToMarginConverter" />
+        <local:BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter" />
 
         <!-- DataTemplate to display each file item -->
         <DataTemplate x:Key="FileItemTemplate">
             <Border Background="{Binding Background}" Margin="4,0,0,5" CornerRadius="5"
-            MouseLeftButtonDown="FileItem_Click" MinHeight="77" MaxHeight="77"
+            MouseLeftButtonDown="FileItem_Click" MinHeight="50" MaxHeight="77"
             MouseEnter="FileItem_MouseEnter" MouseLeave="FileItem_MouseLeave"
             BorderThickness="1" MouseRightButtonDown="FileItem_RightClick">
                 <StackPanel Orientation="Vertical" HorizontalAlignment="Center">
                     <Image Margin="0,5,0,0" MaxHeight="30" Source="{Binding Thumbnail}" Stretch="Uniform" />
-                    <Grid>
+                    <Grid Visibility="{Binding DataContext.Instance.ShowDisplayName, RelativeSource={RelativeSource AncestorType=Window}, Converter={StaticResource BooleanToVisibilityConverter}}">
                         <TextBlock FontSize="12" Text="{Binding DisplayName}" Padding="0,2,0,0" Margin="3"
                            TextWrapping="Wrap" TextAlignment="Center" 
                            TextTrimming="{Binding TextTrimming}" 
