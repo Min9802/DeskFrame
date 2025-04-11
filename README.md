@@ -13,9 +13,16 @@ It allows you to show a folders content, similar to DesktopPortals
 - Support for showing/hiding hidden files
 - Sticky frames
 - Option to lock Frames
+- And many more
 
 ## Screenshot
-![image](https://github.com/user-attachments/assets/a50fc5ba-02d7-47ca-97f7-e6e43e1b4d92)
+
+<p align="center">
+  <img src="https://github.com/user-attachments/assets/a50fc5ba-02d7-47ca-97f7-e6e43e1b4d92"width="200">
+  <img src="https://github.com/user-attachments/assets/90dc62d9-7e0a-4e04-868f-d96ec25c55f0" width="200">
+  <img src="https://github.com/user-attachments/assets/8f5fa5a5-08aa-4299-bac7-908415a9b956"  width="200">
+  <img src="https://github.com/user-attachments/assets/ccaa944d-b5db-4f0e-9422-30d9ad1e8340" width="200">
+</p>
 
 ## 🤝 Contributing
 Contributions are welcome! If you have an idea for a feature or find a bug, please open an [issue](https://github.com/PinchToDebug/DeskFrame/issues) or submit a [pull request](https://github.com/PinchToDebug/DeskFrame/pulls)!
