@@ -153,7 +153,14 @@ namespace DeskFrame
                 double newWidth = (Math.Round(width / 85.0) * 85 + 13);
                 if (width != newWidth)
                 {
-                    rect.Right = rect.Left + (int)newWidth;
+                    if (wParam.ToInt32() == 2) // WMSZ_RIGHT
+                    {
+                        rect.Right = rect.Left + (int)newWidth;
+                    }
+                    else
+                    {
+                        rect.Left = rect.Right - (int)newWidth;
+                    }
                     Marshal.StructureToPtr(rect, lParam, true);
                     Instance.Width = this.Width;
                 }
