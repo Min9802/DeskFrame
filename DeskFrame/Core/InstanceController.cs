@@ -31,6 +31,7 @@ public class InstanceController
                 key.SetValue("ShowFileExtension", instance.ShowFileExtension!);
                 key.SetValue("ShowFileExtensionIcon", instance.ShowFileExtensionIcon!);
                 key.SetValue("ShowHiddenFilesIcon", instance.ShowHiddenFilesIcon!);
+                key.SetValue("ShowDisplayName", instance.ShowDisplayName!);
                 key.SetValue("IsLocked", instance.IsLocked!);
                 key.SetValue("TitleBarColor", instance.TitleBarColor!);
                 key.SetValue("TitleTextColor", instance.TitleTextColor!);
@@ -78,6 +79,7 @@ public class InstanceController
                 key.SetValue("ShowFileExtension", instance.ShowFileExtension!);
                 key.SetValue("ShowFileExtensionIcon", instance.ShowFileExtensionIcon!);
                 key.SetValue("ShowHiddenFilesIcon", instance.ShowHiddenFilesIcon!);
+                key.SetValue("ShowDisplayName", instance.ShowDisplayName!);
                 key.SetValue("IsLocked", instance.IsLocked!);
                 key.SetValue("TitleBarColor", instance.TitleBarColor!);
                 key.SetValue("TitleTextColor", instance.TitleTextColor!);
@@ -244,6 +246,10 @@ public class InstanceController
                                             case "ShowHiddenFilesIcon":
                                                 temp.ShowHiddenFilesIcon = bool.Parse(value.ToString()!);
                                                 Debug.WriteLine($"ShowHiddenFilesIcon added\t{temp.ShowHiddenFilesIcon}");
+                                                break;
+                                            case "ShowDisplayName":
+                                                temp.ShowDisplayName = bool.Parse(value.ToString()!);
+                                                Debug.WriteLine($"ShowDisplayName added\t{temp.ShowDisplayName}");
                                                 break;
                                             case "IsLocked":
                                                 temp.IsLocked = bool.Parse(value.ToString()!);

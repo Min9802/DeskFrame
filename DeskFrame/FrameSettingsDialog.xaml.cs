@@ -47,6 +47,7 @@ namespace DeskFrame
             TitleTextAlignmentComboBox.SelectedIndex = (int)_instance.TitleTextAlignment;
             ShowFileExtensionIconCheckBox.IsChecked = _instance.ShowFileExtensionIcon;
             ShowHiddenFilesIconCheckBox.IsChecked = _instance.ShowHiddenFilesIcon;
+            ShowDisplayNameCheckBox.IsChecked = _instance.ShowDisplayName;
 
             UpdateBorderColorEnabled();
             ValidateSettings();
@@ -258,6 +259,13 @@ namespace DeskFrame
             _instance.ShowHiddenFilesIcon = ShowHiddenFilesIconCheckBox.IsChecked ?? false;
             _frame.UpdateIconVisibility();
         }
+
+        private void ShowDisplayNameCheckBox_Checked(object sender, RoutedEventArgs e)
+        {
+            _instance.ShowDisplayName = ShowDisplayNameCheckBox.IsChecked ?? true;
+            _frame.UpdateIconVisibility();
+        }
+
         private void ChangeFolderButton_Click(object sender, RoutedEventArgs e)
         {
             var folderDialog = new FolderBrowserDialog

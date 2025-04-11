@@ -54,6 +54,9 @@
                 </StackPanel>
                 <ui:TextBox x:Name="ListViewBackgroundColorTextBox" PlaceholderText="#0C000000" Margin="0,0,0,20" TextChanged="TextChangedHandler"/>
 
+                <Label Content="Listview:" Height="30"/>
+                <CheckBox x:Name="ShowDisplayNameCheckBox" Content="Show Icon Text" Margin="-11,0,0,0" Checked="ShowDisplayNameCheckBox_Checked" Unchecked="ShowDisplayNameCheckBox_Checked"/>
+
                 <Label Content="Titlebar Icons:" Height="30"/>
                 <StackPanel Orientation="Vertical">
                     <CheckBox x:Name="ShowFileExtensionIconCheckBox" Content="File Extensions" Margin="-11,0,10,0" Checked="ShowFileExtensionIconCheckBox_Checked" Unchecked="ShowFileExtensionIconCheckBox_Checked"/>
