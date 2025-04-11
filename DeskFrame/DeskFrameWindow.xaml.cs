@@ -698,7 +698,15 @@ namespace DeskFrame
             LoadFiles(_path);
             UpdateHiddenFilesIcon();
         }
-
+        private void OpenFolder()
+        {
+            try
+            {
+                Process.Start(new ProcessStartInfo(_path) { UseShellExecute = true });
+            }
+            catch
+            { }
+        }
         private void UpdateFileExtensionIcon()
         {
             if (Instance.ShowFileExtension)
@@ -1598,6 +1606,13 @@ namespace DeskFrame
 
             UpdateIcons();
 
+            MenuItem openInExplorerMenuItem = new MenuItem
+            {
+                Header = "Open folder",
+                Icon = new SymbolIcon { Symbol = SymbolRegular.FolderOpen20 }
+            };
+            openInExplorerMenuItem.Click += (_, _) => { OpenFolder(); };
+
             folderOrderMenuItem.Items.Add(folderNoneMenuItem);
             folderOrderMenuItem.Items.Add(folderFirstMenuItem);
             folderOrderMenuItem.Items.Add(folderLastMenuItem);
@@ -1617,10 +1632,12 @@ namespace DeskFrame
             contextMenu.Items.Add(new Separator());
             contextMenu.Items.Add(lockFrame);
             contextMenu.Items.Add(reloadItems);
-            contextMenu.Items.Add(frameSettings);
+            contextMenu.Items.Add(openInExplorerMenuItem);
             contextMenu.Items.Add(new Separator());
             contextMenu.Items.Add(toggleHiddenFiles);
             contextMenu.Items.Add(toggleFileExtension);
+            contextMenu.Items.Add(new Separator());
+            contextMenu.Items.Add(frameSettings);
             contextMenu.Items.Add(new Separator());
             contextMenu.Items.Add(FrameInfoItem);
             contextMenu.Items.Add(new Separator());
