@@ -598,6 +598,15 @@ namespace DeskFrame
                 {
                 }
             }
+            title.FontSize = Instance.TitleFontSize;
+            title.TextWrapping = TextWrapping.Wrap;
+
+            double titleBarHeight = Math.Max(30, Instance.TitleFontSize * 1.5);
+            titleBar.Height = titleBarHeight;
+
+            double scrollViewerMargin = titleBarHeight + 5;
+            scrollViewer.Margin = new Thickness(0, scrollViewerMargin, 0, 0);
+
             ChangeBackgroundOpacity(Instance.Opacity);
         }
         private void Window_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
