@@ -33,6 +33,8 @@ using MessageBoxResult = Wpf.Ui.Controls.MessageBoxResult;
 using MouseEventArgs = System.Windows.Input.MouseEventArgs;
 using Point = System.Drawing.Point;
 using TextBlock = Wpf.Ui.Controls.TextBlock;
+using ListView = Wpf.Ui.Controls.ListView;
+using ListViewItem = System.Windows.Controls.ListViewItem;
 
 namespace DeskFrame
 {
@@ -62,6 +64,7 @@ namespace DeskFrame
         MenuItem dateModifiedMenuItem;
         MenuItem dateCreatedMenuItem;
         MenuItem fileTypeMenuItem;
+        MenuItem fileSizeMenuItem;
         MenuItem ascendingMenuItem;
         MenuItem descendingMenuItem;
         MenuItem folderOrderMenuItem;
@@ -84,6 +87,8 @@ namespace DeskFrame
             DateCreatedDesc = 6,
             FileTypeAsc = 7,
             FileTypeDesc = 8,
+            ItemSizeAsc = 9,
+            ItemSizeDesc = 10,
         }
 
         public static ObservableCollection<FileItem> SortFileItems(ObservableCollection<FileItem> fileItems, int sortBy, int folderOrder)
@@ -100,6 +105,8 @@ namespace DeskFrame
                 { (int)SortBy.DateCreatedDesc, x => x.OrderByDescending(i => i.DateCreated) },
                 { (int)SortBy.FileTypeAsc, x => x.OrderBy(i => i.FileType) },
                 { (int)SortBy.FileTypeDesc, x => x.OrderByDescending(i => i.FileType) },
+                { (int)SortBy.ItemSizeAsc, x => x.OrderBy(i => i.ItemSize) },
+                { (int)SortBy.ItemSizeDesc, x => x.OrderByDescending(i => i.ItemSize) },
             };
 
             if (sortOptions.TryGetValue(sortBy, out var sorter))
@@ -115,31 +122,80 @@ namespace DeskFrame
 
 
 
-        public static List<FileSystemInfo> SortFileItemsToList(List<FileSystemInfo> fileItems, int sortBy, int folderOrder)
+        public async Task<List<FileSystemInfo>> SortFileItemsToList(List<FileSystemInfo> fileItems, int sortBy, int folderOrder)
         {
-            var sortOptions = new Dictionary<int, Func<IEnumerable<FileSystemInfo>, IOrderedEnumerable<FileSystemInfo>>>
-            {
-                { (int)SortBy.NameAsc, x => x.OrderBy(i => string.IsNullOrEmpty(i.Name) ? string.Empty : Path.GetFileNameWithoutExtension(i.Name), StringComparer.OrdinalIgnoreCase) },
-                { (int)SortBy.NameDesc, x => x.OrderByDescending(i => string.IsNullOrEmpty(i.Name) ? string.Empty : Path.GetFileNameWithoutExtension(i.Name), StringComparer.OrdinalIgnoreCase) },
-                { (int)SortBy.DateModifiedAsc, items => items.OrderBy(i => i.LastWriteTime) },
-                { (int)SortBy.DateModifiedDesc, items => items.OrderByDescending(i => i.LastWriteTime) },
-                { (int)SortBy.DateCreatedAsc, items => items.OrderBy(i => i.CreationTime) },
-                { (int)SortBy.DateCreatedDesc, items => items.OrderByDescending(i => i.CreationTime) },
-                { (int)SortBy.FileTypeAsc, items => items.OrderBy(i => i.Extension) },
-                { (int)SortBy.FileTypeDesc, items => items.OrderByDescending(i => i.Extension) },
+            var fileItemSizes = new List<(FileSystemInfo item, long size)>();
 
-            };
-            IEnumerable<FileSystemInfo> sortedItems = sortOptions.TryGetValue(sortBy, out var sorter)
-                  ? sorter(fileItems)
-                  : fileItems;
+            foreach (var item in fileItems)
+            {
+                long size = await GetItemSizeAsync(item);
+                fileItemSizes.Add((item, size));
+            }
+
+            var sortOptions = new Dictionary<int, Func<List<(FileSystemInfo item, long size)>, IOrderedEnumerable<(FileSystemInfo item, long size)>>>
+                {
+                    { (int)SortBy.NameAsc, x => x.OrderBy(i => string.IsNullOrEmpty(i.item.Name) ? string.Empty : Path.GetFileNameWithoutExtension(i.item.Name), StringComparer.OrdinalIgnoreCase) },
+                    { (int)SortBy.NameDesc, x => x.OrderByDescending(i => string.IsNullOrEmpty(i.item.Name) ? string.Empty : Path.GetFileNameWithoutExtension(i.item.Name), StringComparer.OrdinalIgnoreCase) },
+                    { (int)SortBy.DateModifiedAsc, x => x.OrderBy(i => i.item.LastWriteTime) },
+                    { (int)SortBy.DateModifiedDesc, x => x.OrderByDescending(i => i.item.LastWriteTime) },
+                    { (int)SortBy.DateCreatedAsc, x => x.OrderBy(i => i.item.CreationTime) },
+                    { (int)SortBy.DateCreatedDesc, x => x.OrderByDescending(i => i.item.CreationTime) },
+                    { (int)SortBy.FileTypeAsc, x => x.OrderBy(i => i.item.Extension) },
+                    { (int)SortBy.FileTypeDesc, x => x.OrderByDescending(i => i.item.Extension) },
+                    { (int)SortBy.ItemSizeAsc, x => x.OrderBy(i => i.size) },
+                    { (int)SortBy.ItemSizeDesc, x => x.OrderByDescending(i => i.size) },
+                };
+
+            var sortedItems = sortOptions.TryGetValue(sortBy, out var sorter)
+                ? sorter(fileItemSizes).ToList()
+                : fileItemSizes.ToList();
 
             if (folderOrder == 1)
-                sortedItems = sortedItems.OrderBy(i => i is FileInfo);
+                sortedItems = sortedItems.OrderBy(i => i.item is FileInfo).ToList();
             else if (folderOrder == 2)
-                sortedItems = sortedItems.OrderBy(i => i is DirectoryInfo);
+                sortedItems = sortedItems.OrderBy(i => i.item is DirectoryInfo).ToList();
 
-            return sortedItems.ToList();
+            return sortedItems.Select(x => x.item).ToList();
         }
+
+        private async Task<long> GetItemSizeAsync(FileSystemInfo entry, CancellationToken token = default)
+        {
+            if (entry is FileInfo fileInfo)
+            {
+                return fileInfo.Length;
+            }
+            else if (entry is DirectoryInfo directoryInfo && Instance.CheckFolderSize)
+            {
+                return await Task.Run(() => GetDirectorySize(directoryInfo, token), token);
+            }
+
+            return 0;
+        }
+        private long GetDirectorySize(DirectoryInfo directory, CancellationToken token)
+        {
+            long size = 0;
+
+            try
+            {
+                foreach (var file in directory.EnumerateFiles("*", SearchOption.TopDirectoryOnly))
+                {
+                    token.ThrowIfCancellationRequested();
+                    size += file.Length;
+                }
+
+                Parallel.ForEach(directory.EnumerateDirectories("*", SearchOption.TopDirectoryOnly), (subDir) =>
+                {
+                    token.ThrowIfCancellationRequested();
+                    Interlocked.Add(ref size, GetDirectorySize(subDir, token));
+                });
+            }
+            catch
+            {
+            }
+
+            return size;
+        }
+
 
 
         private IntPtr WndProc(IntPtr hWnd, int msg, IntPtr wParam, IntPtr lParam, ref bool handled)
@@ -608,7 +664,16 @@ namespace DeskFrame
                 {
                 }
             }
-
+            if (Instance.ShowInGrid)
+            {
+                showFolder.Visibility = Visibility.Visible;
+                showFolderInGrid.Visibility = Visibility.Hidden;
+            }
+            else
+            {
+                showFolder.Visibility = Visibility.Hidden;
+                showFolderInGrid.Visibility = Visibility.Visible;
+            }
             ChangeBackgroundOpacity(Instance.Opacity);
         }
         private void Window_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
@@ -663,6 +728,7 @@ namespace DeskFrame
                 Duration = new Duration(TimeSpan.FromMilliseconds(duration)),
                 EasingFunction = new QuadraticEase { EasingMode = EasingMode.EaseInOut }
             };
+
             _canAnimate = false;
             rotateAnimation.Completed += (s, e) => _canAnimate = true;
 
@@ -674,7 +740,7 @@ namespace DeskFrame
         {
 
             AnimateChevron(_isMinimized, false);
-            if (showFolder.Visibility == Visibility.Hidden)
+            if (showFolder.Visibility == Visibility.Hidden && showFolderInGrid.Visibility == Visibility.Hidden)
             {
                 return;
             }
@@ -861,8 +927,7 @@ namespace DeskFrame
                     var directories = dirInfo.GetDirectories();
                     _folderCount = directories.Count();
                     _fileCount = dirInfo.GetFiles().Count().ToString();
-                    _folderSize = Task.Run(() => BytesToString(dirInfo.EnumerateFiles("*", SearchOption.AllDirectories).Sum(file => file.Length))).Result;
-                    var filteredFiles = files.Cast<FileSystemInfo>()
+                    _folderSize = !Instance.CheckFolderSize ? "" : Task.Run(() => BytesToStringAsync(dirInfo.EnumerateFiles("*", SearchOption.AllDirectories).Sum(file => file.Length))).Result; var filteredFiles = files.Cast<FileSystemInfo>()
                                 .Concat(directories)
                                 .OrderBy(entry => entry.Name, StringComparer.OrdinalIgnoreCase)
                                 .ToList();
@@ -881,8 +946,7 @@ namespace DeskFrame
                     return;
                 }
 
-                fileEntries = SortFileItemsToList(fileEntries, (int)Instance.SortBy, Instance.FolderOrder);
-
+                fileEntries = await SortFileItemsToList(fileEntries, (int)Instance.SortBy, Instance.FolderOrder);
                 if (Instance.FolderOrder == 1)
                 {
                     fileEntries = fileEntries.OrderBy(x => x is FileInfo).ToList();
@@ -915,20 +979,31 @@ namespace DeskFrame
                     foreach (var entry in fileEntries)
                     {
                         if (loadFiles_cts.IsCancellationRequested)
-                        {
                             return;
-                        }
+
                         var existingItem = FileItems.FirstOrDefault(item => item.FullPath == entry.FullName);
+
+                        long size = 0;
+                        if (entry is FileInfo fileInfo)
+                            size = fileInfo.Length;
+                        else if (entry is DirectoryInfo directoryInfo && Instance.CheckFolderSize)
+                            size = await Task.Run(() => GetDirectorySize(directoryInfo, loadFiles_cts));
+                        size = size > int.MaxValue ? int.MaxValue : size;
+
+                        string displaySize = entry is FileInfo ? await BytesToStringAsync(size)
+                                                               : Instance.CheckFolderSize ? await BytesToStringAsync(size)
+                                                                                          : "";
+                        var thumbnail = await GetThumbnailAsync(entry.FullName);
 
                         if (existingItem == null)
                         {
-                            if (Instance.FileFilterHideRegex != null && Instance.FileFilterHideRegex != ""
-                                && new Regex(Instance.FileFilterHideRegex).IsMatch(entry.Name))
+                            if (!string.IsNullOrEmpty(Instance.FileFilterHideRegex) &&
+                                new Regex(Instance.FileFilterHideRegex).IsMatch(entry.Name))
                             {
                                 continue;
                             }
 
-                            var fileItem = new FileItem
+                            FileItems.Add(new FileItem
                             {
                                 Name = Instance.ShowFileExtension
                                 ? entry.Name
@@ -937,12 +1012,13 @@ namespace DeskFrame
                                     : entry.Name),
                                 FullPath = entry.FullName,
                                 IsFolder = entry is FileInfo,
-                                DateModified = entry is FileInfo ? entry.LastWriteTime : ((DirectoryInfo)entry).LastWriteTime,
-                                DateCreated = entry is FileInfo ? entry.CreationTime : ((DirectoryInfo)entry).CreationTime,
+                                DateModified = entry.LastWriteTime,
+                                DateCreated = entry.CreationTime,
                                 FileType = entry is FileInfo ? entry.Extension : string.Empty,
-                                Thumbnail = await GetThumbnailAsync(entry.FullName)
-                            };
-                            FileItems.Add(fileItem);
+                                ItemSize = (int)size,
+                                DisplaySize = displaySize,
+                                Thumbnail = thumbnail
+                            });
                         }
                         else
                         {
@@ -953,10 +1029,12 @@ namespace DeskFrame
                                     : entry.Name);
                             existingItem.FullPath = entry.FullName;
                             existingItem.IsFolder = entry is FileInfo;
-                            existingItem.DateModified = entry is FileInfo ? entry.LastWriteTime : ((DirectoryInfo)entry).LastWriteTime;
-                            existingItem.DateCreated = entry is FileInfo ? entry.CreationTime : ((DirectoryInfo)entry).CreationTime;
+                            existingItem.DateModified = entry.LastWriteTime;
+                            existingItem.DateCreated = entry.CreationTime;
                             existingItem.FileType = entry is FileInfo ? entry.Extension : string.Empty;
-                            existingItem.Thumbnail = await GetThumbnailAsync(entry.FullName);
+                            existingItem.ItemSize = (int)size;
+                            existingItem.DisplaySize = displaySize;
+                            existingItem.Thumbnail = thumbnail;
                         }
                     }
                     var sortedList = FileItems.ToList();
@@ -977,6 +1055,7 @@ namespace DeskFrame
                     {
                         _fileCount += $" ({hiddenCount} hidden)";
                     }
+                    SortItems();
                     Debug.WriteLine("LOADEDDDDDDDD");
                 });
             }
@@ -994,7 +1073,71 @@ namespace DeskFrame
                 FileItems.Add(fileItem);
             }
         }
+        private void FileListView_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
+        {
+            _canAutoClose = false;
+            if (sender is not ListView listView)
+                return;
+            var point = e.GetPosition(listView);
+            var element = listView.InputHitTest(point) as DependencyObject;
+            while (element != null && element is not ListViewItem)
+            {
+                element = VisualTreeHelper.GetParent(element);
+            }
+            if (element is ListViewItem item && item.DataContext is FileItem clickedItem)
+            {
+                if (e.LeftButton == MouseButtonState.Pressed && e.ClickCount != 2)
+                {
 
+                    DataObject data = new DataObject(DataFormats.FileDrop, new string[] { clickedItem.FullPath! });
+                    DragDrop.DoDragDrop(listView, data, DragDropEffects.Copy | DragDropEffects.Move);
+                }
+            }
+        }
+        private void FileListView_DoubleClick(object sender, MouseButtonEventArgs e)
+        {
+            if (sender is not ListView listView)
+                return;
+            var point = e.GetPosition(listView);
+            var element = listView.InputHitTest(point) as DependencyObject;
+            while (element != null && element is not ListViewItem)
+            {
+                element = VisualTreeHelper.GetParent(element);
+            }
+            if (element is ListViewItem item && item.DataContext is FileItem clickedItem)
+            {
+                try
+                {
+                    Process.Start(new ProcessStartInfo(clickedItem.FullPath!) { UseShellExecute = true });
+                }
+                catch
+                {
+                }
+            }
+        }
+        private void FileListView_MouseRightButtonUp(object sender, MouseButtonEventArgs e)
+        {
+            _canAutoClose = false;
+            if (sender is not ListView listView)
+                return;
+            var point = e.GetPosition(listView);
+            var element = listView.InputHitTest(point) as DependencyObject;
+            while (element != null && element is not ListViewItem)
+            {
+                element = VisualTreeHelper.GetParent(element);
+            }
+            if (element is ListViewItem item && item.DataContext is FileItem clickedItem)
+            {
+                var windowHelper = new WindowInteropHelper(this);
+                FileInfo[] files = new FileInfo[1];
+                files[0] = new FileInfo(clickedItem.FullPath!);
+
+                Point cursorPosition = System.Windows.Forms.Cursor.Position;
+                System.Windows.Point wpfPoint = new System.Windows.Point(cursorPosition.X, cursorPosition.Y);
+                Point drawingPoint = new Point((int)wpfPoint.X, (int)wpfPoint.Y);
+                scm.ShowContextMenu(windowHelper.Handle, files, drawingPoint);
+            }
+        }
         private void Window_Drop(object sender, DragEventArgs e)
         {
             _canAutoClose = false;
@@ -1372,6 +1515,10 @@ namespace DeskFrame
             fileTypeMenuItem.Icon = (Instance.SortBy == 7 || Instance.SortBy == 8)
                 ? new SymbolIcon { Symbol = SymbolRegular.CircleSmall20, Filled = true }
                 : new SymbolIcon { Symbol = SymbolRegular.CircleSmall20, Foreground = Brushes.Transparent };
+            
+            fileSizeMenuItem.Icon = (Instance.SortBy == 9 || Instance.SortBy == 10)
+                ? new SymbolIcon { Symbol = SymbolRegular.CircleSmall20, Filled = true }
+                : new SymbolIcon { Symbol = SymbolRegular.CircleSmall20, Foreground = Brushes.Transparent };
 
             ascendingMenuItem.Icon = (Instance.SortBy % 2 != 0)
                 ? new SymbolIcon { Symbol = SymbolRegular.CircleSmall20, Filled = true }
@@ -1510,6 +1657,7 @@ namespace DeskFrame
             dateModifiedMenuItem = new MenuItem { Header = "Date modified", Height = 34, StaysOpenOnClick = true };
             dateCreatedMenuItem = new MenuItem { Header = "Date created", Height = 34, StaysOpenOnClick = true };
             fileTypeMenuItem = new MenuItem { Header = "File type", Height = 34, StaysOpenOnClick = true };
+            fileSizeMenuItem = new MenuItem { Header = "File size", Height = 34, StaysOpenOnClick = true };
             ascendingMenuItem = new MenuItem { Header = "Ascending", Height = 34, StaysOpenOnClick = true };
             descendingMenuItem = new MenuItem { Header = "Descending", Height = 34, StaysOpenOnClick = true };
 
@@ -1544,7 +1692,13 @@ namespace DeskFrame
                 UpdateIcons();
                 SortItems();
             };
-
+            fileSizeMenuItem.Click += (s, args) =>
+            {
+                if (Instance.SortBy % 2 != 0 && Instance.SortBy != 9) Instance.SortBy = 9;
+                else Instance.SortBy = 10;
+                UpdateIcons();
+                SortItems();
+            };
 
             ascendingMenuItem.Click += async (s, args) =>
             {
@@ -1631,6 +1785,41 @@ namespace DeskFrame
             };
             openInExplorerMenuItem.Click += (_, _) => { OpenFolder(); };
 
+
+            MenuItem changeItemView = new MenuItem
+            {
+                Header = "Change view"
+            };
+            if (showFolder.Visibility == Visibility.Visible)
+            {
+                changeItemView.Header = "Grid view";
+                changeItemView.Icon = new SymbolIcon { Symbol = SymbolRegular.Grid20 };
+            }
+            else
+            {
+                changeItemView.Header = "Details view";
+                changeItemView.Icon = new SymbolIcon { Symbol = SymbolRegular.AppsList20 };
+            }
+            changeItemView.Click += (_, _) =>
+            {
+                if (showFolder.Visibility == Visibility.Visible)
+                {
+                    changeItemView.Header = "Grid view";
+                    changeItemView.Icon = new SymbolIcon { Symbol = SymbolRegular.Grid20 };
+                    showFolderInGrid.Visibility = Visibility.Visible;
+                    showFolder.Visibility = Visibility.Hidden;
+                    Instance.ShowInGrid = !Instance.ShowInGrid;
+                }
+                else
+                {
+                    Instance.ShowInGrid = !Instance.ShowInGrid;
+                    showFolder.Visibility = Visibility.Visible;
+                    showFolderInGrid.Visibility = Visibility.Hidden;
+                    changeItemView.Header = "Details view";
+                    changeItemView.Icon = new SymbolIcon { Symbol = SymbolRegular.AppsList20 };
+                }
+            };
+
             folderOrderMenuItem.Items.Add(folderNoneMenuItem);
             folderOrderMenuItem.Items.Add(folderFirstMenuItem);
             folderOrderMenuItem.Items.Add(folderLastMenuItem);
@@ -1642,6 +1831,7 @@ namespace DeskFrame
             sortByMenuItem.Items.Add(dateModifiedMenuItem);
             sortByMenuItem.Items.Add(dateCreatedMenuItem);
             sortByMenuItem.Items.Add(fileTypeMenuItem);
+            sortByMenuItem.Items.Add(fileSizeMenuItem);
             sortByMenuItem.Items.Add(new Separator());
             sortByMenuItem.Items.Add(ascendingMenuItem);
             sortByMenuItem.Items.Add(descendingMenuItem);
@@ -1651,6 +1841,7 @@ namespace DeskFrame
             contextMenu.Items.Add(lockFrame);
             contextMenu.Items.Add(reloadItems);
             contextMenu.Items.Add(openInExplorerMenuItem);
+            contextMenu.Items.Add(changeItemView);
             contextMenu.Items.Add(new Separator());
             contextMenu.Items.Add(toggleHiddenFiles);
             contextMenu.Items.Add(toggleFileExtension);
@@ -1669,17 +1860,42 @@ namespace DeskFrame
             KeepWindowBehind();
             Debug.WriteLine("Window_StateChanged hide");
         }
-        static String BytesToString(long byteCount)
+        public Task<string> BytesToStringAsync(long byteCount)
         {
-            string[] suffix = { "B", "KB", "MB", "GB", "TB", "PB", "EB" };
-            if (byteCount == 0)
-                return "0" + suffix[0];
-            long bytes = Math.Abs(byteCount);
-            int place = Convert.ToInt32(Math.Floor(Math.Log(bytes, 1024)));
-            double num = Math.Round(bytes / Math.Pow(1024, place), 1);
-            return (Math.Sign(byteCount) * num).ToString() + " " + suffix[place];
+            return Task.Run(() =>
+            {
+                double kilobytes = byteCount / 1024.0;
+                string formattedKilobytes = kilobytes.ToString("#,0", System.Globalization.CultureInfo.InvariantCulture).Replace(",", " ");
+                return formattedKilobytes + " KB";
+            });
         }
 
+        private void FileListView_PreviewMouseUp(object sender, MouseButtonEventArgs e)
+        {
+            var point = e.GetPosition(FileListView);
+            var hit = VisualTreeHelper.HitTest(FileListView, point)?.VisualHit;
+
+            while (hit != null && hit is not GridViewColumnHeader)
+                hit = VisualTreeHelper.GetParent(hit);
+
+            if (hit is not GridViewColumnHeader header || header.Column == null)
+                return;
+
+            int newSort = Instance.SortBy;
+
+            if (header.Column == NameGridColumn)
+                newSort = Instance.SortBy != 1 ? 1 : 2;
+            else if (header.Column == DateModifiedGridColumn)
+                newSort = Instance.SortBy != 3 ? 3 : 4;
+            else if (header.Column == SizeGridColumn)
+                newSort = Instance.SortBy != 9 ? 9 : 10;
+
+            if (newSort != Instance.SortBy)
+            {
+                Instance.SortBy = newSort;
+                SortItems();
+            }
+        }
 
         public class FileItem : INotifyPropertyChanged
         {
@@ -1697,6 +1913,8 @@ namespace DeskFrame
             public DateTime DateModified { get; set; }
             public DateTime DateCreated { get; set; }
             public string? FileType { get; set; }
+            public long ItemSize { get; set; }
+            public string DisplaySize { get; set; }
 
             public string DisplayName
             {
