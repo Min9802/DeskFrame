@@ -1574,10 +1574,19 @@ namespace DeskFrame
             };
             frameSettings.Click += (s, args) =>
             {
+                bool itWasMin = _isMinimized;
+                if (itWasMin)
+                {
+                    Minimize_MouseLeftButtonDown(null, null);
+                }
                 var dialog = new FrameSettingsDialog(this);
                 dialog.ShowDialog();
                 if (dialog.DialogResult == true)
                 {
+                    if (itWasMin)
+                    {
+                        Minimize_MouseLeftButtonDown(null, null);
+                    }
                     LoadFiles(_path);
                 }
             };
