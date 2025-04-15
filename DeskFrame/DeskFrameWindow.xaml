@@ -60,7 +60,8 @@
                            TextWrapping="Wrap" TextAlignment="Center" 
                            TextTrimming="{Binding TextTrimming}" 
                            HorizontalAlignment="Center" MaxHeight="{Binding MaxHeight}"
-                           Foreground="White"/>
+                           Foreground="{Binding DataContext.Instance.ListViewFontColor, RelativeSource={RelativeSource AncestorType=Window}}"
+                            />
                     </Grid>
                 </StackPanel>
             </Border>
@@ -181,7 +182,7 @@
                                                         <TextBlock FontSize="12" 
                                                                    Text="{Binding DisplayName}" 
                                                                    TextTrimming="CharacterEllipsis" 
-                                                                   Foreground="White"/>
+                                                                   Foreground="{Binding DataContext.Instance.ListViewFontColor, RelativeSource={RelativeSource AncestorType=Window}}"/>
                                                     </Grid>
                                                 </Grid>
                                             </DataTemplate>
@@ -206,7 +207,7 @@
                                                         </TextBlock>
                                                         <TextBlock FontSize="12" Text="{Binding DateModified}"
                                                                    TextTrimming="CharacterEllipsis"
-                                                                   Foreground="White"/>
+                                                                   Foreground="{Binding DataContext.Instance.ListViewFontColor, RelativeSource={RelativeSource AncestorType=Window}}"/>
                                                     </Grid>
                                                 </Grid>
                                             </DataTemplate>
@@ -228,7 +229,7 @@
                                                             </TextBlock.Effect>
                                                         </TextBlock>
                                                         <TextBlock FontSize="12" Text="{Binding DisplaySize}"
-                                                                   Foreground="White"
+                                                                   Foreground="{Binding DataContext.Instance.ListViewFontColor, RelativeSource={RelativeSource AncestorType=Window}}"
                                                                    Canvas.Right="{Binding ActualWidth, ElementName=SizeGridColumn, Converter={StaticResource OffsetConverter}}"
                                                                    VerticalAlignment="Center"/>
                                                     </Canvas>

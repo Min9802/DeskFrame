@@ -22,6 +22,7 @@ namespace DeskFrame
         private bool _isValidFileFilterRegex = true;
         private bool _isValidFileFilterHideRegex = true;
         private bool _isValidListViewBackgroundColor = true;
+        private bool _isValidListViewFontColor = true;
         private bool _isReverting = false;
         private bool _initDone = false;
         string _lastInstanceName;
@@ -38,6 +39,7 @@ namespace DeskFrame
             TitleBarColorTextBox.Text = _instance.TitleBarColor;
             TitleTextColorTextBox.Text = _instance.TitleTextColor;
             ListViewBackgroundColorTextBox.Text = _instance.ListViewBackgroundColor;
+            ListViewFontColorTextBox.Text = _instance.ListViewFontColor;
             BorderColorTextBox.Text = _instance.BorderColor;
             BorderEnabledCheckBox.IsChecked = _instance.BorderEnabled;
             TitleTextBox.Text = _instance.TitleText ?? _instance.Name;
@@ -132,8 +134,11 @@ namespace DeskFrame
 
             _isValidTitleTextAlignment = TitleTextAlignmentComboBox.SelectedIndex >= 0;
             _isValidListViewBackgroundColor = TryParseColor(string.IsNullOrEmpty(ListViewBackgroundColorTextBox.Text) ? "#0C000000" : ListViewBackgroundColorTextBox.Text);
+            _isValidListViewFontColor = TryParseColor(string.IsNullOrEmpty(ListViewFontColorTextBox.Text) ? "#FFFFFF" : ListViewFontColorTextBox.Text);
 
-            if (_isValidTitleBarColor && _isValidTitleTextColor && _isValidTitleTextAlignment && _isValidBorderColor && _isValidFileFilterRegex && _isValidFileFilterHideRegex && _isValidListViewBackgroundColor)
+            if (_isValidTitleBarColor && _isValidTitleTextColor && _isValidTitleTextAlignment && 
+                _isValidBorderColor && _isValidFileFilterRegex && _isValidFileFilterHideRegex &&
+                _isValidListViewBackgroundColor && _isValidListViewFontColor)
             {
                 _instance.TitleBarColor = string.IsNullOrEmpty(TitleBarColorTextBox.Text) ? "#0C000000" : TitleBarColorTextBox.Text;
                 _instance.TitleTextColor = string.IsNullOrEmpty(TitleTextColorTextBox.Text) ? "#FFFFFF" : TitleTextColorTextBox.Text;
@@ -146,6 +151,7 @@ namespace DeskFrame
                 _instance.FileFilterHideRegex = FileFilterHideRegexTextBox.Text;
 
                 _instance.ListViewBackgroundColor = string.IsNullOrEmpty(ListViewBackgroundColorTextBox.Text) ? "#0C000000" : ListViewBackgroundColorTextBox.Text;
+                _instance.ListViewFontColor = string.IsNullOrEmpty(ListViewFontColorTextBox.Text) ? "#FFFFFF" : ListViewFontColorTextBox.Text;
                 _instance.Opacity = ((Color)System.Windows.Media.ColorConverter.ConvertFromString(_instance.ListViewBackgroundColor)).A;
                 _instance.TitleFontSize = TitleFontSizeNumberBox.Value ?? 12;
 
@@ -210,6 +216,7 @@ namespace DeskFrame
                 _instance.FileFilterHideRegex = _originalInstance.FileFilterHideRegex;
                 _instance.TitleTextAlignment = _originalInstance.TitleTextAlignment;
                 _instance.ListViewBackgroundColor = _originalInstance.ListViewBackgroundColor;
+                _instance.ListViewFontColor = _originalInstance.ListViewFontColor;
                 _instance.Opacity = _originalInstance.Opacity;
                 _instance.TitleFontSize = _originalInstance.TitleFontSize;
                 _instance.TitleFontFamily = _originalInstance.TitleFontFamily;
@@ -242,6 +249,7 @@ namespace DeskFrame
 
                 TitleTextAlignmentComboBox.SelectedIndex = (int)_instance.TitleTextAlignment;
                 ListViewBackgroundColorTextBox.Text = _instance.ListViewBackgroundColor;
+                ListViewFontColorTextBox.Text = _instance.ListViewFontColor;
                 TitleFontSizeNumberBox.Value = _instance.TitleFontSize;
                 TitleTextAutoSuggestionBox.Text = _instance.TitleFontFamily;
                 UpdateBorderColorEnabled();
@@ -322,6 +330,12 @@ namespace DeskFrame
                 DataContext = this;
                 _frame.InitializeFileWatcher();
             }
+        }
+
+        private void ListViewFontColorButton_Click(object sender, RoutedEventArgs e)
+        {
+            ColorCard.Children.Clear();
+            OpenColorPicker(ListViewFontColorTextBox);
         }
     }
 }
