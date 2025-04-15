@@ -36,7 +36,7 @@ public class Instance : INotifyPropertyChanged
     private int _opacity = 26;
     private int _sortBy = 1;
     private int _folderOrder = 0;
-    private double _titleFontSize = 12;
+    private double _titleFontSize = 13;
     public double PosX
     {
         get => _posX;
