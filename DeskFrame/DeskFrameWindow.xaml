@@ -139,7 +139,7 @@
                     </Grid>
 
 
-                    <Grid x:Name="showFolderInGrid" Visibility="Hidden">
+                    <Grid x:Name="showFolderInGrid">
 
                         <ui:ListView x:Name="FileListView" ScrollViewer.HorizontalScrollBarVisibility="Disabled"
                                      ItemsSource="{Binding FileItems}"
