@@ -49,7 +49,7 @@ namespace DeskFrame
             ShowFileExtensionIconCheckBox.IsChecked = _instance.ShowFileExtensionIcon;
             ShowHiddenFilesIconCheckBox.IsChecked = _instance.ShowHiddenFilesIcon;
             ShowDisplayNameCheckBox.IsChecked = _instance.ShowDisplayName;
-
+            TitleTextAutoSuggestionBox.Text = _instance.TitleFontFamily;
             _frame.title.FontSize = _instance.TitleFontSize;
             _frame.title.TextWrapping = TextWrapping.Wrap;
 
@@ -87,8 +87,16 @@ namespace DeskFrame
             TitleTextAutoSuggestionBox.OriginalItemsSource = FontList;
             TitleTextAutoSuggestionBox.TextChanged += (sender, args) =>
             {
-                _frame.title.FontFamily = new System.Windows.Media.FontFamily(TitleTextAutoSuggestionBox.Text);
-                _instance.TitleFontFamily = TitleTextAutoSuggestionBox.Text;
+                if (TitleTextAutoSuggestionBox.Text != null)
+                {
+                    _frame.title.FontFamily = new System.Windows.Media.FontFamily(TitleTextAutoSuggestionBox.Text);
+                    _instance.TitleFontFamily = TitleTextAutoSuggestionBox.Text;
+                }
+                else
+                {
+                    _frame.title.FontFamily = new System.Windows.Media.FontFamily(TitleTextAutoSuggestionBox.Text);
+
+                }
             };
 
 
@@ -204,6 +212,7 @@ namespace DeskFrame
                 _instance.ListViewBackgroundColor = _originalInstance.ListViewBackgroundColor;
                 _instance.Opacity = _originalInstance.Opacity;
                 _instance.TitleFontSize = _originalInstance.TitleFontSize;
+                _instance.TitleFontFamily = _originalInstance.TitleFontFamily;
                 if (_originalInstance.Folder != _instance.Folder)
                 {
                     _instance.Folder = _originalInstance.Folder;
@@ -234,7 +243,7 @@ namespace DeskFrame
                 TitleTextAlignmentComboBox.SelectedIndex = (int)_instance.TitleTextAlignment;
                 ListViewBackgroundColorTextBox.Text = _instance.ListViewBackgroundColor;
                 TitleFontSizeNumberBox.Value = _instance.TitleFontSize;
-
+                TitleTextAutoSuggestionBox.Text = _instance.TitleFontFamily;
                 UpdateBorderColorEnabled();
                 _isReverting = false;
                 ValidateSettings();

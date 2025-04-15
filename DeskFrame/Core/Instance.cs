@@ -14,7 +14,7 @@ public class Instance : INotifyPropertyChanged
     private double _height;
     private string _name;
     private string _folder;
-    private string _titleFontFamily;
+    private string _titleFontFamily = "Segoe UI";
     private bool _minimized;
     private bool _showHiddenFiles;
     private bool _showFileExtension;
@@ -425,6 +425,7 @@ public class Instance : INotifyPropertyChanged
         _opacity = instance._opacity;
         _sortBy = instance._sortBy;
         _titleFontSize = instance._titleFontSize;
+        _titleFontFamily = instance._titleFontFamily;
     }
 
     public Instance(string name) // default instance
