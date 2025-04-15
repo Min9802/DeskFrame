@@ -51,7 +51,8 @@
                         <TextBlock FontSize="12" Text="{Binding DisplayName}" Padding="0,2,0,0" Margin="3"
                            TextWrapping="Wrap" TextAlignment="Center" 
                            TextTrimming="{Binding TextTrimming}" 
-                           HorizontalAlignment="Center" MaxHeight="{Binding MaxHeight}" Foreground="Black">
+                           HorizontalAlignment="Center" MaxHeight="{Binding MaxHeight}" 
+                           Foreground="{Binding DataContext.Instance.ListViewFontShadowColor, RelativeSource={RelativeSource AncestorType=Window}}">
                             <TextBlock.Effect>
                                 <BlurEffect Radius="2.5" KernelType="Box"/>
                             </TextBlock.Effect>
@@ -173,8 +174,7 @@
                                                                    Text="{Binding DisplayName}" 
                                                                    TextTrimming="CharacterEllipsis" 
                                                                    TextWrapping="NoWrap" 
-
-                                                                   Foreground="Black">
+                                                                   Foreground="{Binding DataContext.Instance.ListViewFontShadowColor, RelativeSource={RelativeSource AncestorType=Window}}">
                                                             <TextBlock.Effect>
                                                                 <BlurEffect Radius="2.5" KernelType="Box"/>
                                                             </TextBlock.Effect>
@@ -200,7 +200,7 @@
                                                         <TextBlock FontSize="12"
                                                                    Text="{Binding DateModified}" 
                                                                    TextTrimming="CharacterEllipsis" 
-                                                                   Foreground="Black">
+                                                                   Foreground="{Binding DataContext.Instance.ListViewFontShadowColor, RelativeSource={RelativeSource AncestorType=Window}}">
                                                             <TextBlock.Effect>
                                                                 <BlurEffect Radius="2.5" KernelType="Box"/>
                                                             </TextBlock.Effect>
@@ -220,8 +220,7 @@
                                                     <Canvas HorizontalAlignment="Right" VerticalAlignment="Center" MinWidth="{Binding ActualWidth, ElementName=SizeGridColumn}" >
                                                         <TextBlock FontSize="12" 
                                                                    Text="{Binding DisplaySize}"
-                                                                   Foreground="Black"
-
+                                                                   Foreground="{Binding DataContext.Instance.ListViewFontShadowColor, RelativeSource={RelativeSource AncestorType=Window}}"
                                                                    Canvas.Right="{Binding ActualWidth, ElementName=SizeGridColumn, Converter={StaticResource OffsetConverter}}"
                                                                    VerticalAlignment="Center">
                                                             <TextBlock.Effect>

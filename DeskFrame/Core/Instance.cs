@@ -34,6 +34,7 @@ public class Instance : INotifyPropertyChanged
     private string _fileFilterHideRegex = "";
     private string _listViewBackgroundColor = "#0C000000";
     private string _listViewFontColor = "#FFFFFF";
+    private string _listViewFontShadowColor = "#000000";
     private int _opacity = 26;
     private int _sortBy = 1;
     private int _folderOrder = 0;
@@ -366,6 +367,18 @@ public class Instance : INotifyPropertyChanged
             }
         }
     }
+    public string ListViewFontShadowColor
+    {
+        get => _listViewFontShadowColor;
+        set
+        {
+            if (_listViewFontShadowColor != value)
+            {
+                _listViewFontShadowColor = value;
+                OnPropertyChanged(nameof(ListViewFontShadowColor), value);
+            }
+        }
+    }
     public int Opacity
     {
         get => _opacity;
@@ -435,6 +448,7 @@ public class Instance : INotifyPropertyChanged
         _fileFilterHideRegex = instance._fileFilterHideRegex;
         _listViewBackgroundColor = instance._listViewBackgroundColor;
         _listViewFontColor = instance._listViewFontColor;
+        _listViewFontShadowColor = instance.ListViewFontShadowColor;
         _opacity = instance._opacity;
         _sortBy = instance._sortBy;
         _titleFontSize = instance._titleFontSize;

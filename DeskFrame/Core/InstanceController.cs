@@ -44,6 +44,7 @@ public class InstanceController
                 key.SetValue("FileFilterHideRegex", instance.FileFilterHideRegex!);
                 key.SetValue("ListViewBackgroundColor", instance.ListViewBackgroundColor!);
                 key.SetValue("ListViewFontColor", instance.ListViewFontColor!);
+                key.SetValue("ListViewFontShadowColor", instance.ListViewFontShadowColor!);
                 key.SetValue("Opacity", instance.Opacity);
                 key.SetValue("SortBy", instance.SortBy);
                 key.SetValue("FolderOrder", instance.FolderOrder);
@@ -95,6 +96,7 @@ public class InstanceController
                 key.SetValue("FileFilterHideRegex", instance.FileFilterHideRegex!);
                 key.SetValue("ListViewBackgroundColor", instance.ListViewBackgroundColor!);
                 key.SetValue("ListViewFontColor", instance.ListViewFontColor!);
+                key.SetValue("ListViewFontShadowColor", instance.ListViewFontShadowColor!);
                 key.SetValue("Opacity", instance.Opacity);
                 key.SetValue("SortBy", instance.SortBy);
                 key.SetValue("FolderOrder", instance.FolderOrder);
@@ -306,6 +308,10 @@ public class InstanceController
                                             case "ListViewFontColor":
                                                 temp.ListViewFontColor = value.ToString()!;
                                                 Debug.WriteLine($"ListViewFontColor added\t{temp.ListViewFontColor}");
+                                                break;
+                                            case "ListViewFontShadowColor":
+                                                temp.ListViewFontShadowColor = value.ToString()!;
+                                                Debug.WriteLine($"ListViewFontShadowColor added\t{temp.ListViewFontShadowColor}");
                                                 break;
                                             case "Opacity":
                                                 if (int.TryParse(value.ToString(), out int parsedOpacity))
