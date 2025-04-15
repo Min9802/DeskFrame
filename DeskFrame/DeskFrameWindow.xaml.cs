@@ -1088,9 +1088,15 @@ namespace DeskFrame
             {
                 if (e.LeftButton == MouseButtonState.Pressed && e.ClickCount != 2)
                 {
-
                     DataObject data = new DataObject(DataFormats.FileDrop, new string[] { clickedItem.FullPath! });
-                    DragDrop.DoDragDrop(listView, data, DragDropEffects.Copy | DragDropEffects.Move);
+                    Task.Run(() =>
+                    {
+                        Thread.Sleep(5);
+                        Application.Current.Dispatcher.Invoke(() =>
+                        {
+                            DragDrop.DoDragDrop(listView, data, DragDropEffects.Copy | DragDropEffects.Move);
+                        });
+                    });
                 }
             }
         }
@@ -1515,7 +1521,7 @@ namespace DeskFrame
             fileTypeMenuItem.Icon = (Instance.SortBy == 7 || Instance.SortBy == 8)
                 ? new SymbolIcon { Symbol = SymbolRegular.CircleSmall20, Filled = true }
                 : new SymbolIcon { Symbol = SymbolRegular.CircleSmall20, Foreground = Brushes.Transparent };
-            
+
             fileSizeMenuItem.Icon = (Instance.SortBy == 9 || Instance.SortBy == 10)
                 ? new SymbolIcon { Symbol = SymbolRegular.CircleSmall20, Filled = true }
                 : new SymbolIcon { Symbol = SymbolRegular.CircleSmall20, Foreground = Brushes.Transparent };
