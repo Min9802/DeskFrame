@@ -97,7 +97,7 @@
                 <Label Content="Title Text Font:" Height="30"/>
                 <ui:AutoSuggestBox x:Name="TitleTextAutoSuggestionBox"
                                    OriginalItemsSource="{Binding FontList}"
-                                   PlaceholderText="Search..." Margin="0,0,0,30"/>
+                                   PlaceholderText="Search..." Margin="0,0,0,20"/>
 
                 <Label Content="Title Text Size:" Height="30"/>
                 <ui:NumberBox x:Name="TitleFontSizeNumberBox"                             
