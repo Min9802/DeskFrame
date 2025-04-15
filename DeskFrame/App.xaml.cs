@@ -15,6 +15,7 @@ namespace DeskFrame
         public RegistryHelper reg = new RegistryHelper("DeskFrame");
         protected override void OnStartup(StartupEventArgs e)
         {
+            PresentationTraceSources.DataBindingSource.Switch.Level = SourceLevels.Critical;
             base.OnStartup(e);
             ToastNotificationManagerCompat.OnActivated += ToastActivatedHandler;
             StartUpdateCheckTimer();
