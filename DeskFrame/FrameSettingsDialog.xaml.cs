@@ -102,7 +102,12 @@ namespace DeskFrame
 
                 }
             };
-
+            TitleBarColorTextBox.Cursor = System.Windows.Input.Cursors.Hand;
+            TitleTextColorTextBox.Cursor = System.Windows.Input.Cursors.Hand;
+            ListViewBackgroundColorTextBox.Cursor = System.Windows.Input.Cursors.Hand;
+            ListViewFontColorTextBox.Cursor = System.Windows.Input.Cursors.Hand;
+            ListViewFontShadowColorTextBox.Cursor = System.Windows.Input.Cursors.Hand;
+            BorderColorTextBox.Cursor = System.Windows.Input.Cursors.Hand;
 
             _initDone = true;
         }
@@ -163,6 +168,14 @@ namespace DeskFrame
                 _frame.title.Foreground = new SolidColorBrush((Color)System.Windows.Media.ColorConverter.ConvertFromString(_instance.TitleTextColor));
                 _frame.title.Text = TitleTextBox.Text ?? _frame.Instance.Name;
                 _frame.WindowBackground.Background = new SolidColorBrush((Color)System.Windows.Media.ColorConverter.ConvertFromString(_instance.ListViewBackgroundColor)); ;
+
+
+                TitleBarColorTextBox.Icon!.Foreground = new SolidColorBrush((Color)System.Windows.Media.ColorConverter.ConvertFromString(_instance.TitleBarColor));
+                TitleTextColorTextBox.Icon!.Foreground = new SolidColorBrush((Color)System.Windows.Media.ColorConverter.ConvertFromString(_instance.TitleTextColor));
+                ListViewBackgroundColorTextBox.Icon!.Foreground = new SolidColorBrush((Color)System.Windows.Media.ColorConverter.ConvertFromString(_instance.ListViewBackgroundColor));
+                ListViewFontColorTextBox.Icon!.Foreground = new SolidColorBrush((Color)System.Windows.Media.ColorConverter.ConvertFromString(_instance.ListViewFontColor));
+                ListViewFontShadowColorTextBox.Icon!.Foreground = new SolidColorBrush((Color)System.Windows.Media.ColorConverter.ConvertFromString(_instance.ListViewFontShadowColor));
+                BorderColorTextBox.Icon!.Foreground = new SolidColorBrush((Color)System.Windows.Media.ColorConverter.ConvertFromString(TryParseColor(BorderColorTextBox.Text) ? _instance.BorderColor : "#FFFFFF"));
             }
         }
 
@@ -340,14 +353,47 @@ namespace DeskFrame
 
         private void ListViewFontColorButton_Click(object sender, RoutedEventArgs e)
         {
-            ColorCard.Children.Clear();
             OpenColorPicker(ListViewFontColorTextBox);
         }
 
         private void ListViewFontShadowColorButton_Click(object sender, RoutedEventArgs e)
         {
-            ColorCard.Children.Clear();
             OpenColorPicker(ListViewFontShadowColorTextBox);
+        }
+
+        private void ListViewFontShadowColorTextBoxIcon_MouseUp(object sender, System.Windows.Input.MouseButtonEventArgs e)
+        {
+            OpenColorPicker(ListViewFontShadowColorTextBox);
+        }
+
+        private void ListViewFontColorTextBoxIcon_MouseUp(object sender, System.Windows.Input.MouseButtonEventArgs e)
+        {
+            OpenColorPicker(ListViewFontColorTextBox);
+        }
+
+        private void TitleTextColorTextBox_MouseUp(object sender, System.Windows.Input.MouseButtonEventArgs e)
+        {
+            OpenColorPicker(TitleTextColorTextBox);
+        }
+
+        private void TitleTextColorTextBoxIcon_MouseUp(object sender, System.Windows.Input.MouseButtonEventArgs e)
+        {
+            OpenColorPicker(TitleTextColorTextBox);
+        }
+
+        private void TitleBarColorTextBoxIcon_MouseUp(object sender, System.Windows.Input.MouseButtonEventArgs e)
+        {
+            OpenColorPicker(TitleBarColorTextBox);
+        }
+
+        private void ListViewBackgroundColorTextBoxIcon_MouseUp(object sender, System.Windows.Input.MouseButtonEventArgs e)
+        {
+            OpenColorPicker(ListViewBackgroundColorTextBox);
+        }
+
+        private void BorderColorTextBoxIcon_MouseUp(object sender, System.Windows.Input.MouseButtonEventArgs e)
+        {
+            OpenColorPicker(BorderColorTextBox);
         }
     }
 }
