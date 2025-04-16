@@ -9,6 +9,7 @@ using System.IO;
 using System.Drawing.Text;
 using System.Collections.ObjectModel;
 using TextBox = Wpf.Ui.Controls.TextBox;
+using Brush = System.Windows.Media.Brush;
 namespace DeskFrame
 {
     public partial class FrameSettingsDialog : FluentWindow
@@ -28,11 +29,15 @@ namespace DeskFrame
         private bool _isReverting = false;
         private bool _initDone = false;
         string _lastInstanceName;
+        private Brush _borderBrush;
+        private Brush _backgroundBrush;
         public ObservableCollection<string> FontList;
 
         public FrameSettingsDialog(DeskFrameWindow frame)
         {
             InitializeComponent();
+            _backgroundBrush = TitleBarColorTextBox.Background;
+            _borderBrush = TitleBarColorTextBox.BorderBrush;
             DataContext = this;
             _originalInstance = new Instance(frame.Instance);
             _lastInstanceName = _originalInstance.Name;
@@ -185,8 +190,8 @@ namespace DeskFrame
             try
             {
                 new SolidColorBrush((Color)System.Windows.Media.ColorConverter.ConvertFromString(colorText));
-                tb.BorderBrush = null;
-                tb.Background = null;
+                tb.BorderBrush = _borderBrush;
+                tb.Background = _backgroundBrush;
                 return true;
             }
             catch
@@ -205,8 +210,8 @@ namespace DeskFrame
                 {
                     new System.Text.RegularExpressions.Regex(regexText);
                 }
-                tb.BorderBrush = null;
-                tb.Background = null;
+                tb.BorderBrush = _borderBrush;
+                tb.Background = _backgroundBrush;
                 return true;
             }
             catch
