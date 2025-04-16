@@ -80,10 +80,10 @@
                     </ui:TextBox.Icon>
                 </ui:TextBox>
                 <Label Content="Show files (regex):" Height="30" />
-                <TextBox x:Name="FileFilterRegexTextBox" Margin="0,0,0,20" TextChanged="TextChangedHandler"/>
+                <ui:TextBox x:Name="FileFilterRegexTextBox" Margin="0,0,0,20" TextChanged="TextChangedHandler"/>
 
                 <Label Content="Hide files (regex):" Height="30"/>
-                <TextBox x:Name="FileFilterHideRegexTextBox" Margin="0,0,0,20" TextChanged="TextChangedHandler"/>
+                <ui:TextBox x:Name="FileFilterHideRegexTextBox" Margin="0,0,0,20" TextChanged="TextChangedHandler"/>
 
 
 
@@ -144,7 +144,7 @@
 
 
                 <Label Content="Text:" Height="30"/>
-                <TextBox x:Name="TitleTextBox" Margin="0,0,0,20" TextChanged="TextChangedHandler"/>
+                <ui:TextBox x:Name="TitleTextBox" Margin="0,0,0,20" TextChanged="TextChangedHandler"/>
 
 
 
