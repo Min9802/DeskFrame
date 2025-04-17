@@ -35,7 +35,7 @@ using Point = System.Drawing.Point;
 using TextBlock = Wpf.Ui.Controls.TextBlock;
 using ListView = Wpf.Ui.Controls.ListView;
 using ListViewItem = System.Windows.Controls.ListViewItem;
-
+using WindowsDesktop;
 namespace DeskFrame
 {
     public partial class DeskFrameWindow : System.Windows.Window
@@ -47,6 +47,7 @@ namespace DeskFrame
         public ObservableCollection<FileItem> FileItems { get; set; }
         private bool _isMinimized = false;
         private int _snapDistance = 8;
+        private int _currentVD;
         private bool _isBlack = true;
         private bool _checkForChages = false;
         private bool _canAutoClose = true;
@@ -1498,6 +1499,36 @@ namespace DeskFrame
             }
          );
 
+            _currentVD = Array.IndexOf(VirtualDesktop.GetDesktops(), VirtualDesktop.Current) + 1;
+            Debug.WriteLine($"Start to desktop number: {_currentVD}");
+            if (Instance.ShowOnVirtualDesktops != null  && Instance.ShowOnVirtualDesktops.Length != 0 && !Instance.ShowOnVirtualDesktops.Contains(_currentVD))
+            {
+                this.Hide();
+            }
+            else
+            {
+                this.Show();
+            }
+            VirtualDesktop.CurrentChanged += (sender, args) =>
+            {
+                var newDesktop = args.NewDesktop;
+                _currentVD = Array.IndexOf(VirtualDesktop.GetDesktops(), newDesktop) + 1;
+                if (Instance.ShowOnVirtualDesktops != null && Instance.ShowOnVirtualDesktops.Length != 0 && !Instance.ShowOnVirtualDesktops.Contains(_currentVD))
+                {
+                    Dispatcher.InvokeAsync(() =>
+                    {
+                        this.Hide();
+                    });
+                }
+                else
+                {
+                    Dispatcher.InvokeAsync(() =>
+                    {
+                        this.Show();
+                    });
+                }
+                Debug.WriteLine($"Switched to virtual desktop: {_currentVD}");
+            };
         }
         private void MainWindow_SourceInitialized(object sender, EventArgs e)
         {

@@ -84,8 +84,9 @@
 
                 <Label Content="Hide files (regex):" Height="30"/>
                 <ui:TextBox x:Name="FileFilterHideRegexTextBox" Margin="0,0,0,20" TextChanged="TextChangedHandler"/>
-
-
+                
+                <Label Content="Visible on virtual desktop:" Height="30"/>
+                <ui:TextBox x:Name="ShowOnVirtualDesktopTextBox" PlaceholderText="All (or e.g. 1,2,3)" Margin="0,0,0,20" TextChanged="TextChangedHandler"/>
 
 
                 <Label Content="Title bar icons:" Height="30"/>
