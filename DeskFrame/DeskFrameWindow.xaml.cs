@@ -1911,7 +1911,22 @@ namespace DeskFrame
             return Task.Run(() =>
             {
                 double kilobytes = byteCount / 1024.0;
-                string formattedKilobytes = kilobytes.ToString("#,0", System.Globalization.CultureInfo.InvariantCulture).Replace(",", " ");
+                string formattedKilobytes;
+                try
+                {
+                    formattedKilobytes = kilobytes.ToString("#,0", System.Globalization.CultureInfo.InvariantCulture).Replace(",", " ");
+                }
+                catch
+                {
+                    try
+                    {
+                        formattedKilobytes = kilobytes.ToString("#,0", System.Globalization.CultureInfo.CurrentCulture).Replace(",", " ");
+                    }
+                    catch
+                    {
+                        formattedKilobytes = kilobytes.ToString("#,0").Replace(",", " ");
+                    }
+                }
                 return formattedKilobytes + " KB";
             });
         }
