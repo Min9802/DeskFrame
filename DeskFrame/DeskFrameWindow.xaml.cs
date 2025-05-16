@@ -1312,7 +1312,10 @@ namespace DeskFrame
                 {
                     return await LoadSvgThumbnailAsync(path);
                 }
-
+                if (Path.GetExtension(path).ToLower() == ".url")
+                {
+                    return await LoadUrlIconAsync(path);
+                }
                 IntPtr hBitmap = IntPtr.Zero;
                 Interop.IShellItemImageFactory? factory = null;
                 int attempts = 0;
@@ -1402,6 +1405,47 @@ namespace DeskFrame
                 Debug.WriteLine($"Failed to load SVG thumbnail: {ex.Message}");
                 return null;
             }
+        }
+        public async Task<BitmapSource?> LoadUrlIconAsync(string path)
+        {
+            string iconFile = "";
+            int iconIndex = 0;
+
+            foreach (var line in File.ReadAllLines(path))
+            {
+                if (line.StartsWith("IconFile=", StringComparison.OrdinalIgnoreCase))
+                {
+                    iconFile = line.Substring("IconFile=".Length).Trim();
+                }
+                else if (line.StartsWith("IconIndex=", StringComparison.OrdinalIgnoreCase))
+                {
+                    if (int.TryParse(line.Substring("IconIndex=".Length).Trim(), out int i))
+                    {
+                        iconIndex = i;
+                    }
+                }
+            }
+            if (!string.IsNullOrEmpty(iconFile) && File.Exists(iconFile))
+            {
+                return await Task.Run(() =>
+                {
+                    IntPtr[] icons = new IntPtr[1];
+                    int extracted = Interop.ExtractIconEx(iconFile, iconIndex, icons, null, 1);
+                    if (extracted > 0 && icons[0] != IntPtr.Zero)
+                    {
+                        var source = Imaging.CreateBitmapSourceFromHIcon(
+                            icons[0],
+                            Int32Rect.Empty,
+                            BitmapSizeOptions.FromEmptyOptions());
+
+                        source.Freeze();
+                        Interop.DestroyIcon(icons[0]);
+                        return source;
+                    }
+                    return null;
+                });
+            }
+            return null;
         }
 
         private void Window_Loaded(object sender, RoutedEventArgs e)

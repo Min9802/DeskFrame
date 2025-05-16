@@ -10,7 +10,10 @@ namespace DeskFrame.Util
 {
     public static class Interop
     {
-        [DllImport("user32.dll")]
+        [DllImport("shell32.dll", CharSet = CharSet.Unicode)]
+        public static extern int ExtractIconEx(string lpszFile, int nIconIndex, IntPtr[] phiconLarge, IntPtr[]? phiconSmall, int nIcons);
+
+        [DllImport("user32.dll", SetLastError = true)]
         public static extern bool GetWindowRect(IntPtr hwnd, out RECT lpRect);
 
         [StructLayout(LayoutKind.Sequential)]
