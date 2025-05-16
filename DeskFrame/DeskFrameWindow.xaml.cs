@@ -877,7 +877,7 @@ namespace DeskFrame
             Dispatcher.Invoke(() =>
             {
                 Debug.WriteLine($"File renamed: {e.OldFullPath} to {e.FullPath}");
-                var renamedItem = FileItems.FirstOrDefault(item => item.Name == Path.GetFileName(e.OldFullPath));
+                var renamedItem = FileItems.FirstOrDefault(item => item.FullPath == e.OldFullPath);
 
                 if (renamedItem != null)
                 {
