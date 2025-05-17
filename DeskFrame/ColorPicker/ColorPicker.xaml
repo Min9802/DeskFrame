@@ -66,10 +66,10 @@
                     <VisualBrush Stretch="Uniform" TileMode="Tile" Viewport="0,0,8,8" ViewboxUnits="RelativeToBoundingBox" ViewportUnits="Absolute" >
                         <VisualBrush.Visual>
                             <Canvas Width="8" Height="8">
-                                <Rectangle Width="4" Height="4" Fill="LightGray" Canvas.Left="0" Canvas.Top="0"/>
-                                <Rectangle Width="4" Height="4" Fill="White" Canvas.Left="4" Canvas.Top="0"/>
-                                <Rectangle Width="4" Height="4" Fill="White" Canvas.Left="0" Canvas.Top="4"/>
-                                <Rectangle Width="4" Height="4" Fill="LightGray" Canvas.Left="4" Canvas.Top="4"/>
+                                <Rectangle Width="4" Height="4" Fill="DarkGray" Canvas.Left="0" Canvas.Top="0"/>
+                                <Rectangle Width="4" Height="4" Fill="DimGray" Canvas.Left="4" Canvas.Top="0"/>
+                                <Rectangle Width="4" Height="4" Fill="DimGray" Canvas.Left="0" Canvas.Top="4"/>
+                                <Rectangle Width="4" Height="4" Fill="DarkGray" Canvas.Left="4" Canvas.Top="4"/>
                             </Canvas>
                         </VisualBrush.Visual>
                     </VisualBrush>
