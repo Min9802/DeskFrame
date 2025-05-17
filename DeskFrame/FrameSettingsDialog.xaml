@@ -38,7 +38,11 @@
                 <StackPanel  x:Name="ColorCard" />
             </ui:Flyout>
             <StackPanel Orientation="Vertical" Margin="10,45,10,0" Grid.Column="0">
-                <Label Content="Miscellaneous" Foreground="CornflowerBlue" Margin="0,0,0,20" Height="50"  FontWeight="Bold" HorizontalAlignment="Center" VerticalContentAlignment="Center" HorizontalContentAlignment="Center" VerticalAlignment="Bottom" />
+                <Label Content="Miscellaneous" Margin="0,0,0,20" Height="50"  FontWeight="Bold" HorizontalAlignment="Center" VerticalContentAlignment="Center" HorizontalContentAlignment="Center" VerticalAlignment="Bottom" >
+                    <Label.Foreground>
+                        <SolidColorBrush Color="{DynamicResource {x:Static SystemColors.HighlightColorKey}}"/>
+                    </Label.Foreground>
+                </Label>
 
                 <StackPanel Orientation="Horizontal" >
                     <CheckBox x:Name="BorderEnabledCheckBox" Margin="-11,0,-5,0" Checked="BorderEnabledCheckBox_Checked"  Unchecked="BorderEnabledCheckBox_Checked"/>
@@ -53,13 +57,35 @@
                     </ui:Button>
                     <Label Content="Border color (hex):"  VerticalAlignment="Center"/>
                 </StackPanel>
-                <ui:TextBox x:Name="BorderColorTextBox" IconPlacement="Right" Margin="0,0,0,20" TextChanged="TextChangedHandler">
-                    <ui:TextBox.Icon>
-                        <ui:SymbolIcon Symbol="Square20" Filled="True" FontSize="30" 
-                                       x:Name="BorderColorTextBoxIcon" MouseUp="BorderColorTextBoxIcon_MouseUp" 
+                <Grid>
+                    <Rectangle  Width="20" Height="20" RadiusX="5"   IsHitTestVisible="False" Panel.ZIndex="2" RadiusY="5" HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,7,16,0">
+                        <Rectangle.Fill>
+                            <VisualBrush Stretch="Uniform" TileMode="Tile" Viewport="0,0,8,8" ViewboxUnits="RelativeToBoundingBox" ViewportUnits="Absolute" >
+                                <VisualBrush.Visual>
+                                    <Canvas Width="8" Height="8">
+                                        <Rectangle Width="4" Height="4" Fill="#FF6B6B6B" Canvas.Left="0" Canvas.Top="0"/>
+                                        <Rectangle Width="4" Height="4" Fill="#FF424242" Canvas.Left="4" Canvas.Top="0"/>
+                                        <Rectangle Width="4" Height="4" Fill="#FF424242" Canvas.Left="0" Canvas.Top="4"/>
+                                        <Rectangle Width="4" Height="4" Fill="#FF6B6B6B" Canvas.Left="4" Canvas.Top="4"/>
+                                    </Canvas>
+                                </VisualBrush.Visual>
+                            </VisualBrush>
+                        </Rectangle.Fill>
+                    </Rectangle>
+
+                    <Rectangle Width="20" Height="20" RadiusX="5" RadiusY="5" Panel.ZIndex="4344"
+                               Fill="{Binding Foreground, ElementName=BorderColorTextBoxIcon}" 
+                               HorizontalAlignment="Right" IsHitTestVisible="False" VerticalAlignment="Top" Margin="0,7,16,0"/>
+
+                    <ui:TextBox x:Name="BorderColorTextBox" IconPlacement="Right" Margin="0,0,0,20" TextChanged="TextChangedHandler">
+                        <ui:TextBox.Icon>
+                            <ui:SymbolIcon Symbol="Square20" Filled="True" FontSize="30" 
+                                       x:Name="BorderColorTextBoxIcon"
+                                       MouseUp="BorderColorTextBoxIcon_MouseUp" 
                                        />
-                    </ui:TextBox.Icon>
-                </ui:TextBox>
+                        </ui:TextBox.Icon>
+                    </ui:TextBox>
+                </Grid>
                 <StackPanel Orientation="Horizontal">
                     <ui:Button  x:Name="FilesBackgroundColorButton" HorizontalAlignment="Center" VerticalAlignment="Top" Margin="1,1,5,0" Icon="{ui:SymbolIcon Color24}" Padding="-10" Click="FilesBackgroundColorButton_Click">
                         <ui:Button.Foreground>
@@ -72,19 +98,41 @@
                     </ui:Button>
                     <Label Content="Background color (hex):" Height="30"/>
                 </StackPanel>
-                <ui:TextBox x:Name="ListViewBackgroundColorTextBox" IconPlacement="Right" PlaceholderText="#0C000000" Margin="0,0,0,20" TextChanged="TextChangedHandler">
-                    <ui:TextBox.Icon>
-                        <ui:SymbolIcon Symbol="Square20" Filled="True" FontSize="30" 
-                                       x:Name="ListViewBackgroundColorTextBoxIcon" 
-                                       MouseUp="ListViewBackgroundColorTextBoxIcon_MouseUp" />
-                    </ui:TextBox.Icon>
-                </ui:TextBox>
+                <Grid>
+                    <Rectangle  Width="20" Height="20" RadiusX="5"   IsHitTestVisible="False" Panel.ZIndex="2" RadiusY="5" HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,7,16,0">
+                        <Rectangle.Fill>
+                            <VisualBrush Stretch="Uniform" TileMode="Tile" Viewport="0,0,8,8" ViewboxUnits="RelativeToBoundingBox" ViewportUnits="Absolute" >
+                                <VisualBrush.Visual>
+                                    <Canvas Width="8" Height="8">
+                                        <Rectangle Width="4" Height="4" Fill="#FF6B6B6B" Canvas.Left="0" Canvas.Top="0"/>
+                                        <Rectangle Width="4" Height="4" Fill="#FF424242" Canvas.Left="4" Canvas.Top="0"/>
+                                        <Rectangle Width="4" Height="4" Fill="#FF424242" Canvas.Left="0" Canvas.Top="4"/>
+                                        <Rectangle Width="4" Height="4" Fill="#FF6B6B6B" Canvas.Left="4" Canvas.Top="4"/>
+                                    </Canvas>
+                                </VisualBrush.Visual>
+                            </VisualBrush>
+                        </Rectangle.Fill>
+                    </Rectangle>
+
+                    <Rectangle Width="20" Height="20" RadiusX="5" RadiusY="5" Panel.ZIndex="4344"
+                               Fill="{Binding Foreground, ElementName=ListViewBackgroundColorTextBoxIcon}" 
+                               HorizontalAlignment="Right" IsHitTestVisible="False" VerticalAlignment="Top" Margin="0,7,16,0"/>
+
+                    <ui:TextBox x:Name="ListViewBackgroundColorTextBox"  IconPlacement="Right" PlaceholderText="#0C000000" Margin="0,0,0,20" TextChanged="TextChangedHandler">
+                        <ui:TextBox.Icon>
+                            <ui:SymbolIcon Symbol="Square20" Filled="True" FontSize="30" 
+                     x:Name="ListViewBackgroundColorTextBoxIcon" 
+                     MouseUp="ListViewBackgroundColorTextBoxIcon_MouseUp" />
+                        </ui:TextBox.Icon>
+                    </ui:TextBox>
+                </Grid>
+
                 <Label Content="Show files (regex):" Height="30" />
                 <ui:TextBox x:Name="FileFilterRegexTextBox" Margin="0,0,0,20" TextChanged="TextChangedHandler"/>
 
                 <Label Content="Hide files (regex):" Height="30"/>
                 <ui:TextBox x:Name="FileFilterHideRegexTextBox" Margin="0,0,0,20" TextChanged="TextChangedHandler"/>
-                
+
                 <Label Content="Visible on virtual desktop:" Height="30"/>
                 <ui:TextBox x:Name="ShowOnVirtualDesktopTextBox" PlaceholderText="All (or e.g. 1,2,3)" Margin="0,0,0,20" TextChanged="TextChangedHandler"/>
 
@@ -99,7 +147,7 @@
             <Separator HorizontalAlignment="Center"  Grid.Column="1" Margin="0,20,0,20"/>
 
             <StackPanel  Orientation="Vertical" Margin="10,45,10,0" Grid.Column="2">
-                <Label Content="Title bar" Foreground="CornflowerBlue" Margin="0,0,0,20" Height="50"  FontWeight="Bold" HorizontalAlignment="Center" VerticalContentAlignment="Center" HorizontalContentAlignment="Center" VerticalAlignment="Bottom" />
+                <Label Content="Title bar" Foreground="{DynamicResource {x:Static SystemColors.HighlightBrushKey}}" Margin="0,0,0,20" Height="50"  FontWeight="Bold" HorizontalAlignment="Center" VerticalContentAlignment="Center" HorizontalContentAlignment="Center" VerticalAlignment="Bottom" />
 
                 <StackPanel Orientation="Horizontal">
                     <ui:Button x:Name="TitleBarColorButton"  HorizontalAlignment="Center" VerticalAlignment="Top" Margin="1,1,5,0" Icon="{ui:SymbolIcon Color24}" Padding="-10" Click="TitleBarColorButton_Click">
@@ -114,13 +162,34 @@
                     <Label Content="Background color (hex):" Height="30"/>
                 </StackPanel>
 
-                <ui:TextBox x:Name="TitleBarColorTextBox" Margin="0,0,0,20" PlaceholderText="#0C000000" IconPlacement="Right" TextChanged="TextChangedHandler">
-                    <ui:TextBox.Icon>
-                        <ui:SymbolIcon Symbol="Square20" Filled="True" FontSize="30" 
+                <Grid>
+                    <Rectangle  Width="20" Height="20" RadiusX="5"   IsHitTestVisible="False" Panel.ZIndex="2" RadiusY="5" HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,7,16,0">
+                        <Rectangle.Fill>
+                            <VisualBrush Stretch="Uniform" TileMode="Tile" Viewport="0,0,8,8" ViewboxUnits="RelativeToBoundingBox" ViewportUnits="Absolute" >
+                                <VisualBrush.Visual>
+                                    <Canvas Width="8" Height="8">
+                                        <Rectangle Width="4" Height="4" Fill="#FF6B6B6B" Canvas.Left="0" Canvas.Top="0"/>
+                                        <Rectangle Width="4" Height="4" Fill="#FF424242" Canvas.Left="4" Canvas.Top="0"/>
+                                        <Rectangle Width="4" Height="4" Fill="#FF424242" Canvas.Left="0" Canvas.Top="4"/>
+                                        <Rectangle Width="4" Height="4" Fill="#FF6B6B6B" Canvas.Left="4" Canvas.Top="4"/>
+                                    </Canvas>
+                                </VisualBrush.Visual>
+                            </VisualBrush>
+                        </Rectangle.Fill>
+                    </Rectangle>
+
+                    <Rectangle Width="20" Height="20" RadiusX="5" RadiusY="5" Panel.ZIndex="4344"
+                               Fill="{Binding Foreground, ElementName=TitleBarColorTextBoxIcon}" 
+                               HorizontalAlignment="Right" IsHitTestVisible="False" VerticalAlignment="Top" Margin="0,7,16,0"/>
+
+                    <ui:TextBox x:Name="TitleBarColorTextBox" Margin="0,0,0,20" PlaceholderText="#0C000000" IconPlacement="Right" TextChanged="TextChangedHandler">
+                        <ui:TextBox.Icon>
+                            <ui:SymbolIcon Symbol="Square20" Filled="True" FontSize="30" 
                                        x:Name="TitleBarColorTextBoxIcon"
                                        MouseUp="TitleBarColorTextBoxIcon_MouseUp" />
-                    </ui:TextBox.Icon>
-                </ui:TextBox>
+                        </ui:TextBox.Icon>
+                    </ui:TextBox>
+                </Grid>
 
                 <StackPanel Orientation="Horizontal">
                     <ui:Button x:Name="TitleTextColorButton" HorizontalAlignment="Center" VerticalAlignment="Top" Margin="1,1,5,0" Icon="{ui:SymbolIcon Color24}" Padding="-10" Click="TitleTextColorButton_Click">
@@ -135,13 +204,34 @@
                     <Label Content="Text color (hex):" Height="30"/>
                 </StackPanel>
 
-                <ui:TextBox x:Name="TitleTextColorTextBox" PlaceholderText="#FFFFFF" Margin="0,0,0,20" IconPlacement="Right" TextChanged="TextChangedHandler">
-                    <ui:TextBox.Icon>
-                        <ui:SymbolIcon Symbol="Square20" Filled="True" FontSize="30" 
-                                       x:Name="TitleTextColorTextBoxIcon"
-                                       MouseUp="TitleTextColorTextBoxIcon_MouseUp" />
-                    </ui:TextBox.Icon>
-                </ui:TextBox>
+                <Grid>
+                    <Rectangle  Width="20" Height="20" RadiusX="5"   IsHitTestVisible="False" Panel.ZIndex="2" RadiusY="5" HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,7,16,0">
+                        <Rectangle.Fill>
+                            <VisualBrush Stretch="Uniform" TileMode="Tile" Viewport="0,0,8,8" ViewboxUnits="RelativeToBoundingBox" ViewportUnits="Absolute" >
+                                <VisualBrush.Visual>
+                                    <Canvas Width="8" Height="8">
+                                        <Rectangle Width="4" Height="4" Fill="#FF6B6B6B" Canvas.Left="0" Canvas.Top="0"/>
+                                        <Rectangle Width="4" Height="4" Fill="#FF424242" Canvas.Left="4" Canvas.Top="0"/>
+                                        <Rectangle Width="4" Height="4" Fill="#FF424242" Canvas.Left="0" Canvas.Top="4"/>
+                                        <Rectangle Width="4" Height="4" Fill="#FF6B6B6B" Canvas.Left="4" Canvas.Top="4"/>
+                                    </Canvas>
+                                </VisualBrush.Visual>
+                            </VisualBrush>
+                        </Rectangle.Fill>
+                    </Rectangle>
+
+                    <Rectangle Width="20" Height="20" RadiusX="5" RadiusY="5" Panel.ZIndex="4344"
+                               Fill="{Binding Foreground, ElementName=TitleTextColorTextBoxIcon}" 
+                               HorizontalAlignment="Right" IsHitTestVisible="False" VerticalAlignment="Top" Margin="0,7,16,0"/>
+
+                    <ui:TextBox x:Name="TitleTextColorTextBox" PlaceholderText="#FFFFFF" Margin="0,0,0,20" IconPlacement="Right" TextChanged="TextChangedHandler">
+                        <ui:TextBox.Icon>
+                            <ui:SymbolIcon Symbol="Square20" Filled="True" FontSize="30"
+                                           x:Name="TitleTextColorTextBoxIcon"
+                                           MouseUp="TitleTextColorTextBoxIcon_MouseUp" />
+                        </ui:TextBox.Icon>
+                    </ui:TextBox>
+                </Grid>
 
 
                 <Label Content="Text:" Height="30"/>
@@ -174,7 +264,11 @@
             <Separator HorizontalAlignment="Center"  Grid.Column="3" Margin="0,20,0,20"/>
 
             <StackPanel Orientation="Vertical" Margin="10,45,10,0" Grid.Column="4">
-                <Label Content="File items" Foreground="CornflowerBlue" Margin="0,0,0,20" Height="50"  FontWeight="Bold" HorizontalAlignment="Center" VerticalContentAlignment="Center" HorizontalContentAlignment="Center" VerticalAlignment="Bottom" />
+                <Label Content="File items" Margin="0,0,0,20" Height="50"  FontWeight="Bold" HorizontalAlignment="Center" VerticalContentAlignment="Center" HorizontalContentAlignment="Center" VerticalAlignment="Bottom" >
+                    <Label.Foreground>
+                        <SolidColorBrush Color="{DynamicResource {x:Static SystemColors.HighlightColorKey}}"/>
+                    </Label.Foreground>
+                </Label>
                 <StackPanel Orientation="Horizontal">
                     <ui:Button x:Name="ListViewFontColorButton" HorizontalAlignment="Center" VerticalAlignment="Top" Margin="1,1,5,0" Icon="{ui:SymbolIcon Color24}" Padding="-10" Click="ListViewFontColorButton_Click">
                         <ui:Button.Foreground>
@@ -188,13 +282,34 @@
                     <Label Content="Text color (hex):" Height="30"/>
                 </StackPanel>
 
-                <ui:TextBox x:Name="ListViewFontColorTextBox" PlaceholderText="#FFFFFF" Margin="0,0,0,20" IconPlacement="Right" TextChanged="TextChangedHandler">
-                    <ui:TextBox.Icon>
-                        <ui:SymbolIcon Symbol="Square20" Filled="True" FontSize="30" 
-            x:Name="ListViewFontColorTextBoxIcon" 
-            MouseUp="ListViewFontColorTextBoxIcon_MouseUp" />
-                    </ui:TextBox.Icon>
-                </ui:TextBox>
+                <Grid>
+                    <Rectangle  Width="20" Height="20" RadiusX="5"   IsHitTestVisible="False" Panel.ZIndex="2" RadiusY="5" HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,7,16,0">
+                        <Rectangle.Fill>
+                            <VisualBrush Stretch="Uniform" TileMode="Tile" Viewport="0,0,8,8" ViewboxUnits="RelativeToBoundingBox" ViewportUnits="Absolute" >
+                                <VisualBrush.Visual>
+                                    <Canvas Width="8" Height="8">
+                                        <Rectangle Width="4" Height="4" Fill="#FF6B6B6B" Canvas.Left="0" Canvas.Top="0"/>
+                                        <Rectangle Width="4" Height="4" Fill="#FF424242" Canvas.Left="4" Canvas.Top="0"/>
+                                        <Rectangle Width="4" Height="4" Fill="#FF424242" Canvas.Left="0" Canvas.Top="4"/>
+                                        <Rectangle Width="4" Height="4" Fill="#FF6B6B6B" Canvas.Left="4" Canvas.Top="4"/>
+                                    </Canvas>
+                                </VisualBrush.Visual>
+                            </VisualBrush>
+                        </Rectangle.Fill>
+                    </Rectangle>
+
+                    <Rectangle Width="20" Height="20" RadiusX="5" RadiusY="5" Panel.ZIndex="4344"
+                               Fill="{Binding Foreground, ElementName=ListViewFontColorTextBoxIcon}" 
+                               HorizontalAlignment="Right" IsHitTestVisible="False" VerticalAlignment="Top" Margin="0,7,16,0"/>
+
+                    <ui:TextBox x:Name="ListViewFontColorTextBox" PlaceholderText="#FFFFFF" Margin="0,0,0,20" IconPlacement="Right" TextChanged="TextChangedHandler">
+                        <ui:TextBox.Icon>
+                            <ui:SymbolIcon Symbol="Square20" Filled="True" FontSize="30" 
+                                        x:Name="ListViewFontColorTextBoxIcon" 
+                                        MouseUp="ListViewFontColorTextBoxIcon_MouseUp" />
+                        </ui:TextBox.Icon>
+                    </ui:TextBox>
+                </Grid>
 
 
                 <StackPanel Orientation="Horizontal">
@@ -210,13 +325,35 @@
                     <Label Content="Text shadow color (hex):" Height="30"/>
                 </StackPanel>
 
-                <ui:TextBox x:Name="ListViewFontShadowColorTextBox" PlaceholderText="#000000" Margin="0,0,0,20"  IconPlacement="Right" TextChanged="TextChangedHandler">
-                    <ui:TextBox.Icon>
-                        <ui:SymbolIcon Symbol="Square20" Filled="True" FontSize="30" 
+                <Grid>
+                    <Rectangle  Width="20" Height="20" RadiusX="5"   IsHitTestVisible="False" Panel.ZIndex="2" RadiusY="5" HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,7,16,0">
+                        <Rectangle.Fill>
+                            <VisualBrush Stretch="Uniform" TileMode="Tile" Viewport="0,0,8,8" ViewboxUnits="RelativeToBoundingBox" ViewportUnits="Absolute" >
+                                <VisualBrush.Visual>
+                                    <Canvas Width="8" Height="8">
+                                        <Rectangle Width="4" Height="4" Fill="#FF6B6B6B" Canvas.Left="0" Canvas.Top="0"/>
+                                        <Rectangle Width="4" Height="4" Fill="#FF424242" Canvas.Left="4" Canvas.Top="0"/>
+                                        <Rectangle Width="4" Height="4" Fill="#FF424242" Canvas.Left="0" Canvas.Top="4"/>
+                                        <Rectangle Width="4" Height="4" Fill="#FF6B6B6B" Canvas.Left="4" Canvas.Top="4"/>
+                                    </Canvas>
+                                </VisualBrush.Visual>
+                            </VisualBrush>
+                        </Rectangle.Fill>
+                    </Rectangle>
+
+                    <Rectangle Width="20" Height="20" RadiusX="5" RadiusY="5" Panel.ZIndex="4344"
+                               Fill="{Binding Foreground, ElementName=ListViewFontShadowColorTextBoxIcon}" 
+                               HorizontalAlignment="Right" IsHitTestVisible="False" VerticalAlignment="Top" Margin="0,7,16,0"/>
+
+                    <ui:TextBox x:Name="ListViewFontShadowColorTextBox" PlaceholderText="#000000" Margin="0,0,0,20"  IconPlacement="Right" TextChanged="TextChangedHandler">
+                        <ui:TextBox.Icon>
+                            <ui:SymbolIcon Symbol="Square20" Filled="True" FontSize="30" 
                                        x:Name="ListViewFontShadowColorTextBoxIcon" 
                                        MouseUp="ListViewFontShadowColorTextBoxIcon_MouseUp" />
-                    </ui:TextBox.Icon>
-                </ui:TextBox>
+                        </ui:TextBox.Icon>
+                    </ui:TextBox>
+                </Grid>
+
                 <CheckBox x:Name="ShowDisplayNameCheckBox" Content="Show icon text" Margin="-11,0,0,0" Checked="ShowDisplayNameCheckBox_Checked" Unchecked="ShowDisplayNameCheckBox_Checked"/>
             </StackPanel>
             <Button x:Name="RevertButton" Grid.Column="4" HorizontalAlignment="Right" Content="Revert" Margin="10" Height="30" Click="RevertButton_Click"  VerticalAlignment="Bottom"/>
