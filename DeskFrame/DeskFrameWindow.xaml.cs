@@ -1408,44 +1408,52 @@ namespace DeskFrame
         }
         public async Task<BitmapSource?> LoadUrlIconAsync(string path)
         {
-            string iconFile = "";
-            int iconIndex = 0;
-
-            foreach (var line in File.ReadAllLines(path))
+            try
             {
-                if (line.StartsWith("IconFile=", StringComparison.OrdinalIgnoreCase))
+                string iconFile = "";
+                int iconIndex = 0;
+
+                foreach (var line in File.ReadAllLines(path))
                 {
-                    iconFile = line.Substring("IconFile=".Length).Trim();
-                }
-                else if (line.StartsWith("IconIndex=", StringComparison.OrdinalIgnoreCase))
-                {
-                    if (int.TryParse(line.Substring("IconIndex=".Length).Trim(), out int i))
+                    if (line.StartsWith("IconFile=", StringComparison.OrdinalIgnoreCase))
                     {
-                        iconIndex = i;
+                        iconFile = line.Substring("IconFile=".Length).Trim();
+                    }
+                    else if (line.StartsWith("IconIndex=", StringComparison.OrdinalIgnoreCase))
+                    {
+                        if (int.TryParse(line.Substring("IconIndex=".Length).Trim(), out int i))
+                        {
+                            iconIndex = i;
+                        }
                     }
                 }
-            }
-            if (!string.IsNullOrEmpty(iconFile) && File.Exists(iconFile))
-            {
-                return await Task.Run(() =>
+                if (!string.IsNullOrEmpty(iconFile) && File.Exists(iconFile))
                 {
-                    IntPtr[] icons = new IntPtr[1];
-                    int extracted = Interop.ExtractIconEx(iconFile, iconIndex, icons, null, 1);
-                    if (extracted > 0 && icons[0] != IntPtr.Zero)
+                    return await Task.Run(() =>
                     {
-                        var source = Imaging.CreateBitmapSourceFromHIcon(
-                            icons[0],
-                            Int32Rect.Empty,
-                            BitmapSizeOptions.FromEmptyOptions());
+                        IntPtr[] icons = new IntPtr[1];
+                        int extracted = Interop.ExtractIconEx(iconFile, iconIndex, icons, null, 1);
+                        if (extracted > 0 && icons[0] != IntPtr.Zero)
+                        {
+                            var source = Imaging.CreateBitmapSourceFromHIcon(
+                                icons[0],
+                                Int32Rect.Empty,
+                                BitmapSizeOptions.FromEmptyOptions());
 
-                        source.Freeze();
-                        Interop.DestroyIcon(icons[0]);
-                        return source;
-                    }
-                    return null;
-                });
+                            source.Freeze();
+                            Interop.DestroyIcon(icons[0]);
+                            return source;
+                        }
+                        return null;
+                    });
+                }
+                return null;
             }
-            return null;
+            catch (Exception e)
+            {
+                Debug.WriteLine("Error loading URL icon: " + e.Message);
+                return await GetThumbnailAsync(path);
+            }
         }
 
         private void Window_Loaded(object sender, RoutedEventArgs e)
