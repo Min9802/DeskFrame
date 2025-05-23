@@ -1239,7 +1239,7 @@ namespace DeskFrame
             {
                 if (dragBorder.DataContext is FileItem fileItem)
                 {
-                   
+
                     DataObject data = new DataObject(DataFormats.FileDrop, new string[] { fileItem.FullPath! });
                     DragDrop.DoDragDrop(dragBorder, data, DragDropEffects.Copy | DragDropEffects.Move);
                 }
@@ -1598,7 +1598,7 @@ namespace DeskFrame
 
             _currentVD = Array.IndexOf(VirtualDesktop.GetDesktops(), VirtualDesktop.Current) + 1;
             Debug.WriteLine($"Start to desktop number: {_currentVD}");
-            if (Instance.ShowOnVirtualDesktops != null  && Instance.ShowOnVirtualDesktops.Length != 0 && !Instance.ShowOnVirtualDesktops.Contains(_currentVD))
+            if (Instance.ShowOnVirtualDesktops != null && Instance.ShowOnVirtualDesktops.Length != 0 && !Instance.ShowOnVirtualDesktops.Contains(_currentVD))
             {
                 this.Hide();
             }
