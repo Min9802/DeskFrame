@@ -16,9 +16,9 @@
          ShowInTaskbar="False"
          ResizeMode="CanResize"
          MouseLeftButtonDown="Window_MouseLeftButtonDown"
-         
          IsTabStop="False" Loaded="Window_Loaded"
          AllowDrop="True" Drop="Window_Drop" 
+         DragEnter="Window_DragEnter" DragLeave="Window_DragLeave"
          SizeChanged="Window_SizeChanged"    
          FontSize="12"
          MinHeight="30" 

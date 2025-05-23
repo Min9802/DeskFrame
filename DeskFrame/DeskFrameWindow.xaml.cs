@@ -45,6 +45,11 @@ namespace DeskFrame
         public string _path;
         private FileSystemWatcher _fileWatcher = new FileSystemWatcher();
         public ObservableCollection<FileItem> FileItems { get; set; }
+
+        private bool _dropIntoFolder;
+        string _dropToFolder;
+        FrameworkElement _lastBorder;
+
         private bool _isMinimized = false;
         private int _snapDistance = 8;
         private int _currentVD;
@@ -1147,6 +1152,7 @@ namespace DeskFrame
         }
         private void Window_Drop(object sender, DragEventArgs e)
         {
+            _dropIntoFolder = false;
             _canAutoClose = false;
             Task.Run(async () =>
             {
@@ -1156,12 +1162,11 @@ namespace DeskFrame
             if (e.Data.GetDataPresent(DataFormats.FileDrop))
             {
                 string[] files = (string[])e.Data.GetData(DataFormats.FileDrop);
-
                 foreach (var file in files)
                 {
                     string destinationPath = Path.Combine(_path, Path.GetFileName(file));
 
-                    if (Path.GetDirectoryName(file) == _path)
+                    if (Path.GetDirectoryName(file) == _path && _dropIntoFolder)
                     {
                         return;
                     }
@@ -1185,13 +1190,12 @@ namespace DeskFrame
                                 addFolder.Visibility = Visibility.Hidden;
 
                             }
-                            Directory.Move(file, destinationPath);
-
+                            Directory.Move(file, _dropToFolder != "" ? _dropToFolder + Path.GetFileName(destinationPath) : destinationPath);
                         }
                         else
                         {
                             Debug.WriteLine("File detected: " + file);
-                            File.Move(file, destinationPath);
+                            File.Move(file, _dropToFolder != "" ? _dropToFolder + Path.GetFileName(destinationPath) : destinationPath);
                         }
                     }
                     catch (Exception ex)
@@ -1235,7 +1239,7 @@ namespace DeskFrame
             {
                 if (dragBorder.DataContext is FileItem fileItem)
                 {
-
+                   
                     DataObject data = new DataObject(DataFormats.FileDrop, new string[] { fileItem.FullPath! });
                     DragDrop.DoDragDrop(dragBorder, data, DragDropEffects.Copy | DragDropEffects.Move);
                 }
@@ -1276,18 +1280,59 @@ namespace DeskFrame
             }
         }
 
-        private void FileItem_MouseEnter(object sender, MouseEventArgs e)
+        private void Window_DragLeave(object sender, DragEventArgs e)
+        {
+            _dropIntoFolder = false;
+        }
+        private void Window_DragEnter(object sender, DragEventArgs e)
+        {
+            var sourceElement = e.OriginalSource as DependencyObject;
+            var currentBorder = sourceElement as Border ?? FindParent<Border>(sourceElement);
+            _dropIntoFolder = true;
+            if (currentBorder != _lastBorder)
+            {
+                if (_lastBorder != null)
+                {
+                    FileItem_MouseLeave(_lastBorder, null);
+                }
+                _lastBorder = currentBorder;
+            }
+            if (currentBorder != null)
+            {
+                FileItem_MouseEnter(currentBorder, null);
+            }
+        }
+        private T? FindParent<T>(DependencyObject child) where T : DependencyObject
+        {
+            DependencyObject parent = VisualTreeHelper.GetParent(child);
+            while (parent != null && !(parent is T))
+            {
+                parent = VisualTreeHelper.GetParent(parent);
+            }
+            return parent as T;
+        }
+
+        private void FileItem_MouseEnter(object sender, MouseEventArgs? e)
         {
             if (sender is Border border && border.DataContext is FileItem fileItem)
             {
-                fileItem.Background = new SolidColorBrush(Color.FromArgb(30, 255, 255, 255));
+                if (_dropIntoFolder && !fileItem.IsFolder)
+                {
+                    _dropToFolder = fileItem.FullPath + "\\";
+                    fileItem.Background = new SolidColorBrush(Color.FromArgb(30, 255, 255, 255));
+                }
+                else if (!_dropIntoFolder)
+                {
+                    fileItem.Background = new SolidColorBrush(Color.FromArgb(30, 255, 255, 255));
+                }
             }
         }
 
-        private void FileItem_MouseLeave(object sender, MouseEventArgs e)
+        private void FileItem_MouseLeave(object sender, MouseEventArgs? e)
         {
             if (sender is Border border && border.DataContext is FileItem fileItem)
             {
+                _dropToFolder = "";
                 if (!fileItem.IsSelected)
                 {
                     fileItem.Background = fileItem.IsSelected ? new SolidColorBrush(Color.FromArgb(30, 255, 255, 255)) : Brushes.Transparent;
