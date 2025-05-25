@@ -1352,14 +1352,18 @@ namespace DeskFrame
                     Console.WriteLine("Invalid path: " + path);
                     return null;
                 }
-
+                BitmapSource thumbnail = null;
                 if (Path.GetExtension(path).ToLower() == ".svg")
                 {
-                    return await LoadSvgThumbnailAsync(path);
+                    thumbnail = await LoadSvgThumbnailAsync(path);
                 }
                 if (Path.GetExtension(path).ToLower() == ".url")
                 {
-                    return await LoadUrlIconAsync(path);
+                    thumbnail = await LoadUrlIconAsync(path);
+                }
+                if (thumbnail != null)
+                {
+                    return thumbnail;
                 }
                 IntPtr hBitmap = IntPtr.Zero;
                 Interop.IShellItemImageFactory? factory = null;
@@ -1457,9 +1461,11 @@ namespace DeskFrame
             {
                 string iconFile = "";
                 int iconIndex = 0;
-
+                bool hasHttp = false;
+                bool hasHttps = false;
                 foreach (var line in File.ReadAllLines(path))
                 {
+                    Debug.WriteLine(line);
                     if (line.StartsWith("IconFile=", StringComparison.OrdinalIgnoreCase))
                     {
                         iconFile = line.Substring("IconFile=".Length).Trim();
@@ -1470,6 +1476,30 @@ namespace DeskFrame
                         {
                             iconIndex = i;
                         }
+                    }
+                    else if (iconFile == "")
+                    {
+                        if (line.StartsWith("URL=http://"))
+                        {
+                            hasHttp = true;
+                            break;
+                        }
+                        else if (line.StartsWith("URL=https://"))
+                        {
+                            hasHttps = true;
+                            break;
+                        }
+                    }
+                }
+                if (iconFile == "")
+                {
+                    if (hasHttp)
+                    {
+                        iconFile = GetDefaultBrowserPath("http");
+                    }
+                    else if (hasHttps)
+                    {
+                        iconFile = GetDefaultBrowserPath("https");
                     }
                 }
                 if (!string.IsNullOrEmpty(iconFile) && File.Exists(iconFile))
@@ -1500,7 +1530,42 @@ namespace DeskFrame
                 return await GetThumbnailAsync(path);
             }
         }
+        private string GetDefaultBrowserPath(string protocol)
+        {
+            try
+            {
+                using (RegistryKey key = Registry.CurrentUser.OpenSubKey(@$"Software\Microsoft\Windows\Shell\Associations\UrlAssociations\{protocol}\UserChoice"))
+                {
+                    if (key != null)
+                    {
+                        object progId = key.GetValue("Progid");
 
+                        if (progId == null)
+                        {
+                            return "";
+                        }
+                        using (RegistryKey commandKey = Registry.ClassesRoot.OpenSubKey($@"{progId}\shell\open\command"))
+                        {
+                            if (commandKey != null)
+                            {
+                                object command = commandKey.GetValue("");
+
+                                if (command == null)
+                                {
+                                    return "";
+                                }
+                                return Regex.Match(command.ToString()!, "^\"([^\"]+)\"").Groups[1].Value;
+                            }
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                return "";
+            }
+            return "";
+        }
         private void Window_Loaded(object sender, RoutedEventArgs e)
         {
             UpdateFileExtensionIcon();
