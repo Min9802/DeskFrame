@@ -45,7 +45,7 @@ namespace DeskFrame
             _lastInstanceName = _originalInstance.Name;
             _instance = frame.Instance;
             AnimationSpeedSlider.Value = _instance.AnimationSpeed * 4;
-            AnimationSpeedLabel.Content = _instance.AnimationSpeed;
+            AnimationSpeedLabel.Content = _instance.AnimationSpeed == 0.0 ? "OFF" : "x" + _instance.AnimationSpeed;
             IdleOpacitySlider.Value = _instance.IdleOpacity * 10;
             IdleOpacityLabel.Content = _instance.IdleOpacity * 100 + "%";
             _frame = frame;
@@ -160,7 +160,7 @@ namespace DeskFrame
         {
             if (_isReverting) return;
             _instance.AnimationSpeed = AnimationSpeedSlider.Value * 0.25;
-            AnimationSpeedLabel.Content = _instance.AnimationSpeed;
+            AnimationSpeedLabel.Content = _instance.AnimationSpeed == 0 ? "OFF" : "x" + _instance.AnimationSpeed;
             _instance.IdleOpacity = IdleOpacitySlider.Value / 10;
             IdleOpacityLabel.Content = _instance.IdleOpacity * 100 + "%";
             _isValidTitleBarColor = TryParseColor(string.IsNullOrEmpty(TitleBarColorTextBox.Text) ? "#0C000000" : TitleBarColorTextBox.Text, TitleBarColorTextBox);
@@ -315,7 +315,7 @@ namespace DeskFrame
                 }
 
                 AnimationSpeedSlider.Value = _originalInstance.AnimationSpeed * 4;
-                AnimationSpeedLabel.Content = _originalInstance.AnimationSpeed;
+                AnimationSpeedLabel.Content = _originalInstance.AnimationSpeed == 0.0 ? "OFF" : "x" + _originalInstance.AnimationSpeed;
                 IdleOpacitySlider.Value = _instance.IdleOpacity * 10;
                 IdleOpacityLabel.Content = _instance.IdleOpacity * 100 + "%";
 
