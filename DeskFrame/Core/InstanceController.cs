@@ -24,6 +24,8 @@ public class InstanceController
                 key.SetValue("PosY", instance.PosY!);
                 key.SetValue("Width", instance.Width!);
                 key.SetValue("Height", instance.Height!);
+                key.SetValue("IdleOpacity", instance.IdleOpacity!);
+                key.SetValue("AnimationSpeed", instance.AnimationSpeed!);
                 key.SetValue("Minimized", instance.Minimized!);
                 key.SetValue("Folder", instance.Folder!);
                 key.SetValue("TitleFontFamily", instance.TitleFontFamily!);
@@ -77,6 +79,8 @@ public class InstanceController
                 key.SetValue("PosY", instance.PosY!);
                 key.SetValue("Width", instance.Width!);
                 key.SetValue("Height", instance.Height!);
+                key.SetValue("IdleOpacity", instance.IdleOpacity!);
+                key.SetValue("AnimationSpeed", instance.AnimationSpeed!);
                 key.SetValue("Minimized", instance.Minimized!);
                 key.SetValue("Folder", instance.Folder!);
                 key.SetValue("TitleFontFamily", instance.TitleFontFamily!);
@@ -222,6 +226,19 @@ public class InstanceController
                                                     temp.Height = parsedHeight;
                                                 }
 
+                                                break;
+                                            case "IdleOpacity":
+                                                if (double.TryParse(value.ToString(), out double parsedIdleOpacity))
+                                                {
+                                                    temp.IdleOpacity = parsedIdleOpacity;
+                                                }
+
+                                                break;
+                                            case "AnimationSpeed":
+                                                if (double.TryParse(value.ToString(), out double parsedAnimationSpeed))
+                                                {
+                                                    temp.AnimationSpeed = parsedAnimationSpeed;
+                                                }
                                                 break;
 
                                             case "Name":

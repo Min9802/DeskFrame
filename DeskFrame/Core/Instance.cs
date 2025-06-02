@@ -12,6 +12,8 @@ public class Instance : INotifyPropertyChanged
     private double _posY;
     private double _width;
     private double _height;
+    private double _idleOpacity = 1.0;
+    private double _animationSpeed = 1.0;
     private string _name;
     private string _folder;
     private string _titleFontFamily = "Segoe UI";
@@ -78,7 +80,6 @@ public class Instance : INotifyPropertyChanged
             }
         }
     }
-
     public double Height
     {
         get => _height;
@@ -91,7 +92,30 @@ public class Instance : INotifyPropertyChanged
             }
         }
     }
-
+    public double IdleOpacity
+    {
+        get => _idleOpacity;
+        set
+        {
+            if (_idleOpacity != value)
+            {
+                _idleOpacity = value;
+                OnPropertyChanged(nameof(IdleOpacity), value.ToString());
+            }
+        }
+    }
+    public double AnimationSpeed
+    {
+        get => _animationSpeed;
+        set
+        {
+            if (_animationSpeed != value)
+            {
+                _animationSpeed = value;
+                OnPropertyChanged(nameof(AnimationSpeed), value.ToString());
+            }
+        }
+    }
     public string Name
     {
         get => _name;

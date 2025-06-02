@@ -615,6 +615,7 @@ namespace DeskFrame
 
             Instance = instance;
             this.Width = instance.Width;
+            this.Opacity = Instance.IdleOpacity;
             _path = instance.Folder;
             _isLocked = instance.IsLocked;
             this.Top = instance.PosY;
@@ -707,7 +708,7 @@ namespace DeskFrame
                 }
             }
         }
-        private void AnimateChevron(bool flip, bool onLoad)
+        private void AnimateChevron(bool flip, bool onLoad, double animationSpeed)
         {
 
 
@@ -723,15 +724,17 @@ namespace DeskFrame
             else
             {
                 angleToAnimateTo = (rotateTransform.Angle == 180) ? 0 : 180;
-                duration = 200;
+                duration = (int)(200 / animationSpeed);
             }
-            if (_isLocked) duration = 100;
+            if (_isLocked) duration = (int)(200 / animationSpeed);
 
             var rotateAnimation = new DoubleAnimation
             {
                 From = rotateTransform.Angle,
                 To = angleToAnimateTo,
-                Duration = new Duration(TimeSpan.FromMilliseconds(duration)),
+                Duration = (animationSpeed == 0) ?
+                    TimeSpan.FromMilliseconds(40) :
+                    TimeSpan.FromMilliseconds(duration),
                 EasingFunction = new QuadraticEase { EasingMode = EasingMode.EaseInOut }
             };
 
@@ -745,7 +748,7 @@ namespace DeskFrame
         private void Minimize_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
         {
 
-            AnimateChevron(_isMinimized, false);
+            AnimateChevron(_isMinimized, false, Instance.AnimationSpeed);
             if (showFolder.Visibility == Visibility.Hidden && showFolderInGrid.Visibility == Visibility.Hidden)
             {
                 return;
@@ -756,7 +759,8 @@ namespace DeskFrame
                 _isMinimized = true;
                 Instance.Minimized = true;
                 Debug.WriteLine("minimize: " + Instance.Height);
-                AnimateWindowHeight(titleBar.Height);
+                AnimateWindowHeight(titleBar.Height, Instance.AnimationSpeed);
+                AnimateWindowOpacity(Instance.IdleOpacity, Instance.AnimationSpeed);
             }
             else
             {
@@ -770,7 +774,8 @@ namespace DeskFrame
                 Instance.Minimized = false;
 
                 Debug.WriteLine("unminimize: " + Instance.Height);
-                AnimateWindowHeight(Instance.Height);
+                AnimateWindowHeight(Instance.Height, Instance.AnimationSpeed);
+                AnimateWindowOpacity(1, Instance.AnimationSpeed);
             }
             HandleWindowMove();
         }
@@ -820,13 +825,27 @@ namespace DeskFrame
                 HiddenFilesIcon.Symbol = SymbolRegular.EyeOff24;
             }
         }
-
-        private void AnimateWindowHeight(double targetHeight)
+        private void AnimateWindowOpacity(double value, double animationSpeed)
+        {
+            Debug.WriteLine(animationSpeed);
+            var animation = new DoubleAnimation
+            {
+                To = value,
+                Duration = animationSpeed == 0 ?
+                    TimeSpan.FromSeconds(0) :
+                    (_isLocked) ? TimeSpan.FromSeconds(0.1 / animationSpeed) : TimeSpan.FromSeconds(0.2 / animationSpeed),
+                EasingFunction = new QuadraticEase()
+            };
+            this.BeginAnimation(OpacityProperty, animation);
+        }
+        private void AnimateWindowHeight(double targetHeight, double animationSpeed)
         {
             var animation = new DoubleAnimation
             {
                 To = targetHeight,
-                Duration = (_isLocked) ? TimeSpan.FromSeconds(0.1) : TimeSpan.FromSeconds(0.2),
+                Duration = animationSpeed == 0 ?
+                    TimeSpan.FromSeconds(0) :
+                    (_isLocked) ? TimeSpan.FromSeconds(0.1 / animationSpeed) : TimeSpan.FromSeconds(0.2 / animationSpeed),
                 EasingFunction = new QuadraticEase()
             };
             animation.Completed += (s, e) =>
@@ -1571,7 +1590,7 @@ namespace DeskFrame
             UpdateFileExtensionIcon();
             UpdateHiddenFilesIcon();
             UpdateIconVisibility();
-            AnimateChevron(_isMinimized, true);
+            AnimateChevron(_isMinimized, true, 0.01); // When 0 docked window won't open
             KeepWindowBehind();
             RegistryHelper rgh = new RegistryHelper("DeskFrame");
             bool toBlur = true;

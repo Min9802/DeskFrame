@@ -44,11 +44,17 @@ namespace DeskFrame
             _originalInstance = new Instance(frame.Instance);
             _lastInstanceName = _originalInstance.Name;
             _instance = frame.Instance;
+            AnimationSpeedSlider.Value = _instance.AnimationSpeed * 4;
+            AnimationSpeedLabel.Content = _instance.AnimationSpeed;
+            IdleOpacitySlider.Value = _instance.IdleOpacity * 10;
+            IdleOpacityLabel.Content = _instance.IdleOpacity * 100 + "%";
             _frame = frame;
             ShowOnVirtualDesktopTextBox.Text = _instance.ShowOnVirtualDesktops != null
                   ? string.Join(",", _instance.ShowOnVirtualDesktops)
                   : string.Empty;
             _originalInstance.ShowOnVirtualDesktops = _instance.ShowOnVirtualDesktops;
+            _originalInstance.AnimationSpeed = _instance.AnimationSpeed;
+            _originalInstance.IdleOpacity = _instance.IdleOpacity;
             TitleBarColorTextBox.Text = _instance.TitleBarColor;
             TitleTextColorTextBox.Text = _instance.TitleTextColor;
             ListViewBackgroundColorTextBox.Text = _instance.ListViewBackgroundColor;
@@ -91,7 +97,6 @@ namespace DeskFrame
             };
 
             UpdateBorderColorEnabled();
-            ValidateSettings();
 
             FontList = new ObservableCollection<string>();
             InstalledFontCollection fonts = new InstalledFontCollection();
@@ -124,6 +129,11 @@ namespace DeskFrame
             _initDone = true;
         }
 
+        private void Slider_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
+        {
+            if (!_initDone) return;
+            ValidateSettings();
+        }
         private void TextChangedHandler(object sender, System.Windows.Controls.TextChangedEventArgs e)
         {
             ValidateSettings();
@@ -149,7 +159,10 @@ namespace DeskFrame
         private void ValidateSettings()
         {
             if (_isReverting) return;
-
+            _instance.AnimationSpeed = AnimationSpeedSlider.Value * 0.25;
+            AnimationSpeedLabel.Content = _instance.AnimationSpeed;
+            _instance.IdleOpacity = IdleOpacitySlider.Value / 10;
+            IdleOpacityLabel.Content = _instance.IdleOpacity * 100 + "%";
             _isValidTitleBarColor = TryParseColor(string.IsNullOrEmpty(TitleBarColorTextBox.Text) ? "#0C000000" : TitleBarColorTextBox.Text, TitleBarColorTextBox);
             _isValidTitleTextColor = TryParseColor(string.IsNullOrEmpty(TitleTextColorTextBox.Text) ? "#FFFFFF" : TitleTextColorTextBox.Text, TitleTextColorTextBox);
             _isValidBorderColor = BorderEnabledCheckBox.IsChecked == true ? TryParseColor(string.IsNullOrEmpty(BorderColorTextBox.Text) ? "#FFFFFF" : BorderColorTextBox.Text, BorderColorTextBox) : true;
@@ -283,6 +296,8 @@ namespace DeskFrame
                 _instance.TitleFontSize = _originalInstance.TitleFontSize;
                 _instance.TitleFontFamily = _originalInstance.TitleFontFamily;
                 _instance.ShowOnVirtualDesktops = _originalInstance.ShowOnVirtualDesktops;
+                _instance.IdleOpacity = _originalInstance.IdleOpacity;
+                _instance.AnimationSpeed = _originalInstance.AnimationSpeed;
                 if (_originalInstance.Folder != _instance.Folder)
                 {
                     _instance.Folder = _originalInstance.Folder;
@@ -298,6 +313,12 @@ namespace DeskFrame
                     _frame.InitializeFileWatcher();
 
                 }
+
+                AnimationSpeedSlider.Value = _originalInstance.AnimationSpeed * 4;
+                AnimationSpeedLabel.Content = _originalInstance.AnimationSpeed;
+                IdleOpacitySlider.Value = _instance.IdleOpacity * 10;
+                IdleOpacityLabel.Content = _instance.IdleOpacity * 100 + "%";
+
                 _instance.Folder = _originalInstance.Folder;
                 _instance.Name = _originalInstance.Name;
                 _instance.TitleText = _originalInstance.TitleText;
