@@ -13,7 +13,7 @@
         WindowStyle="None" 
         ResizeMode="NoResize"
         Height="684" 
-        Width="760"
+        Width="770"
         MinWidth="0"
         MinHeight="0">
     <Grid>
@@ -28,7 +28,7 @@
         </ui:TitleBar>
         <Grid>
             <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="230"/>
+                <ColumnDefinition Width="240"/>
                 <ColumnDefinition Width="30"/>
                 <ColumnDefinition Width="230"/>
                 <ColumnDefinition Width="30"/>
@@ -37,8 +37,8 @@
             <ui:Flyout x:Name="uiFlyout"  Padding="13" IsTabStop="True" HorizontalAlignment="Right" VerticalAlignment="Center">
                 <StackPanel  x:Name="ColorCard" />
             </ui:Flyout>
-            <StackPanel Orientation="Vertical" Margin="10,45,10,0" Grid.Column="0">
-                <Label Content="Miscellaneous" Margin="0,0,0,20" Height="50"  FontWeight="Bold" HorizontalAlignment="Center" VerticalContentAlignment="Center" HorizontalContentAlignment="Center" VerticalAlignment="Bottom" >
+            <StackPanel Orientation="Vertical" Margin="20,45,10,0" Grid.Column="0">
+                <Label Content="Miscellaneous" Margin="0,0,0,17" Height="50"  FontWeight="Bold" HorizontalAlignment="Center" VerticalContentAlignment="Center" HorizontalContentAlignment="Center" VerticalAlignment="Bottom" >
                     <Label.Foreground>
                         <SolidColorBrush Color="{DynamicResource {x:Static SystemColors.HighlightColorKey}}"/>
                     </Label.Foreground>
