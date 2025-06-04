@@ -1,12 +1,14 @@
 ﻿using System.Diagnostics;
 using Wpf.Ui.Controls;
 using System.Windows;
+using System.Windows.Media.Imaging;
 namespace DeskFrame
 {
     public partial class SettingsWindow : FluentWindow
     {
         InstanceController _controller;
-
+        DeskFrameWindow _dWindows;
+        Instance _instance;
         public SettingsWindow(InstanceController controller)
         {
             InitializeComponent();
@@ -15,14 +17,14 @@ namespace DeskFrame
             this.MinWidth = 200;
 
             _controller = controller;
-           // if (_controller.reg.KeyExistsRoot("blurBackground")) blurToggle.IsChecked = (bool)_controller.reg.ReadKeyValueRoot("blurBackground");
-           if (_controller.reg.KeyExistsRoot("AutoUpdate")) AutoUpdateToggleSwitch.IsChecked = (bool)_controller.reg.ReadKeyValueRoot("AutoUpdate");
+            // if (_controller.reg.KeyExistsRoot("blurBackground")) blurToggle.IsChecked = (bool)_controller.reg.ReadKeyValueRoot("blurBackground");
+            if (_controller.reg.KeyExistsRoot("AutoUpdate")) AutoUpdateToggleSwitch.IsChecked = (bool)_controller.reg.ReadKeyValueRoot("AutoUpdate");
         }
 
         private void blurToggle_CheckChanged(object sender, System.Windows.RoutedEventArgs e)
         {
-         //   _controller.reg.WriteToRegistryRoot("blurBackground", blurToggle.IsChecked!);
-         //   _controller.ChangeBlur((bool)blurToggle.IsChecked!);
+            //   _controller.reg.WriteToRegistryRoot("blurBackground", blurToggle.IsChecked!);
+            //   _controller.ChangeBlur((bool)blurToggle.IsChecked!);
         }
 
         private void ExportSettingsButton_Click(object sender, RoutedEventArgs e)
@@ -70,6 +72,24 @@ namespace DeskFrame
                 _controller.reg.RemoveFromAutoRun("DeskFrame");
             }
             _controller.reg.WriteToRegistryRoot("AutoUpdate", AutoUpdateToggleSwitch.IsChecked);
+        }
+
+        private void DefaultFrameStyleButton_Click(object sender, RoutedEventArgs e)
+        {
+            if (_dWindows != null)  _dWindows.Close();
+
+            _instance = new Instance("Default Style",true);
+            _instance.SettingDefault = true;
+            _instance.Name = "Default Style";
+            _instance.Folder = Environment.GetFolderPath(Environment.SpecialFolder.Desktop);
+
+            _dWindows = new DeskFrameWindow(_instance);
+            _dWindows.addFolder.Visibility = Visibility.Hidden;
+            _dWindows.showFolder.Visibility = Visibility.Visible;
+            _dWindows.title.Visibility = Visibility.Visible;
+            _dWindows.WindowBorder.Visibility = Visibility.Visible;
+
+            _dWindows.Show();
         }
     }
 }

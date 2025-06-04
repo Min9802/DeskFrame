@@ -41,9 +41,15 @@ namespace DeskFrame
             _backgroundBrush = TitleBarColorTextBox.Background;
             _borderBrush = TitleBarColorTextBox.BorderBrush;
             DataContext = this;
-            _originalInstance = new Instance(frame.Instance);
+            _originalInstance = new Instance(frame.Instance,false);
             _lastInstanceName = _originalInstance.Name;
             _instance = frame.Instance;
+            if (_instance.SettingDefault)
+            {
+                TitleTextBox.Visibility = Visibility.Hidden;
+                FileFilterRegexTextBox.Visibility = Visibility.Hidden;
+                FileFilterHideRegexTextBox.Visibility = Visibility.Hidden;
+            }
             AnimationSpeedSlider.Value = _instance.AnimationSpeed * 4;
             AnimationSpeedLabel.Content = _instance.AnimationSpeed == 0.0 ? "OFF" : "x" + _instance.AnimationSpeed;
             IdleOpacitySlider.Value = _instance.IdleOpacity * 10;
@@ -65,7 +71,10 @@ namespace DeskFrame
             BorderEnabledCheckBox.IsChecked = _instance.BorderEnabled;
             TitleTextBox.Text = _instance.TitleText ?? _instance.Name;
             TitleFontSizeNumberBox.Value = _instance.TitleFontSize;
-            _originalInstance.TitleText = TitleTextBox.Text;
+            if (!_instance.SettingDefault)
+            {
+                _originalInstance.TitleText = TitleTextBox.Text;
+            }
             FileFilterRegexTextBox.Text = _instance.FileFilterRegex;
             FileFilterHideRegexTextBox.Text = _instance.FileFilterHideRegex;
             TitleTextAlignmentComboBox.SelectedIndex = (int)_instance.TitleTextAlignment;

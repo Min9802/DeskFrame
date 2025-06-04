@@ -142,12 +142,12 @@ public class RegistryHelper
                 }
             }
             Debug.WriteLine($"couldn't return for {keyName}");
-            return false;
+            return null;
         }
         catch (Exception ex)
         {
             Debug.WriteLine("Error ReadKeyValueRoot: " + ex.Message);
-            return false;
+            return null;
         }
     }
     public object ReadKeyValueRootInt(string keyName)

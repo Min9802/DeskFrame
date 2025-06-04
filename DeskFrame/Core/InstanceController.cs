@@ -121,7 +121,7 @@ public class InstanceController
             Instances.Remove(existingEmptyInstance);
         }
 
-        Instances.Add(new Instance("empty"));
+        Instances.Add(new Instance("empty",false));
         MainWindow._controller.WriteInstanceToKey(Instances.Last());
         var subWindow = new DeskFrameWindow(Instances.Last());
         subWindow.ChangeBackgroundOpacity(Instances.Last().Opacity);
@@ -174,7 +174,7 @@ public class InstanceController
                             Debug.WriteLine("valid");
                             if (instanceKey != null)
                             {
-                                Instance temp = new Instance("");
+                                Instance temp = new Instance("",false);
                                 Debug.WriteLine("valied 2");
 
                                 foreach (var valueName in instanceKey.GetValueNames())   // Read all values under the current subkey
@@ -415,7 +415,7 @@ public class InstanceController
                 else
                 {
                     Debug.WriteLine("try add an empty");
-                    Instances.Add(new Instance("empty"));
+                    Instances.Add(new Instance("empty",false));
                     MainWindow._controller.WriteInstanceToKey(Instances[0]);
 
                 }

@@ -24,6 +24,7 @@
             </StackPanel>
             <StackPanel >
                 <ui:Button x:Name="ExportSettingsButton" Content="Export settings" Click="ExportSettingsButton_Click" Margin="10,20,0,0"/>
+                <ui:Button x:Name="DefaultFrameStyleButton" Content="Default frame style"  Margin="10,20,0,0" Click="DefaultFrameStyleButton_Click"/>
                 <TextBlock Foreground="White" Margin="10,30,0,0">
                     Check for update on start
                     <LineBreak/>
@@ -32,11 +33,11 @@
                 <ui:ToggleSwitch x:Name="AutoUpdateToggleSwitch" Content="Auto update" Click="AutoUpdateToggleSwitch_Click" Margin="10,10,0,0"/>
             </StackPanel>
         </StackPanel>
-        
+
         <StackPanel Orientation="Horizontal"  HorizontalAlignment="Right" Margin="0,0,10,5" VerticalAlignment="Bottom">
             <Label Content="Made with " HorizontalAlignment="Left" VerticalAlignment="Center" Foreground="DimGray"/>
             <ui:SymbolIcon Symbol="Heart20" Filled="True" Margin="0,-2,0,0" Foreground="DimGray"/>
         </StackPanel>
-        
+
     </Grid>
 </ui:FluentWindow>

@@ -17,6 +17,7 @@ public class Instance : INotifyPropertyChanged
     private string _name;
     private string _folder;
     private string _titleFontFamily = "Segoe UI";
+    private bool _settingDefault;
     private bool _minimized;
     private bool _showHiddenFiles;
     private bool _showFileExtension;
@@ -161,6 +162,18 @@ public class Instance : INotifyPropertyChanged
             {
                 _minimized = value;
                 OnPropertyChanged(nameof(Minimized), value.ToString());
+            }
+        }
+    }
+    public bool SettingDefault
+    {
+        get => _settingDefault;
+        set
+        {
+            if (_settingDefault != value)
+            {
+                _settingDefault = value;
+                OnPropertyChanged(nameof(SettingDefault), value.ToString());
             }
         }
     }
@@ -464,8 +477,9 @@ public class Instance : INotifyPropertyChanged
             }
         }
     }
-    public Instance(Instance instance)
+    public Instance(Instance instance, bool settingDefault)
     {
+        _settingDefault = settingDefault;
         _posX = instance._posX;
         _posY = instance._posY;
         _width = instance.Width;
@@ -492,8 +506,9 @@ public class Instance : INotifyPropertyChanged
         _titleFontFamily = instance._titleFontFamily;
     }
 
-    public Instance(string name) // default instance
+    public Instance(string name, bool settingDefault) // default instance
     {
+        _settingDefault = settingDefault;
         _width = 175;
         _height = 215;
         _posX = Screen.PrimaryScreen!.Bounds.Width / 2 - _width / 2;
@@ -503,10 +518,88 @@ public class Instance : INotifyPropertyChanged
         _folder = "empty";
         _showHiddenFiles = false;
         _isLocked = false;
+        if (name == "empty")
+        {
+            RegistryHelper helper = new RegistryHelper("DeskFrame");
 
+            var v = helper.ReadKeyValueRoot("IdleOpacity");
+            if (v != null) _idleOpacity = double.Parse(v.ToString());
+
+            v = helper.ReadKeyValueRoot("AnimationSpeed");
+            if (v != null) _animationSpeed = double.Parse(v.ToString());
+
+            v = helper.ReadKeyValueRoot("TitleFontFamily");
+            if (v != null) _titleFontFamily = v.ToString();
+
+            v = helper.ReadKeyValueRoot("ShowHiddenFiles");
+            if (v != null) _showHiddenFiles = (bool)v;
+
+            v = helper.ReadKeyValueRoot("ShowFileExtension");
+            if (v != null) _showFileExtension = (bool)v;
+
+            v = helper.ReadKeyValueRoot("ShowFileExtensionIcon");
+            if (v != null) _showFileExtensionIcon = (bool)v;
+
+            v = helper.ReadKeyValueRoot("ShowHiddenFilesIcon");
+            if (v != null) _showHiddenFilesIcon = (bool)v;
+
+            v = helper.ReadKeyValueRoot("ShowDisplayName");
+            if (v != null) _showDisplayName = (bool)v;
+
+            v = helper.ReadKeyValueRoot("BorderEnabled");
+            if (v != null) _borderEnabled = (bool)v;
+
+            v = helper.ReadKeyValueRoot("TitleTextAlignment");
+            if (v != null) _titleTextAlignment = (Forms.HorizontalAlignment)Enum.Parse(typeof(Forms.HorizontalAlignment), v.ToString());
+
+            v = helper.ReadKeyValueRoot("FileFilterRegex");
+            if (v != null) _fileFilterRegex = v.ToString();
+
+            v = helper.ReadKeyValueRoot("FileFilterHideRegex");
+            if (v != null) _fileFilterHideRegex = v.ToString();
+
+            v = helper.ReadKeyValueRoot("ListViewBackgroundColor");
+            if (v != null) _listViewBackgroundColor = v.ToString();
+
+            v = helper.ReadKeyValueRoot("ListViewFontColor");
+            if (v != null) _listViewFontColor = v.ToString();
+
+            v = helper.ReadKeyValueRoot("ListViewFontShadowColor");
+            if (v != null) _listViewFontShadowColor = v.ToString();
+
+            v = helper.ReadKeyValueRoot("Opacity");
+            if (v != null) _opacity = int.Parse(v.ToString());
+
+            v = helper.ReadKeyValueRoot("SortBy");
+            if (v != null) _sortBy = int.Parse(v.ToString());
+
+            v = helper.ReadKeyValueRoot("FolderOrder");
+            if (v != null) _folderOrder = int.Parse(v.ToString());
+
+            v = helper.ReadKeyValueRoot("TitleFontSize");
+            if (v != null) _titleFontSize = double.Parse(v.ToString());
+
+        }
     }
     protected void OnPropertyChanged(string propertyName, string value)
     {
+        string[] notGlobalProperties = {
+            "PosX",
+            "PosY",
+            "Width",
+            "Height",
+            "Name",
+            "Folder",
+            "Minimized",
+            "ShowInGrid",
+            "TitleBarColor",
+            "TitleTextColor",
+            "IsLocked",
+            "CheckFolderSize",
+            "TitleText",
+            "ShowOnVirtualDesktops",
+            "SettingDefault"
+        };
 
         if (propertyName == "Name")
         {
@@ -520,13 +613,20 @@ public class Instance : INotifyPropertyChanged
         else
         {
             //  Debug.WriteLine($"Property {propertyName} has changed.");
-            if (Name != "empty" && propertyName != "ShowOnVirtualDesktops")
+            if (!_settingDefault && Name != "empty")
             {
-                MainWindow._controller.reg.WriteToRegistry(propertyName, value, this);
+                if (propertyName != "ShowOnVirtualDesktops")
+                {
+                    MainWindow._controller.reg.WriteToRegistry(propertyName, value, this);
+                }
+                else if (propertyName == "ShowOnVirtualDesktops")
+                {
+                    MainWindow._controller.reg.WriteIntArrayToRegistry(propertyName, ShowOnVirtualDesktops, this);
+                }
             }
-            else if (Name != "empty" && propertyName == "ShowOnVirtualDesktops")
+            if (_settingDefault && !notGlobalProperties.Contains(propertyName))
             {
-                MainWindow._controller.reg.WriteIntArrayToRegistry(propertyName, ShowOnVirtualDesktops, this);
+                MainWindow._controller.reg.WriteToRegistryRoot(propertyName, value);
             }
         }
 
