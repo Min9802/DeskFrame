@@ -1183,7 +1183,7 @@ namespace DeskFrame
                 {
                     string destinationPath = Path.Combine(_path, Path.GetFileName(file));
 
-                    if (Path.GetDirectoryName(file) == _path && !_dropIntoFolder)
+                    if (Path.GetDirectoryName(file) == _path && _dropIntoFolder)
                     {
                         return;
                     }
@@ -1212,7 +1212,10 @@ namespace DeskFrame
                         else
                         {
                             Debug.WriteLine("File detected: " + file);
-                            File.Move(file, _dropToFolder != "" ? _dropToFolder + Path.GetFileName(destinationPath) : destinationPath);
+                            File.Move(file,
+                                !string.IsNullOrEmpty(_dropToFolder)
+                                    ? Path.Combine(_dropToFolder, Path.GetFileName(destinationPath))
+                                    : destinationPath);
                         }
                     }
                     catch (Exception ex)
@@ -1599,7 +1602,7 @@ namespace DeskFrame
 
             BackgroundType(toBlur);
         }
-   
+
         public void ChangeBackgroundOpacity(int num)
         {
             try
