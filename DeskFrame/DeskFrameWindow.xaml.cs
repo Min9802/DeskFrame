@@ -760,7 +760,6 @@ namespace DeskFrame
                 Instance.Minimized = true;
                 Debug.WriteLine("minimize: " + Instance.Height);
                 AnimateWindowHeight(titleBar.Height, Instance.AnimationSpeed);
-                AnimateWindowOpacity(Instance.IdleOpacity, Instance.AnimationSpeed);
             }
             else
             {
@@ -775,7 +774,6 @@ namespace DeskFrame
 
                 Debug.WriteLine("unminimize: " + Instance.Height);
                 AnimateWindowHeight(Instance.Height, Instance.AnimationSpeed);
-                AnimateWindowOpacity(1, Instance.AnimationSpeed);
             }
             HandleWindowMove();
         }
@@ -2233,6 +2231,7 @@ namespace DeskFrame
         {
             this.Activate();
             _canAutoClose = true;
+            AnimateWindowOpacity(1, Instance.AnimationSpeed);
             if (_isOnEdge && _isMinimized)
             {
                 if (!_canAnimate) return;
@@ -2244,6 +2243,7 @@ namespace DeskFrame
         {
             if (_canAutoClose) FilterTextBox.Text = null;
             this.SetNoActivate();
+            AnimateWindowOpacity(Instance.IdleOpacity, Instance.AnimationSpeed);
             if (_isOnEdge && !_isMinimized)
             {
                 if (!_canAutoClose) return;
@@ -2258,9 +2258,9 @@ namespace DeskFrame
 
                     }
                     Dispatcher.InvokeAsync(() =>
-                   {
-                       Minimize_MouseLeftButtonDown(null, null);
-                   });
+                    {
+                        Minimize_MouseLeftButtonDown(null, null);
+                    });
                 });
             }
         }
