@@ -558,6 +558,12 @@ public class Instance : INotifyPropertyChanged
             v = helper.ReadKeyValueRoot("FileFilterHideRegex");
             if (v != null) _fileFilterHideRegex = v.ToString();
 
+            v = helper.ReadKeyValueRoot("TitleBarColor");
+            if (v != null) _titleBarColor = v.ToString();
+            
+            v = helper.ReadKeyValueRoot("TitleTextColor");
+            if (v != null) _titleTextColor = v.ToString();
+           
             v = helper.ReadKeyValueRoot("ListViewBackgroundColor");
             if (v != null) _listViewBackgroundColor = v.ToString();
 
@@ -592,8 +598,6 @@ public class Instance : INotifyPropertyChanged
             "Folder",
             "Minimized",
             "ShowInGrid",
-            "TitleBarColor",
-            "TitleTextColor",
             "IsLocked",
             "CheckFolderSize",
             "TitleText",
@@ -612,7 +616,7 @@ public class Instance : INotifyPropertyChanged
         }
         else
         {
-            //  Debug.WriteLine($"Property {propertyName} has changed.");
+             Debug.WriteLine($"Property {propertyName} has changed.");
             if (!_settingDefault && Name != "empty")
             {
                 if (propertyName != "ShowOnVirtualDesktops")
