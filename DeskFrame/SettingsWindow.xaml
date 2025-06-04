@@ -25,6 +25,7 @@
             <StackPanel >
                 <ui:Button x:Name="ExportSettingsButton" Content="Export settings" Click="ExportSettingsButton_Click" Margin="10,20,0,0"/>
                 <ui:Button x:Name="DefaultFrameStyleButton" Content="Default frame style"  Margin="10,20,0,0" Click="DefaultFrameStyleButton_Click"/>
+                <ui:Button x:Name="ResetDefaultFrameStyleButton" Content="Reset default frame style"  Margin="10,20,0,0" Click="ResetDefaultFrameStyleButton_Click" />
                 <TextBlock Foreground="White" Margin="10,30,0,0">
                     Check for update on start
                     <LineBreak/>

@@ -2,6 +2,7 @@
 using Wpf.Ui.Controls;
 using System.Windows;
 using System.Windows.Media.Imaging;
+using Microsoft.Win32;
 namespace DeskFrame
 {
     public partial class SettingsWindow : FluentWindow
@@ -90,6 +91,20 @@ namespace DeskFrame
             _dWindows.WindowBorder.Visibility = Visibility.Visible;
 
             _dWindows.Show();
+        }
+
+        private void ResetDefaultFrameStyleButton_Click(object sender, RoutedEventArgs e)
+        {
+            string[] keep = { "AutoUpdate", "blurBackground", "startOnLogin" };
+            RegistryKey key = Registry.CurrentUser.OpenSubKey("Software\\DeskFrame")!;
+            foreach (var name in key.GetValueNames())
+            {
+                if (Array.IndexOf(keep, name) == -1)
+                {
+                    key.DeleteValue(name);
+                }
+            }
+            key.Close();
         }
     }
 }
