@@ -1183,7 +1183,7 @@ namespace DeskFrame
                 {
                     string destinationPath = Path.Combine(_path, Path.GetFileName(file));
 
-                    if (Path.GetDirectoryName(file) == _path && _dropIntoFolder)
+                    if (Path.GetDirectoryName(file) == _path && !_dropIntoFolder)
                     {
                         return;
                     }
