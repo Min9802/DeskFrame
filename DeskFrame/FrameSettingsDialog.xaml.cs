@@ -48,6 +48,7 @@ namespace DeskFrame
             AnimationSpeedLabel.Content = _instance.AnimationSpeed == 0.0 ? "OFF" : "x" + _instance.AnimationSpeed;
             IdleOpacitySlider.Value = _instance.IdleOpacity * 10;
             IdleOpacityLabel.Content = _instance.IdleOpacity * 100 + "%";
+            frame.AnimateWindowOpacity(_instance.IdleOpacity, _instance.AnimationSpeed);
             _frame = frame;
             ShowOnVirtualDesktopTextBox.Text = _instance.ShowOnVirtualDesktops != null
                   ? string.Join(",", _instance.ShowOnVirtualDesktops)
@@ -163,6 +164,7 @@ namespace DeskFrame
             AnimationSpeedLabel.Content = _instance.AnimationSpeed == 0 ? "OFF" : "x" + _instance.AnimationSpeed;
             _instance.IdleOpacity = IdleOpacitySlider.Value / 10;
             IdleOpacityLabel.Content = _instance.IdleOpacity * 100 + "%";
+            _frame.AnimateWindowOpacity(_instance.IdleOpacity, _instance.AnimationSpeed);
             _isValidTitleBarColor = TryParseColor(string.IsNullOrEmpty(TitleBarColorTextBox.Text) ? "#0C000000" : TitleBarColorTextBox.Text, TitleBarColorTextBox);
             _isValidTitleTextColor = TryParseColor(string.IsNullOrEmpty(TitleTextColorTextBox.Text) ? "#FFFFFF" : TitleTextColorTextBox.Text, TitleTextColorTextBox);
             _isValidBorderColor = BorderEnabledCheckBox.IsChecked == true ? TryParseColor(string.IsNullOrEmpty(BorderColorTextBox.Text) ? "#FFFFFF" : BorderColorTextBox.Text, BorderColorTextBox) : true;
@@ -317,6 +319,7 @@ namespace DeskFrame
                 AnimationSpeedSlider.Value = _originalInstance.AnimationSpeed * 4;
                 AnimationSpeedLabel.Content = _originalInstance.AnimationSpeed == 0.0 ? "OFF" : "x" + _originalInstance.AnimationSpeed;
                 IdleOpacitySlider.Value = _instance.IdleOpacity * 10;
+                _frame.AnimateWindowOpacity(_instance.IdleOpacity, _instance.AnimationSpeed);
                 IdleOpacityLabel.Content = _instance.IdleOpacity * 100 + "%";
 
                 _instance.Folder = _originalInstance.Folder;

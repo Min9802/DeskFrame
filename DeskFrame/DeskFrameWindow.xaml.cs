@@ -823,7 +823,7 @@ namespace DeskFrame
                 HiddenFilesIcon.Symbol = SymbolRegular.EyeOff24;
             }
         }
-        private void AnimateWindowOpacity(double value, double animationSpeed)
+        public void AnimateWindowOpacity(double value, double animationSpeed)
         {
             Debug.WriteLine(animationSpeed);
             var animation = new DoubleAnimation
@@ -1599,7 +1599,7 @@ namespace DeskFrame
 
             BackgroundType(toBlur);
         }
-
+   
         public void ChangeBackgroundOpacity(int num)
         {
             try
