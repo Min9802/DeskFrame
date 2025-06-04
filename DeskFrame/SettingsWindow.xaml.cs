@@ -77,9 +77,9 @@ namespace DeskFrame
 
         private void DefaultFrameStyleButton_Click(object sender, RoutedEventArgs e)
         {
-            if (_dWindows != null)  _dWindows.Close();
+            if (_dWindows != null) _dWindows.Close();
 
-            _instance = new Instance("Default Style",true);
+            _instance = new Instance("Default Style", true);
             _instance.SettingDefault = true;
             _instance.Name = "Default Style";
             _instance.Folder = Environment.GetFolderPath(Environment.SpecialFolder.Desktop);
