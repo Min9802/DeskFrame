@@ -825,7 +825,6 @@ namespace DeskFrame
         }
         public void AnimateWindowOpacity(double value, double animationSpeed)
         {
-            Debug.WriteLine(animationSpeed);
             var animation = new DoubleAnimation
             {
                 To = value,

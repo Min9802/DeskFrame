@@ -41,7 +41,7 @@ namespace DeskFrame
             _backgroundBrush = TitleBarColorTextBox.Background;
             _borderBrush = TitleBarColorTextBox.BorderBrush;
             DataContext = this;
-            _originalInstance = new Instance(frame.Instance,false);
+            _originalInstance = new Instance(frame.Instance, frame.Instance.SettingDefault);
             _lastInstanceName = _originalInstance.Name;
             _instance = frame.Instance;
             if (_instance.SettingDefault)

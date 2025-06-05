@@ -617,7 +617,7 @@ public class Instance : INotifyPropertyChanged
         else
         {
              Debug.WriteLine($"Property {propertyName} has changed.");
-            if (!_settingDefault && Name != "empty")
+            if (!_settingDefault && Name != "empty" && Folder != null)
             {
                 if (propertyName != "ShowOnVirtualDesktops")
                 {
