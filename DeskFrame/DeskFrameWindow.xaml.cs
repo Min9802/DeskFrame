@@ -1209,7 +1209,11 @@ namespace DeskFrame
                                 addFolder.Visibility = Visibility.Hidden;
 
                             }
-                            Directory.Move(file, _dropToFolder != "" ? _dropToFolder + Path.GetFileName(destinationPath) : destinationPath);
+                            Directory.Move(file,
+                                !string.IsNullOrEmpty(_dropToFolder) 
+                                    ? Path.Combine(_dropToFolder, Path.GetFileName(destinationPath)) 
+                                    : destinationPath);
+
                         }
                         else
                         {
