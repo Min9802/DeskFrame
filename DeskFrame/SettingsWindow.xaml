@@ -26,7 +26,7 @@
                 <ui:Button x:Name="ExportSettingsButton" Content="Export settings" Click="ExportSettingsButton_Click" Margin="10,20,0,0"/>
                 <StackPanel Orientation="Horizontal">
                     <ui:Button x:Name="DefaultFrameStyleButton" Content="Default frame style"  Margin="10,20,0,0" Click="DefaultFrameStyleButton_Click"/>
-                    <ui:Button x:Name="ResetDefaultFrameStyleButton" Content="Reset" Icon="{ui:SymbolIcon ArrowReset24}" Margin="10,5,0,0" Click="ResetDefaultFrameStyleButton_Click" />
+                    <ui:Button x:Name="ResetDefaultFrameStyleButton" Content="Reset" Icon="{ui:SymbolIcon ArrowReset24}" Margin="10,20,0,0" Click="ResetDefaultFrameStyleButton_Click" />
                 </StackPanel>
                 <TextBlock Foreground="White" Margin="10,30,0,0">
                     Check for update on start
