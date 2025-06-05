@@ -11,6 +11,8 @@ using System.Collections.ObjectModel;
 using TextBox = Wpf.Ui.Controls.TextBox;
 using Brush = System.Windows.Media.Brush;
 using WindowsDesktop;
+using System.Windows.Controls;
+using MenuItem = Wpf.Ui.Controls.MenuItem;
 namespace DeskFrame
 {
     public partial class FrameSettingsDialog : FluentWindow
@@ -485,6 +487,38 @@ namespace DeskFrame
         private void BorderColorTextBoxIcon_MouseUp(object sender, System.Windows.Input.MouseButtonEventArgs e)
         {
             OpenColorPicker(BorderColorTextBox);
+        }
+        private void ChangeStyleDropDownButton_Click(object sender, RoutedEventArgs e)
+        {
+            ContextMenu contextMenu = new ContextMenu();
+            foreach (var instance in MainWindow._controller.Instances)
+            {
+                if (instance.GetHashCode() == _instance.GetHashCode()) continue;
+                var menuItem = new MenuItem
+                {
+                    Header = instance.TitleText ?? instance.Name,
+                };
+                menuItem.Click += (s, e) =>
+                {
+                    AnimationSpeedSlider.Value = instance.AnimationSpeed * 4;
+                    AnimationSpeedLabel.Content = instance.AnimationSpeed == 0.0 ? "OFF" : "x" + instance.AnimationSpeed;
+                    IdleOpacitySlider.Value = instance.IdleOpacity * 10;
+                    IdleOpacityLabel.Content = instance.IdleOpacity * 100 + "%";
+                    _backgroundBrush = TitleBarColorTextBox.Background;
+                    _borderBrush = TitleBarColorTextBox.BorderBrush;
+                    TitleBarColorTextBox.Text = instance.TitleBarColor;
+                    TitleTextColorTextBox.Text = instance.TitleTextColor;
+                    ListViewBackgroundColorTextBox.Text = instance.ListViewBackgroundColor;
+                    ListViewFontColorTextBox.Text = instance.ListViewFontColor;
+                    ListViewFontShadowColorTextBox.Text = instance.ListViewFontShadowColor;
+                    BorderColorTextBox.Text = instance.BorderColor;
+                    BorderEnabledCheckBox.IsChecked = instance.BorderEnabled;
+                    TitleFontSizeNumberBox.Value = instance.TitleFontSize;
+                    TitleTextAlignmentComboBox.SelectedIndex = (int)instance.TitleTextAlignment;
+                };
+                contextMenu.Items.Add(menuItem);
+            }
+            ChangeStyleDropDownButton.Flyout = contextMenu;
         }
     }
 }
