@@ -68,48 +68,52 @@ public class InstanceController
     {
         if (string.IsNullOrEmpty(instance.Name))
         {
+            Debug.WriteLine("instance.Name is null, Instance is not written to key");
             return;
         }
         try
         {
             using (RegistryKey key = Registry.CurrentUser.CreateSubKey(instance.GetKeyLocation()))
             {
-                key.SetValue("Name", instance.Name!);
-                key.SetValue("PosX", instance.PosX!);
-                key.SetValue("PosY", instance.PosY!);
-                key.SetValue("Width", instance.Width!);
-                key.SetValue("Height", instance.Height!);
-                key.SetValue("IdleOpacity", instance.IdleOpacity!);
-                key.SetValue("AnimationSpeed", instance.AnimationSpeed!);
-                key.SetValue("Minimized", instance.Minimized!);
-                key.SetValue("Folder", instance.Folder!);
-                key.SetValue("TitleFontFamily", instance.TitleFontFamily!);
-                key.SetValue("ShowHiddenFiles", instance.ShowHiddenFiles!);
-                key.SetValue("ShowFileExtension", instance.ShowFileExtension!);
-                key.SetValue("ShowFileExtensionIcon", instance.ShowFileExtensionIcon!);
-                key.SetValue("ShowHiddenFilesIcon", instance.ShowHiddenFilesIcon!);
-                key.SetValue("ShowDisplayName", instance.ShowDisplayName!);
-                key.SetValue("IsLocked", instance.IsLocked!);
-                key.SetValue("ShowInGrid", instance.ShowInGrid!);
-                key.SetValue("TitleBarColor", instance.TitleBarColor!);
-                key.SetValue("TitleTextColor", instance.TitleTextColor!);
+                if (instance.Name != null) key.SetValue("Name", instance.Name);
+                key.SetValue("PosX", instance.PosX);
+                key.SetValue("PosY", instance.PosY);
+                key.SetValue("Width", instance.Width);
+                key.SetValue("Height", instance.Height);
+                key.SetValue("IdleOpacity", instance.IdleOpacity);
+                key.SetValue("AnimationSpeed", instance.AnimationSpeed);
+                key.SetValue("Minimized", instance.Minimized);
+                if (instance.Folder != null) key.SetValue("Folder", instance.Folder);
+                if (instance.TitleFontFamily != null) key.SetValue("TitleFontFamily", instance.TitleFontFamily);
+                key.SetValue("ShowHiddenFiles", instance.ShowHiddenFiles);
+                key.SetValue("ShowFileExtension", instance.ShowFileExtension);
+                key.SetValue("ShowFileExtensionIcon", instance.ShowFileExtensionIcon);
+                key.SetValue("ShowHiddenFilesIcon", instance.ShowHiddenFilesIcon);
+                key.SetValue("ShowDisplayName", instance.ShowDisplayName);
+                key.SetValue("IsLocked", instance.IsLocked);
+                key.SetValue("ShowInGrid", instance.ShowInGrid);
+                if (instance.TitleBarColor != null) key.SetValue("TitleBarColor", instance.TitleBarColor);
+                if (instance.TitleTextColor != null) key.SetValue("TitleTextColor", instance.TitleTextColor);
                 key.SetValue("TitleTextAlignment", instance.TitleTextAlignment.ToString());
-                key.SetValue("TitleText", instance.TitleText);
-                key.SetValue("BorderColor", instance.BorderColor!);
-                key.SetValue("BorderEnabled", instance.BorderEnabled!);
-                key.SetValue("FileFilterRegex", instance.FileFilterRegex!);
-                key.SetValue("FileFilterHideRegex", instance.FileFilterHideRegex!);
-                key.SetValue("ListViewBackgroundColor", instance.ListViewBackgroundColor!);
-                key.SetValue("ListViewFontColor", instance.ListViewFontColor!);
-                key.SetValue("ListViewFontShadowColor", instance.ListViewFontShadowColor!);
+                if (instance.TitleText != null) key.SetValue("TitleText", instance.TitleText);
+                if (instance.BorderColor != null) key.SetValue("BorderColor", instance.BorderColor);
+                key.SetValue("BorderEnabled", instance.BorderEnabled);
+                if (instance.FileFilterRegex != null) key.SetValue("FileFilterRegex", instance.FileFilterRegex);
+                if (instance.FileFilterHideRegex != null) key.SetValue("FileFilterHideRegex", instance.FileFilterHideRegex);
+                if (instance.ListViewBackgroundColor != null) key.SetValue("ListViewBackgroundColor", instance.ListViewBackgroundColor);
+                if (instance.ListViewFontColor != null) key.SetValue("ListViewFontColor", instance.ListViewFontColor);
+                if (instance.ListViewFontShadowColor != null) key.SetValue("ListViewFontShadowColor", instance.ListViewFontShadowColor);
                 key.SetValue("Opacity", instance.Opacity);
                 key.SetValue("SortBy", instance.SortBy);
                 key.SetValue("FolderOrder", instance.FolderOrder);
-                key.SetValue("ShowOnVirtualDesktops", string.Join(",", instance.ShowOnVirtualDesktops));
+                if (instance.ShowOnVirtualDesktops != null) key.SetValue("ShowOnVirtualDesktops", string.Join(",", instance.ShowOnVirtualDesktops));
                 key.SetValue("TitleFontSize", instance.TitleFontSize);
             }
         }
-        catch { }
+        catch (Exception ex)
+        {
+            Debug.WriteLine($"WriteInstanceToKey failed: {ex.Message}");
+        }
     }
 
     public void AddInstance()
