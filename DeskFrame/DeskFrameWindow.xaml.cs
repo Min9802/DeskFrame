@@ -1182,9 +1182,12 @@ namespace DeskFrame
                 foreach (var file in files)
                 {
                     string destinationPath = Path.Combine(_path, Path.GetFileName(file));
-
-                    if (Path.GetDirectoryName(file) == _path && _dropIntoFolder)
+                    if (Path.GetDirectoryName(file) == _path && 
+                        _dropIntoFolder && 
+                        string.IsNullOrEmpty(_path) &&
+                        _path == "empty")
                     {
+                        Debug.WriteLine("Dropped into invalid path, returning.");
                         return;
                     }
                     try
