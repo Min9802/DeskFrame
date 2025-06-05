@@ -104,12 +104,18 @@ namespace DeskFrame
         private void ResetDefaultFrameStyleButton_Click(object sender, RoutedEventArgs e)
         {
             string[] keep = { "AutoUpdate", "blurBackground", "startOnLogin" };
-            RegistryKey key = Registry.CurrentUser.OpenSubKey("Software\\DeskFrame")!;
+            RegistryKey key = Registry.CurrentUser.OpenSubKey("Software\\DeskFrame", writable: true)!;
             foreach (var name in key.GetValueNames())
             {
                 if (Array.IndexOf(keep, name) == -1)
                 {
-                    key.DeleteValue(name);
+                    try
+                    {
+                        key.DeleteValue(name);
+                    }
+                    catch
+                    {
+                    }
                 }
             }
             key.Close();
