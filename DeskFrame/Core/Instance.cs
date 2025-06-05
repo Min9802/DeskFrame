@@ -518,7 +518,7 @@ public class Instance : INotifyPropertyChanged
         _folder = "empty";
         _showHiddenFiles = false;
         _isLocked = false;
-        if (name == "empty")
+        if (name == "empty" || _settingDefault)
         {
             RegistryHelper helper = new RegistryHelper("DeskFrame");
 
