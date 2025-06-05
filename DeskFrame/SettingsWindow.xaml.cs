@@ -114,5 +114,10 @@ namespace DeskFrame
             }
             key.Close();
         }
+
+        private void FluentWindow_Closing(object sender, System.ComponentModel.CancelEventArgs e)
+        {
+            _dWindows.Close();
+        }
     }
 }

@@ -12,7 +12,7 @@
         ResizeMode="NoResize"
         Height="366" 
                  Width="273"
-                 MaxWidth="273">
+                 MaxWidth="273" Closing="FluentWindow_Closing">
     <Grid>
         <StackPanel>
             <ui:TitleBar Title="DeskFrame settings" Name="Titlebar" Padding="8,0,0,0" Height="30"  CanMaximize="False" ShowMinimize="False" ApplicationTheme="Dark" ShowMaximize="False" >
