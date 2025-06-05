@@ -47,6 +47,7 @@ namespace DeskFrame
             if (_instance.SettingDefault)
             {
                 TitleTextBox.Visibility = Visibility.Hidden;
+                ShowOnVirtualDesktopTextBox.Visibility = Visibility.Hidden;
                 FileFilterRegexTextBox.Visibility = Visibility.Hidden;
                 FileFilterHideRegexTextBox.Visibility = Visibility.Hidden;
             }
