@@ -13,7 +13,7 @@ namespace DeskFrame
         public SettingsWindow(InstanceController controller)
         {
             InitializeComponent();
-
+            this.LocationChanged += Window_LocationChanged;
             this.MinHeight = 0;
             this.MinWidth = 200;
 
@@ -81,7 +81,6 @@ namespace DeskFrame
 
             _instance = new Instance("Default Style", true);
             _instance.SettingDefault = true;
-            _instance.Name = "Default Style";
             _instance.Folder = Environment.GetFolderPath(Environment.SpecialFolder.Desktop);
 
             _dWindows = new DeskFrameWindow(_instance);
@@ -89,10 +88,19 @@ namespace DeskFrame
             _dWindows.showFolder.Visibility = Visibility.Visible;
             _dWindows.title.Visibility = Visibility.Visible;
             _dWindows.WindowBorder.Visibility = Visibility.Visible;
-
+            _dWindows.Left = this.Width + this.Left + 10;
+            _dWindows.Top = this.Top;
             _dWindows.Show();
-        }
 
+        }
+        private void Window_LocationChanged(object sender, EventArgs e)
+        {
+            if (_dWindows != null)
+            {
+                _dWindows.Left = this.Width + this.Left + 10;
+                _dWindows.Top = this.Top;
+            }
+        }
         private void ResetDefaultFrameStyleButton_Click(object sender, RoutedEventArgs e)
         {
             string[] keep = { "AutoUpdate", "blurBackground", "startOnLogin" };
