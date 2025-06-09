@@ -829,9 +829,8 @@ namespace DeskFrame
             {
                 To = value,
                 Duration = animationSpeed == 0 ?
-                    TimeSpan.FromSeconds(0) :
-                    (_isLocked) ? TimeSpan.FromSeconds(0.1 / animationSpeed) : TimeSpan.FromSeconds(0.2 / animationSpeed),
-                EasingFunction = new QuadraticEase()
+                    TimeSpan.FromSeconds(0.1) :
+                    TimeSpan.FromSeconds(0.2 / animationSpeed),
             };
             this.BeginAnimation(OpacityProperty, animation);
         }
@@ -842,7 +841,7 @@ namespace DeskFrame
                 To = targetHeight,
                 Duration = animationSpeed == 0 ?
                     TimeSpan.FromSeconds(0) :
-                    (_isLocked) ? TimeSpan.FromSeconds(0.1 / animationSpeed) : TimeSpan.FromSeconds(0.2 / animationSpeed),
+                    TimeSpan.FromSeconds(0.2 / animationSpeed),
                 EasingFunction = new QuadraticEase()
             };
             animation.Completed += (s, e) =>
