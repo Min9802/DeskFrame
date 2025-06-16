@@ -702,7 +702,7 @@ namespace DeskFrame
         {
             if (e.HeightChanged && !_isMinimized)
             {
-                if (this.ActualHeight != 30)
+                if (this.ActualHeight != 30 && !_isOnEdge)
                 {
                     Instance.Height = this.ActualHeight;
                 }
@@ -1180,8 +1180,8 @@ namespace DeskFrame
                 foreach (var file in files)
                 {
                     string destinationPath = Path.Combine(_path, Path.GetFileName(file));
-                    if (Path.GetDirectoryName(file) == _path && 
-                        _dropIntoFolder && 
+                    if (Path.GetDirectoryName(file) == _path &&
+                        _dropIntoFolder &&
                         string.IsNullOrEmpty(_path) &&
                         _path == "empty")
                     {
@@ -1209,8 +1209,8 @@ namespace DeskFrame
 
                             }
                             Directory.Move(file,
-                                !string.IsNullOrEmpty(_dropToFolder) 
-                                    ? Path.Combine(_dropToFolder, Path.GetFileName(destinationPath)) 
+                                !string.IsNullOrEmpty(_dropToFolder)
+                                    ? Path.Combine(_dropToFolder, Path.GetFileName(destinationPath))
                                     : destinationPath);
 
                         }
@@ -2242,7 +2242,6 @@ namespace DeskFrame
             AnimateWindowOpacity(1, Instance.AnimationSpeed);
             if (_isOnEdge && _isMinimized)
             {
-                if (!_canAnimate) return;
                 Minimize_MouseLeftButtonDown(null, null);
             }
         }
@@ -2251,25 +2250,29 @@ namespace DeskFrame
         {
             if (_canAutoClose) FilterTextBox.Text = null;
             this.SetNoActivate();
-            AnimateWindowOpacity(Instance.IdleOpacity, Instance.AnimationSpeed);
-            if (_isOnEdge && !_isMinimized)
+            if (_isOnEdge && !_isMinimized && _canAutoClose)
             {
-                if (!_canAutoClose) return;
-
                 Task.Run(() =>
                 {
-                    Thread.Sleep(150);
-                    foreach (var fileItem in FileItems)
+                    if (!this.IsMouseOver)
                     {
-                        fileItem.IsSelected = false;
-                        fileItem.Background = Brushes.Transparent;
+                        foreach (var fileItem in FileItems)
+                        {
+                            fileItem.IsSelected = false;
+                            fileItem.Background = Brushes.Transparent;
 
+                        }
+                        Dispatcher.InvokeAsync(() =>
+                        {
+                            AnimateWindowOpacity(Instance.IdleOpacity, Instance.AnimationSpeed);
+                            Minimize_MouseLeftButtonDown(null, null);
+                        });
                     }
-                    Dispatcher.InvokeAsync(() =>
-                    {
-                        Minimize_MouseLeftButtonDown(null, null);
-                    });
                 });
+            }
+            else
+            {
+                AnimateWindowOpacity(Instance.IdleOpacity, Instance.AnimationSpeed);
             }
         }
 
