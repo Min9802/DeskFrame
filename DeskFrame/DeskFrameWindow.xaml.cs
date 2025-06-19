@@ -2256,12 +2256,16 @@ namespace DeskFrame
                 {
                     if (!this.IsMouseOver)
                     {
-                        foreach (var fileItem in FileItems)
+                        try
                         {
-                            fileItem.IsSelected = false;
-                            fileItem.Background = Brushes.Transparent;
-
+                            foreach (var fileItem in FileItems)
+                            {
+                                fileItem.IsSelected = false;
+                                fileItem.Background = Brushes.Transparent;
+                            }
                         }
+                        catch { }
+
                         Dispatcher.InvokeAsync(() =>
                         {
                             AnimateWindowOpacity(Instance.IdleOpacity, Instance.AnimationSpeed);
