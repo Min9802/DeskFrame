@@ -658,7 +658,7 @@ namespace DeskFrame
                 InitializeFileWatcher();
             }
             _collectionView = CollectionViewSource.GetDefaultView(FileItems);
-            _originalHeight = this.Height;
+            _originalHeight = Instance.Height;
             titleBar.Background = new SolidColorBrush((Color)System.Windows.Media.ColorConverter.ConvertFromString(Instance.TitleBarColor));
             title.Foreground = new SolidColorBrush((Color)System.Windows.Media.ColorConverter.ConvertFromString(Instance.TitleTextColor));
             if (Instance.TitleFontFamily != null)
