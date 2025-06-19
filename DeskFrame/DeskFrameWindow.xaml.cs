@@ -1307,10 +1307,17 @@ namespace DeskFrame
 
         private void Window_DragLeave(object sender, DragEventArgs e)
         {
+            if (_isMinimized)
+            {
+                AnimateWindowHeight(30, Instance.AnimationSpeed);
+            }
+            AnimateWindowOpacity(Instance.IdleOpacity, Instance.AnimationSpeed);
             _dropIntoFolder = false;
         }
         private void Window_DragEnter(object sender, DragEventArgs e)
         {
+            AnimateWindowHeight(_originalHeight, Instance.AnimationSpeed);
+            AnimateWindowOpacity(1, Instance.AnimationSpeed);
             var sourceElement = e.OriginalSource as DependencyObject;
             var currentBorder = sourceElement as Border ?? FindParent<Border>(sourceElement);
             _dropIntoFolder = true;
