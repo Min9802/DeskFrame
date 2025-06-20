@@ -36,6 +36,8 @@ using TextBlock = Wpf.Ui.Controls.TextBlock;
 using ListView = Wpf.Ui.Controls.ListView;
 using ListViewItem = System.Windows.Controls.ListViewItem;
 using WindowsDesktop;
+using System.Windows.Controls.Primitives;
+using System.Windows.Threading;
 namespace DeskFrame
 {
     public partial class DeskFrameWindow : System.Windows.Window
@@ -600,7 +602,26 @@ namespace DeskFrame
             SetAsToolWindow();
             HwndSource source = HwndSource.FromHwnd(new WindowInteropHelper(this).Handle);
             source.AddHook(WndProc);
+            FileListView.ItemContainerGenerator.StatusChanged += ItemContainerGenerator_StatusChanged;
         }
+        private void ItemContainerGenerator_StatusChanged(object sender, EventArgs e)
+        {
+            if (FileListView.ItemContainerGenerator.Status == GeneratorStatus.ContainersGenerated)
+            {
+                foreach (var item in FileListView.Items)
+                {
+                    var container = FileListView.ItemContainerGenerator.ContainerFromItem(item) as ListViewItem;
+                    if (container != null)
+                    {
+                        container.MouseEnter += ListViewItem_MouseEnter;
+                        container.MouseLeave += ListViewItem_MouseLeave;
+                        container.Selected += ListViewItem_Selected;
+                        container.Unselected += ListViewItem_Unselected;
+                    }
+                }
+            }
+        }
+
         public DeskFrameWindow(Instance instance)
         {
             InitializeComponent();
@@ -1319,7 +1340,15 @@ namespace DeskFrame
             AnimateWindowHeight(_originalHeight, Instance.AnimationSpeed);
             AnimateWindowOpacity(1, Instance.AnimationSpeed);
             var sourceElement = e.OriginalSource as DependencyObject;
-            var currentBorder = sourceElement as Border ?? FindParent<Border>(sourceElement);
+            var currentBorder = new Border();
+            if (showFolderInGrid.Visibility == Visibility.Visible)
+            {
+                currentBorder = sourceElement as Border ?? FindParentOrChild<Border>(sourceElement);
+            }
+            else
+            {
+                currentBorder = sourceElement as Border ?? FindParent<Border>(sourceElement);
+            }
             _dropIntoFolder = true;
             if (currentBorder != _lastBorder)
             {
@@ -1334,6 +1363,20 @@ namespace DeskFrame
                 FileItem_MouseEnter(currentBorder, null);
             }
         }
+        private T? FindParentOrChild<T>(DependencyObject element) where T : DependencyObject
+        {
+            if (element is T targetElement) return targetElement;
+            for (int i = 0; i < VisualTreeHelper.GetChildrenCount(element); i++)
+            {
+                var child = VisualTreeHelper.GetChild(element, i);
+                if (child is T childElement) return childElement;
+
+                var nestedChild = FindParentOrChild<T>(child);
+                if (nestedChild != null) return nestedChild;
+            }
+            return FindParent<T>(element);
+        }
+
         private T? FindParent<T>(DependencyObject child) where T : DependencyObject
         {
             DependencyObject parent = VisualTreeHelper.GetParent(child);
@@ -1343,7 +1386,58 @@ namespace DeskFrame
             }
             return parent as T;
         }
+        private void ListViewItem_Selected(object sender, RoutedEventArgs e)
+        {
+            if (sender is ListViewItem item && item.DataContext is FileItem fileItem)
+            {
+                fileItem.IsSelected = true;
+            }
+        }
+        private void ListViewItem_Unselected(object sender, RoutedEventArgs e)
+        {
+            if (sender is ListViewItem item && item.DataContext is FileItem fileItem)
+            {
+                fileItem.IsSelected = false;
+                var sourceElement = e.OriginalSource as DependencyObject;
+                var currentBorder = sourceElement as Border ?? FindParentOrChild<Border>(sourceElement);
+                if (currentBorder != null) currentBorder.Background = Brushes.Transparent;
+            }
+        }
+        private void ListViewItem_MouseEnter(object sender, MouseEventArgs e)
+        {
+            _dropToFolder = "";
 
+            if (sender is ListViewItem item && item.DataContext is FileItem fileItem)
+            {
+                var sourceElement = e.OriginalSource as DependencyObject;
+                var currentBorder = sourceElement as Border ?? FindParentOrChild<Border>(sourceElement);
+
+                if (currentBorder != null)
+                {
+                    if (!fileItem.IsSelected)
+                    {
+                        currentBorder.Background = new SolidColorBrush(Color.FromArgb(15, 255, 255, 255));
+                    }
+                }
+            }
+        }
+        private void ListViewItem_MouseLeave(object sender, MouseEventArgs e)
+        {
+            _dropToFolder = "";
+            if (sender is ListViewItem item && item.DataContext is FileItem fileItem)
+            {
+                var sourceElement = e.OriginalSource as DependencyObject;
+                var currentBorder = sourceElement as Border ?? FindParentOrChild<Border>(sourceElement);
+
+                if (currentBorder != null)
+                {
+                    if (!fileItem.IsSelected)
+                    {
+                        currentBorder.Background = Brushes.Transparent;
+                    }
+                }
+            }
+        }
         private void FileItem_MouseEnter(object sender, MouseEventArgs? e)
         {
             if (sender is Border border && border.DataContext is FileItem fileItem)
@@ -1351,11 +1445,29 @@ namespace DeskFrame
                 if (_dropIntoFolder && !fileItem.IsFolder)
                 {
                     _dropToFolder = fileItem.FullPath + "\\";
-                    fileItem.Background = new SolidColorBrush(Color.FromArgb(30, 255, 255, 255));
+                    if (FileListView.Visibility == Visibility.Visible)
+                    {
+                        border.Background = new SolidColorBrush(Color.FromArgb(15, 255, 255, 255));
+                    }
+                    else
+                    {
+                        fileItem.Background = new SolidColorBrush(Color.FromArgb(30, 255, 255, 255));
+                    }
                 }
                 else if (!_dropIntoFolder)
                 {
-                    fileItem.Background = new SolidColorBrush(Color.FromArgb(30, 255, 255, 255));
+                    if (FileListView.Visibility == Visibility.Visible)
+                    {
+                        border.Background = fileItem.IsSelected ? new SolidColorBrush(Color.FromArgb(15, 255, 255, 255)) : Brushes.Transparent;
+                    }
+                    else
+                    {
+                        fileItem.Background = new SolidColorBrush(Color.FromArgb(30, 255, 255, 255));
+                    }
+                }
+                if (FileListView.Visibility == Visibility.Visible && !fileItem.IsSelected && !fileItem.IsFolder)
+                {
+                    border.Background = new SolidColorBrush(Color.FromArgb(30, 255, 255, 255));
                 }
             }
         }
@@ -1372,6 +1484,10 @@ namespace DeskFrame
                 else
                 {
                     fileItem.Background = new SolidColorBrush(Color.FromArgb(50, 255, 255, 255));
+                }
+                if (FileListView.Visibility == Visibility.Visible && !fileItem.IsSelected && !fileItem.IsFolder)
+                {
+                    border.Background = fileItem.IsSelected ? new SolidColorBrush(Color.FromArgb(15, 255, 255, 255)) : Brushes.Transparent;
                 }
             }
         }
@@ -2257,6 +2373,29 @@ namespace DeskFrame
         {
             if (_canAutoClose) FilterTextBox.Text = null;
             this.SetNoActivate();
+            var timer = new DispatcherTimer
+            {
+                Interval = TimeSpan.FromMilliseconds(1)
+            };
+
+            timer.Tick += (s, args) =>
+            {
+                if (!_dropIntoFolder && !this.IsMouseOver)
+                {
+                    Dispatcher.InvokeAsync(() =>
+                    {
+                        FileListView.SelectedIndex = -1;
+                        foreach (var item in FileListView.Items)
+                        {
+                            var container = FileListView.ItemContainerGenerator.ContainerFromItem(item) as ListViewItem;
+                            if (container != null) container.IsSelected = false;
+                        }
+                    });
+                    timer.Stop();
+                }
+            };
+            timer.Start();
+
             if (_isOnEdge && !_isMinimized && _canAutoClose)
             {
                 Task.Run(() =>
@@ -2270,6 +2409,7 @@ namespace DeskFrame
                                 fileItem.IsSelected = false;
                                 fileItem.Background = Brushes.Transparent;
                             }
+                          
                         }
                         catch { }
 
