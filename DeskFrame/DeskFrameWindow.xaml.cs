@@ -1445,7 +1445,7 @@ namespace DeskFrame
                 if (_dropIntoFolder && !fileItem.IsFolder)
                 {
                     _dropToFolder = fileItem.FullPath + "\\";
-                    if (FileListView.Visibility == Visibility.Visible)
+                    if (showFolderInGrid.Visibility == Visibility.Visible)
                     {
                         border.Background = new SolidColorBrush(Color.FromArgb(15, 255, 255, 255));
                     }
@@ -1456,7 +1456,7 @@ namespace DeskFrame
                 }
                 else if (!_dropIntoFolder)
                 {
-                    if (FileListView.Visibility == Visibility.Visible)
+                    if (showFolderInGrid.Visibility == Visibility.Visible)
                     {
                         border.Background = fileItem.IsSelected ? new SolidColorBrush(Color.FromArgb(15, 255, 255, 255)) : Brushes.Transparent;
                     }
@@ -1465,7 +1465,7 @@ namespace DeskFrame
                         fileItem.Background = new SolidColorBrush(Color.FromArgb(30, 255, 255, 255));
                     }
                 }
-                if (FileListView.Visibility == Visibility.Visible && !fileItem.IsSelected && !fileItem.IsFolder)
+                if (showFolderInGrid.Visibility == Visibility.Visible && !fileItem.IsSelected && !fileItem.IsFolder)
                 {
                     border.Background = new SolidColorBrush(Color.FromArgb(30, 255, 255, 255));
                 }
@@ -1485,12 +1485,22 @@ namespace DeskFrame
                 {
                     fileItem.Background = new SolidColorBrush(Color.FromArgb(50, 255, 255, 255));
                 }
-                if (FileListView.Visibility == Visibility.Visible && !fileItem.IsSelected && !fileItem.IsFolder)
+                if (showFolderInGrid.Visibility == Visibility.Visible && !fileItem.IsSelected && !fileItem.IsFolder)
                 {
                     border.Background = fileItem.IsSelected ? new SolidColorBrush(Color.FromArgb(15, 255, 255, 255)) : Brushes.Transparent;
                 }
             }
         }
+
+
+
+
+
+
+
+
+
+
         private async Task<BitmapSource?> GetThumbnailAsync(string path)
         {
             return await Task.Run(async () =>
