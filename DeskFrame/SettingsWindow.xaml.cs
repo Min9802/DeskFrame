@@ -123,7 +123,10 @@ namespace DeskFrame
 
         private void FluentWindow_Closing(object sender, System.ComponentModel.CancelEventArgs e)
         {
-            _dWindows.Close();
+            if (_dWindows != null)
+            {
+                _dWindows.Close();
+            }
         }
     }
 }
