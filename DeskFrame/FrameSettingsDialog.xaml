@@ -24,7 +24,7 @@
 
             <ui:TitleBar.TrailingContent>
                 <StackPanel Orientation="Horizontal">
-                    <ui:DropDownButton x:Name="ChangeStyleDropDownButton" HorizontalAlignment="Right" Content="Change stlye" VerticalAlignment="Top" Grid.Column="2" Margin="0,0,20,0" Height="30" Padding="10,0,10,0" Click="ChangeStyleDropDownButton_Click" />
+                    <ui:DropDownButton x:Name="ChangeStyleDropDownButton" HorizontalAlignment="Right" Content="Change style" VerticalAlignment="Top" Grid.Column="2" Margin="0,0,20,0" Height="30" Padding="10,0,10,0" Click="ChangeStyleDropDownButton_Click" />
                     <ui:Button x:Name="ChangeFolderButton" HorizontalAlignment="Right" Content="Change folder" VerticalAlignment="Top" Grid.Column="2" Margin="0,0,10,0" Height="30" Padding="10,0,10,0" Click="ChangeFolderButton_Click"/>
                 </StackPanel>
             </ui:TitleBar.TrailingContent>
