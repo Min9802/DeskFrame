@@ -221,7 +221,7 @@ namespace DeskFrame
                     {
                         rect.Right = rect.Left + (int)newWidth;
                     }
-                    else
+                    else if (wParam.ToInt32() == 1) // WMSZ_LEFT
                     {
                         rect.Left = rect.Right - (int)newWidth;
                     }
