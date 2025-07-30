@@ -924,11 +924,30 @@ namespace DeskFrame
 
                 if (renamedItem != null)
                 {
-                    renamedItem.Name = Path.GetFileName(e.FullPath);
+                    renamedItem.FullPath = e.FullPath;
+
+                    string fileName = Path.GetFileName(e.FullPath);
+                    Debug.WriteLine("FILENAME:: " + fileName);
+                    if (renamedItem is FileInfo)
+                    {
+                        Debug.WriteLine("NOT");
+                        string actualExt = Path.GetExtension(fileName);
+                        renamedItem.Name = Instance.ShowFileExtension || string.IsNullOrEmpty(actualExt)
+                             ? fileName
+                             : fileName.Substring(0, fileName.Length - actualExt.Length);
+                    }
+                    else
+                    {
+                        Debug.WriteLine("FOLDER");
+                        renamedItem.Name = fileName;
+                    }
                 }
+
                 SortItems();
             });
         }
+
+
         private void KeepWindowBehind()
         {
             IntPtr HWND_BOTTOM = new IntPtr(1);
@@ -1038,7 +1057,8 @@ namespace DeskFrame
                                                                : Instance.CheckFolderSize ? await BytesToStringAsync(size)
                                                                                           : "";
                         var thumbnail = await GetThumbnailAsync(entry.FullName);
-
+                        bool isFile = entry is FileInfo;
+                        string actualExt = isFile ? Path.GetExtension(entry.Name) : string.Empty;
                         if (existingItem == null)
                         {
                             if (!string.IsNullOrEmpty(Instance.FileFilterHideRegex) &&
@@ -1049,16 +1069,14 @@ namespace DeskFrame
 
                             FileItems.Add(new FileItem
                             {
-                                Name = Instance.ShowFileExtension
-                                ? entry.Name
-                                : (!string.IsNullOrEmpty(Path.GetFileNameWithoutExtension(entry.FullName))
-                                    ? Path.GetFileNameWithoutExtension(entry.FullName)
-                                    : entry.Name),
+                                Name = Instance.ShowFileExtension || string.IsNullOrEmpty(actualExt)
+                                    ? entry.Name
+                                    : entry.Name.Substring(0, entry.Name.Length - actualExt.Length),
                                 FullPath = entry.FullName,
-                                IsFolder = entry is FileInfo,
+                                IsFolder = !isFile,
                                 DateModified = entry.LastWriteTime,
                                 DateCreated = entry.CreationTime,
-                                FileType = entry is FileInfo ? entry.Extension : string.Empty,
+                                FileType = isFile ? actualExt : string.Empty,
                                 ItemSize = (int)size,
                                 DisplaySize = displaySize,
                                 Thumbnail = thumbnail
@@ -1066,11 +1084,9 @@ namespace DeskFrame
                         }
                         else
                         {
-                            existingItem.Name = Instance.ShowFileExtension
-                                ? entry.Name
-                                : (!string.IsNullOrEmpty(Path.GetFileNameWithoutExtension(entry.FullName))
-                                    ? Path.GetFileNameWithoutExtension(entry.FullName)
-                                    : entry.Name);
+                            existingItem.Name = Instance.ShowFileExtension || string.IsNullOrEmpty(actualExt)
+                                    ? entry.Name
+                                    : entry.Name.Substring(0, entry.Name.Length - actualExt.Length);
                             existingItem.FullPath = entry.FullName;
                             existingItem.IsFolder = entry is FileInfo;
                             existingItem.DateModified = entry.LastWriteTime;
