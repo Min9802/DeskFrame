@@ -59,9 +59,17 @@ namespace DeskFrame
             IdleOpacityLabel.Content = _instance.IdleOpacity * 100 + "%";
             frame.AnimateWindowOpacity(_instance.IdleOpacity, _instance.AnimationSpeed);
             _frame = frame;
-            ShowOnVirtualDesktopTextBox.Text = _instance.ShowOnVirtualDesktops != null
-                  ? string.Join(",", _instance.ShowOnVirtualDesktops)
-                  : string.Empty;
+            if (!frame.VirtualDesktopSupported)
+            {
+                ShowOnVirtualDesktopTextBox.Text = "Not available";
+                ShowOnVirtualDesktopTextBox.IsEnabled = false;
+            }
+            else
+            {
+                ShowOnVirtualDesktopTextBox.Text = _instance.ShowOnVirtualDesktops != null
+                    ? string.Join(",", _instance.ShowOnVirtualDesktops)
+                    : string.Empty;
+            }
             _originalInstance.ShowOnVirtualDesktops = _instance.ShowOnVirtualDesktops;
             _originalInstance.AnimationSpeed = _instance.AnimationSpeed;
             _originalInstance.IdleOpacity = _instance.IdleOpacity;

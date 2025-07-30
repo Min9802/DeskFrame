@@ -48,6 +48,8 @@ namespace DeskFrame
         private FileSystemWatcher _fileWatcher = new FileSystemWatcher();
         public ObservableCollection<FileItem> FileItems { get; set; }
 
+        public bool VirtualDesktopSupported;
+
         private bool _dropIntoFolder;
         string _dropToFolder;
         FrameworkElement _lastBorder;
@@ -1818,36 +1820,45 @@ namespace DeskFrame
             }
          );
 
-            _currentVD = Array.IndexOf(VirtualDesktop.GetDesktops(), VirtualDesktop.Current) + 1;
-            Debug.WriteLine($"Start to desktop number: {_currentVD}");
-            if (Instance.ShowOnVirtualDesktops != null && Instance.ShowOnVirtualDesktops.Length != 0 && !Instance.ShowOnVirtualDesktops.Contains(_currentVD))
+            try
             {
-                this.Hide();
-            }
-            else
-            {
-                this.Show();
-            }
-            VirtualDesktop.CurrentChanged += (sender, args) =>
-            {
-                var newDesktop = args.NewDesktop;
-                _currentVD = Array.IndexOf(VirtualDesktop.GetDesktops(), newDesktop) + 1;
+
+                _currentVD = Array.IndexOf(VirtualDesktop.GetDesktops(), VirtualDesktop.Current) + 1;
+                Debug.WriteLine($"Start to desktop number: {_currentVD}");
                 if (Instance.ShowOnVirtualDesktops != null && Instance.ShowOnVirtualDesktops.Length != 0 && !Instance.ShowOnVirtualDesktops.Contains(_currentVD))
                 {
-                    Dispatcher.InvokeAsync(() =>
-                    {
-                        this.Hide();
-                    });
+                    this.Hide();
                 }
                 else
                 {
-                    Dispatcher.InvokeAsync(() =>
-                    {
-                        this.Show();
-                    });
+                    this.Show();
                 }
-                Debug.WriteLine($"Switched to virtual desktop: {_currentVD}");
-            };
+                VirtualDesktop.CurrentChanged += (sender, args) =>
+                {
+                    var newDesktop = args.NewDesktop;
+                    _currentVD = Array.IndexOf(VirtualDesktop.GetDesktops(), newDesktop) + 1;
+                    if (Instance.ShowOnVirtualDesktops != null && Instance.ShowOnVirtualDesktops.Length != 0 && !Instance.ShowOnVirtualDesktops.Contains(_currentVD))
+                    {
+                        Dispatcher.InvokeAsync(() =>
+                        {
+                            this.Hide();
+                        });
+                    }
+                    else
+                    {
+                        Dispatcher.InvokeAsync(() =>
+                        {
+                            this.Show();
+                        });
+                    }
+                    Debug.WriteLine($"Switched to virtual desktop: {_currentVD}");
+                };
+                VirtualDesktopSupported = true;
+            }
+            catch
+            {
+                VirtualDesktopSupported = false;
+            }
         }
         private void MainWindow_SourceInitialized(object sender, EventArgs e)
         {
@@ -2418,7 +2429,7 @@ namespace DeskFrame
                                 fileItem.IsSelected = false;
                                 fileItem.Background = Brushes.Transparent;
                             }
-                          
+
                         }
                         catch { }
 
