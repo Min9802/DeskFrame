@@ -1337,8 +1337,7 @@ namespace DeskFrame
         }
         private void Window_DragEnter(object sender, DragEventArgs e)
         {
-            AnimateWindowHeight(_originalHeight, Instance.AnimationSpeed);
-            AnimateWindowOpacity(1, Instance.AnimationSpeed);
+            AnimateWindowHeight(Instance.Height, Instance.AnimationSpeed); AnimateWindowOpacity(1, Instance.AnimationSpeed);
             var sourceElement = e.OriginalSource as DependencyObject;
             var currentBorder = new Border();
             if (showFolderInGrid.Visibility == Visibility.Visible)
