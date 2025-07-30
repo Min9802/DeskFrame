@@ -37,7 +37,7 @@ namespace DeskFrame.Util
 
         public const int GWL_EXSTYLE = -20;
         public const int WS_EX_NOACTIVATE = 0x08000000;
-
+        public const int WS_EX_TOOLWINDOW = 0x00000080;
 
         [DllImport("user32.dll", EntryPoint = "GetWindowLong")]
         private static extern IntPtr GetWindowLong32(IntPtr hWnd, int nIndex);

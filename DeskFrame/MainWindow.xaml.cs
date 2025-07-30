@@ -4,7 +4,8 @@ using System.Security.Policy;
 using System.Windows;
 using Wpf.Ui.Controls;
 using Application = System.Windows.Application;
-
+using static DeskFrame.Util.Interop;
+using System.Windows.Interop;
 namespace DeskFrame
 {
     public partial class MainWindow : Window
@@ -53,6 +54,14 @@ namespace DeskFrame
             this.Top = -500;
 
             CloseHide();
+        }
+        protected override void OnSourceInitialized(EventArgs e)
+        {
+            base.OnSourceInitialized(e);
+            var hwnd = new WindowInteropHelper(this).Handle;
+            int exStyle = (int)GetWindowLong(hwnd, GWL_EXSTYLE);
+            exStyle |= WS_EX_TOOLWINDOW | WS_EX_NOACTIVATE;
+            SetWindowLong(hwnd, GWL_EXSTYLE, (IntPtr)exStyle);
         }
         private void CloseHide()
         {
@@ -106,7 +115,7 @@ namespace DeskFrame
             {
             }
         }
-
+    
         private void ExitApp(object sender, RoutedEventArgs e)
         {
             Application.Current.Shutdown();
