@@ -38,6 +38,7 @@ using ListViewItem = System.Windows.Controls.ListViewItem;
 using WindowsDesktop;
 using System.Windows.Controls.Primitives;
 using System.Windows.Threading;
+using static DeskFrame.Util.Interop;
 namespace DeskFrame
 {
     public partial class DeskFrameWindow : System.Windows.Window
@@ -1509,15 +1510,24 @@ namespace DeskFrame
             }
         }
 
+        public static BitmapSource? GetIconFromShortcut(string shortcutPath)
+        {
+            SHFILEINFO shinfo = new SHFILEINFO();
 
+            IntPtr result = SHGetFileInfo(shortcutPath, 0, ref shinfo, (uint)Marshal.SizeOf(shinfo), SHGFI_ICON | SHGFI_LARGEICON);
 
+            if (shinfo.hIcon != IntPtr.Zero)
+            {
+                BitmapSource source = Imaging.CreateBitmapSourceFromHIcon(
+                    shinfo.hIcon,
+                    System.Windows.Int32Rect.Empty,
+                    BitmapSizeOptions.FromEmptyOptions());
 
-
-
-
-
-
-
+                DestroyIcon(shinfo.hIcon);
+                return source;
+            }
+            return null;
+        }
         private async Task<BitmapSource?> GetThumbnailAsync(string path)
         {
             return await Task.Run(async () =>
@@ -1527,6 +1537,7 @@ namespace DeskFrame
                     Console.WriteLine("Invalid path: " + path);
                     return null;
                 }
+                IntPtr hBitmap = IntPtr.Zero;
                 BitmapSource thumbnail = null;
                 if (Path.GetExtension(path).ToLower() == ".svg")
                 {
@@ -1536,14 +1547,31 @@ namespace DeskFrame
                 {
                     thumbnail = await LoadUrlIconAsync(path);
                 }
+                if (Path.GetExtension(path).ToLower() == ".lnk")
+                {
+                    try
+                    {
+                        return Application.Current.Dispatcher.Invoke(() =>
+                        {
+                            thumbnail = GetIconFromShortcut(path);
+                            return thumbnail;
+                        });
+
+                    }
+                    catch (Exception e)
+                    {
+                        Debug.WriteLine(e);
+                        return null;
+                    }
+                }
                 if (thumbnail != null)
                 {
                     return thumbnail;
                 }
-                IntPtr hBitmap = IntPtr.Zero;
+
                 Interop.IShellItemImageFactory? factory = null;
                 int attempts = 0;
-                while (attempts < 4) // Try 4 times if needed
+                while (attempts < 4) // Try 3 times if needed
                 {
                     try
                     {
@@ -1589,7 +1617,7 @@ namespace DeskFrame
                     attempts++;
                 }
 
-                Debug.WriteLine("Failed to retrieve thumbnail after 2 attempts.");
+                Debug.WriteLine("Failed to retrieve thumbnail after 3 attempts.");
                 return null;
             });
         }
