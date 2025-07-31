@@ -2482,7 +2482,6 @@ namespace DeskFrame
             {
                 Interval = TimeSpan.FromMilliseconds(1)
             };
-
             timer.Tick += (s, args) =>
             {
                 if (!_dropIntoFolder && !this.IsMouseOver)
@@ -2496,6 +2495,9 @@ namespace DeskFrame
                             if (container != null) container.IsSelected = false;
                         }
                     });
+                    SetWindowPos(new WindowInteropHelper(this).Handle, 1, 0, 0, 0, 0,
+                       SWP_NOMOVE | SWP_NOSIZE | SWP_NOACTIVATE |
+                       SWP_NOOWNERZORDER | SWP_NOSENDCHANGING);
                     timer.Stop();
                 }
             };
