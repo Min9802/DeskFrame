@@ -1489,7 +1489,7 @@ namespace DeskFrame
                 }
             }
         }
-
+     
         private void FileItem_MouseLeave(object sender, MouseEventArgs? e)
         {
             if (sender is Border border && border.DataContext is FileItem fileItem)
@@ -2421,10 +2421,51 @@ namespace DeskFrame
                 PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
             }
         }
+        private int GetZIndex(IntPtr hwnd)
+        {
+            IntPtr h = GetTopWindow(IntPtr.Zero);
+            int z = 0;
 
+            while (h != IntPtr.Zero)
+            {
+                if (h == hwnd)
+                    return z;
+
+                h = Interop.GetWindow(h, GW_HWNDNEXT);
+                z++;
+            }
+            return -1;
+        }
+        IntPtr GetWindowWithMinZIndex(List<IntPtr> windowHandles)
+        {
+            IntPtr lowestWindow = IntPtr.Zero;
+            int lowestZ = int.MaxValue;
+
+            foreach (var hwnd in windowHandles)
+            {
+                int z = GetZIndex(hwnd);
+                if (z >= 0 && z < lowestZ)
+                {
+                    lowestZ = z;
+                    lowestWindow = hwnd;
+                }
+            }
+            return lowestWindow;
+        }
+        void BringFrameToFront(IntPtr hwnd)
+        {
+            IntPtr hwndLower = Interop.GetWindow(GetWindowWithMinZIndex(MainWindow._controller._subWindowsPtr), GW_HWNDPREV);
+            IntPtr insertAfter = hwndLower != IntPtr.Zero ? hwndLower : IntPtr.Zero;
+            SetWindowPos(new WindowInteropHelper(this).Handle, insertAfter, 0, 0, 0, 0,
+                SWP_NOMOVE | SWP_NOSIZE | SWP_NOACTIVATE |
+                SWP_NOOWNERZORDER | SWP_NOSENDCHANGING);
+        }
         private void Window_MouseEnter(object sender, MouseEventArgs e)
         {
             this.Activate();
+            var hwnd = new WindowInteropHelper(this).Handle;
+            BringFrameToFront(hwnd);
+            KeepWindowBehind();
             _canAutoClose = true;
             AnimateWindowOpacity(1, Instance.AnimationSpeed);
             if (_isOnEdge && _isMinimized)

@@ -2,6 +2,7 @@
 using Microsoft.Win32;
 using System.Diagnostics;
 using System.IO;
+using System.Windows.Interop;
 
 public class InstanceController
 {
@@ -9,7 +10,7 @@ public class InstanceController
     public List<Instance> Instances = new List<Instance>();
     public RegistryHelper reg = new RegistryHelper(appName);
     public List<DeskFrameWindow> _subWindows = new List<DeskFrameWindow>();
-
+    public List<IntPtr> _subWindowsPtr = new List<IntPtr>();
     public void WriteOverInstanceToKey(Instance instance, string oldKey)
     {
 
@@ -130,6 +131,7 @@ public class InstanceController
         var subWindow = new DeskFrameWindow(Instances.Last());
         subWindow.ChangeBackgroundOpacity(Instances.Last().Opacity);
         _subWindows.Add(subWindow);
+        _subWindowsPtr.Add(new WindowInteropHelper(subWindow).Handle);
         subWindow.Show();
         InitDetails();
     }
@@ -429,6 +431,7 @@ public class InstanceController
             {
                 var subWindow = new DeskFrameWindow(Instance);
                 _subWindows.Add(subWindow);
+                _subWindowsPtr.Add(new WindowInteropHelper(subWindow).Handle);
                 subWindow.ChangeBackgroundOpacity(Instance.Opacity);
                 subWindow.Show();
                 InitDetails();
