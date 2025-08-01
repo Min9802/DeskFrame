@@ -536,6 +536,7 @@ namespace DeskFrame
                     BorderEnabledCheckBox.IsChecked = instance.BorderEnabled;
                     TitleFontSizeNumberBox.Value = instance.TitleFontSize;
                     TitleTextAlignmentComboBox.SelectedIndex = (int)instance.TitleTextAlignment;
+                    AutoExpandonCursorCheckBox.IsChecked = instance.AutoExpandonCursor;
                 };
                 contextMenu.Items.Add(menuItem);
             }
