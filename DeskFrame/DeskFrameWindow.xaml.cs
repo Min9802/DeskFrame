@@ -1083,7 +1083,7 @@ namespace DeskFrame
                                     ? entry.Name
                                     : entry.Name.Substring(0, entry.Name.Length - actualExt.Length);
                             existingItem.FullPath = entry.FullName;
-                            existingItem.IsFolder = entry is FileInfo;
+                            existingItem.IsFolder = string.IsNullOrEmpty(Path.GetExtension(entry.FullName));
                             existingItem.DateModified = entry.LastWriteTime;
                             existingItem.DateCreated = entry.CreationTime;
                             existingItem.FileType = entry is FileInfo ? entry.Extension : string.Empty;
@@ -1454,7 +1454,7 @@ namespace DeskFrame
         {
             if (sender is Border border && border.DataContext is FileItem fileItem)
             {
-                if (_dropIntoFolder && !fileItem.IsFolder)
+                if (_dropIntoFolder && fileItem.IsFolder)
                 {
                     _dropToFolder = fileItem.FullPath + "\\";
                     if (showFolderInGrid.Visibility == Visibility.Visible)
@@ -1477,7 +1477,7 @@ namespace DeskFrame
                         fileItem.Background = new SolidColorBrush(Color.FromArgb(30, 255, 255, 255));
                     }
                 }
-                if (showFolderInGrid.Visibility == Visibility.Visible && !fileItem.IsSelected && !fileItem.IsFolder)
+                if (showFolderInGrid.Visibility == Visibility.Visible && !fileItem.IsSelected && fileItem.IsFolder)
                 {
                     border.Background = new SolidColorBrush(Color.FromArgb(30, 255, 255, 255));
                 }
@@ -1497,7 +1497,7 @@ namespace DeskFrame
                 {
                     fileItem.Background = new SolidColorBrush(Color.FromArgb(50, 255, 255, 255));
                 }
-                if (showFolderInGrid.Visibility == Visibility.Visible && !fileItem.IsSelected && !fileItem.IsFolder)
+                if (showFolderInGrid.Visibility == Visibility.Visible && !fileItem.IsSelected /*&& !fileItem.IsFolder*/)
                 {
                     border.Background = fileItem.IsSelected ? new SolidColorBrush(Color.FromArgb(15, 255, 255, 255)) : Brushes.Transparent;
                 }
