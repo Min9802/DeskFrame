@@ -12,7 +12,7 @@
         Background="#66232323" 
         WindowStyle="None" 
         ResizeMode="NoResize"
-        Height="684" 
+        Height="690" 
         Width="770"
         MinWidth="0"
         MinHeight="0">
@@ -151,6 +151,7 @@
                     <Label x:Name="IdleOpacityLabel" Content="0%" Height="30" Margin="5,20,0,0" Foreground="{DynamicResource {x:Static SystemColors.MenuHighlightBrushKey}}" FontWeight="Bold"/>
                 </StackPanel>
                 <Slider x:Name="IdleOpacitySlider" Width="200" TickPlacement="TopLeft" TickFrequency="1" Minimum="1" Maximum="10" ValueChanged="Slider_ValueChanged" IsSnapToTickEnabled="True"/>
+                <CheckBox x:Name="AutoExpandonCursorCheckBox" Content="Expand on cursor over" Margin="-11,10,0,0" Checked="AutoExpandonCursorCheckBox_Checked" Unchecked="AutoExpandonCursorCheckBox_Unchecked"/>
 
 
             </StackPanel>

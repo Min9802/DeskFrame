@@ -2468,7 +2468,7 @@ namespace DeskFrame
             KeepWindowBehind();
             _canAutoClose = true;
             AnimateWindowOpacity(1, Instance.AnimationSpeed);
-            if (_isOnEdge && _isMinimized)
+            if ((Instance.AutoExpandonCursor || _isOnEdge) && _isMinimized)
             {
                 Minimize_MouseLeftButtonDown(null, null);
             }
@@ -2500,7 +2500,7 @@ namespace DeskFrame
             };
             timer.Start();
 
-            if (_isOnEdge && !_isMinimized && _canAutoClose)
+            if ((Instance.AutoExpandonCursor || _isOnEdge) && !_isMinimized && _canAutoClose)
             {
                 Task.Run(() =>
                 {

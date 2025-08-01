@@ -27,6 +27,7 @@ public class Instance : INotifyPropertyChanged
     private bool _isLocked;
     private bool _checkFolderSize = false;
     private bool _showInGrid = true;
+    private bool _autoExpandonCursor = false;
     private string _titleBarColor = "#0C000000";
     private string _titleTextColor = "#FFFFFF";
     private string _borderColor = "#FFFFFF";
@@ -263,6 +264,18 @@ public class Instance : INotifyPropertyChanged
             {
                 _showInGrid = value;
                 OnPropertyChanged(nameof(ShowInGrid), value.ToString());
+            }
+        }
+    }    
+    public bool AutoExpandonCursor
+    {
+        get => _autoExpandonCursor;
+        set
+        {
+            if (_autoExpandonCursor != value)
+            {
+                _autoExpandonCursor = value;
+                OnPropertyChanged(nameof(AutoExpandonCursor), value.ToString());
             }
         }
     }

@@ -92,6 +92,7 @@ namespace DeskFrame
             ShowFileExtensionIconCheckBox.IsChecked = _instance.ShowFileExtensionIcon;
             ShowHiddenFilesIconCheckBox.IsChecked = _instance.ShowHiddenFilesIcon;
             ShowDisplayNameCheckBox.IsChecked = _instance.ShowDisplayName;
+            AutoExpandonCursorCheckBox.IsChecked = _instance.AutoExpandonCursor;
             TitleTextAutoSuggestionBox.Text = _instance.TitleFontFamily;
             _frame.title.FontSize = _instance.TitleFontSize;
             _frame.title.TextWrapping = TextWrapping.Wrap;
@@ -320,6 +321,7 @@ namespace DeskFrame
                 _instance.ShowOnVirtualDesktops = _originalInstance.ShowOnVirtualDesktops;
                 _instance.IdleOpacity = _originalInstance.IdleOpacity;
                 _instance.AnimationSpeed = _originalInstance.AnimationSpeed;
+                _instance.AutoExpandonCursor = _originalInstance.AutoExpandonCursor;
                 if (_originalInstance.Folder != _instance.Folder)
                 {
                     _instance.Folder = _originalInstance.Folder;
@@ -360,6 +362,9 @@ namespace DeskFrame
                 ListViewFontShadowColorTextBox.Text = _instance.ListViewFontShadowColor;
                 TitleFontSizeNumberBox.Value = _instance.TitleFontSize;
                 TitleTextAutoSuggestionBox.Text = _instance.TitleFontFamily;
+                
+                AutoExpandonCursorCheckBox.IsChecked = _instance.AutoExpandonCursor;
+
                 ShowOnVirtualDesktopTextBox.Text = _instance.ShowOnVirtualDesktops != null
                       ? string.Join(",", _instance.ShowOnVirtualDesktops)
                       : string.Empty;
@@ -430,7 +435,15 @@ namespace DeskFrame
             _instance.ShowDisplayName = ShowDisplayNameCheckBox.IsChecked ?? true;
             _frame.UpdateIconVisibility();
         }
+        private void AutoExpandonCursorCheckBox_Checked(object sender, RoutedEventArgs e)
+        {
+            _instance.AutoExpandonCursor = true;
+        }
 
+        private void AutoExpandonCursorCheckBox_Unchecked(object sender, RoutedEventArgs e)
+        {
+            _instance.AutoExpandonCursor = false;
+        }
         private void ChangeFolderButton_Click(object sender, RoutedEventArgs e)
         {
             var folderDialog = new FolderBrowserDialog
