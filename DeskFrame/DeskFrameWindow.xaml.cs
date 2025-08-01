@@ -51,8 +51,8 @@ namespace DeskFrame
 
         public bool VirtualDesktopSupported;
 
-        private bool _dropIntoFolder;
-        string _dropToFolder;
+        private bool _dragdropIntoFolder;
+        string _dropIntoFolderPath;
         FrameworkElement _lastBorder;
 
         private bool _isMinimized = false;
@@ -1201,7 +1201,7 @@ namespace DeskFrame
         }
         private void Window_Drop(object sender, DragEventArgs e)
         {
-            _dropIntoFolder = false;
+            _dragdropIntoFolder = false;
             _canAutoClose = false;
             Task.Run(async () =>
             {
@@ -1215,7 +1215,7 @@ namespace DeskFrame
                 {
                     string destinationPath = Path.Combine(_path, Path.GetFileName(file));
                     if (Path.GetDirectoryName(file) == _path &&
-                        _dropIntoFolder &&
+                        _dragdropIntoFolder &&
                         string.IsNullOrEmpty(_path) &&
                         _path == "empty")
                     {
@@ -1243,8 +1243,8 @@ namespace DeskFrame
 
                             }
                             Directory.Move(file,
-                                !string.IsNullOrEmpty(_dropToFolder)
-                                    ? Path.Combine(_dropToFolder, Path.GetFileName(destinationPath))
+                                !string.IsNullOrEmpty(_dropIntoFolderPath)
+                                    ? Path.Combine(_dropIntoFolderPath, Path.GetFileName(destinationPath))
                                     : destinationPath);
 
                         }
@@ -1252,8 +1252,8 @@ namespace DeskFrame
                         {
                             Debug.WriteLine("File detected: " + file);
                             File.Move(file,
-                                !string.IsNullOrEmpty(_dropToFolder)
-                                    ? Path.Combine(_dropToFolder, Path.GetFileName(destinationPath))
+                                !string.IsNullOrEmpty(_dropIntoFolderPath)
+                                    ? Path.Combine(_dropIntoFolderPath, Path.GetFileName(destinationPath))
                                     : destinationPath);
                         }
                     }
@@ -1346,7 +1346,7 @@ namespace DeskFrame
                 AnimateWindowHeight(30, Instance.AnimationSpeed);
             }
             AnimateWindowOpacity(Instance.IdleOpacity, Instance.AnimationSpeed);
-            _dropIntoFolder = false;
+            _dragdropIntoFolder = false;
         }
         private void Window_DragEnter(object sender, DragEventArgs e)
         {
@@ -1361,7 +1361,7 @@ namespace DeskFrame
             {
                 currentBorder = sourceElement as Border ?? FindParent<Border>(sourceElement);
             }
-            _dropIntoFolder = true;
+            _dragdropIntoFolder = true;
             if (currentBorder != _lastBorder)
             {
                 if (_lastBorder != null)
@@ -1417,7 +1417,7 @@ namespace DeskFrame
         }
         private void ListViewItem_MouseEnter(object sender, MouseEventArgs e)
         {
-            _dropToFolder = "";
+            _dropIntoFolderPath = "";
 
             if (sender is ListViewItem item && item.DataContext is FileItem fileItem)
             {
@@ -1435,7 +1435,7 @@ namespace DeskFrame
         }
         private void ListViewItem_MouseLeave(object sender, MouseEventArgs e)
         {
-            _dropToFolder = "";
+            _dropIntoFolderPath = "";
             if (sender is ListViewItem item && item.DataContext is FileItem fileItem)
             {
                 var sourceElement = e.OriginalSource as DependencyObject;
@@ -1454,9 +1454,9 @@ namespace DeskFrame
         {
             if (sender is Border border && border.DataContext is FileItem fileItem)
             {
-                if (_dropIntoFolder && fileItem.IsFolder)
+                if (_dragdropIntoFolder && fileItem.IsFolder)
                 {
-                    _dropToFolder = fileItem.FullPath + "\\";
+                    _dropIntoFolderPath = fileItem.FullPath + "\\";
                     if (showFolderInGrid.Visibility == Visibility.Visible)
                     {
                         border.Background = new SolidColorBrush(Color.FromArgb(15, 255, 255, 255));
@@ -1466,7 +1466,7 @@ namespace DeskFrame
                         fileItem.Background = new SolidColorBrush(Color.FromArgb(30, 255, 255, 255));
                     }
                 }
-                else if (!_dropIntoFolder)
+                else if (!_dragdropIntoFolder)
                 {
                     if (showFolderInGrid.Visibility == Visibility.Visible)
                     {
@@ -1488,7 +1488,7 @@ namespace DeskFrame
         {
             if (sender is Border border && border.DataContext is FileItem fileItem)
             {
-                _dropToFolder = "";
+                _dropIntoFolderPath = "";
                 if (!fileItem.IsSelected)
                 {
                     fileItem.Background = fileItem.IsSelected ? new SolidColorBrush(Color.FromArgb(30, 255, 255, 255)) : Brushes.Transparent;
@@ -2478,7 +2478,7 @@ namespace DeskFrame
             };
             timer.Tick += (s, args) =>
             {
-                if (!_dropIntoFolder && !this.IsMouseOver)
+                if (!_dragdropIntoFolder && !this.IsMouseOver)
                 {
                     Dispatcher.InvokeAsync(() =>
                     {
