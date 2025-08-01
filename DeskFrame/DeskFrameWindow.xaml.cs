@@ -63,6 +63,7 @@ namespace DeskFrame
         private bool _canAutoClose = true;
         private bool _isLocked = false;
         private bool _isOnEdge = false;
+        bool _canAnimate = true;
         private double _originalHeight;
         public int neighborFrameCount = 0;
         public bool isMouseDown = false;
@@ -240,6 +241,10 @@ namespace DeskFrame
                     Marshal.StructureToPtr(rect, lParam, true);
                     handled = true;
                     return (IntPtr)4;
+                }
+                else if (!_isMinimized && this.ActualHeight != 30 && !_isOnEdge && _canAnimate)
+                {
+                    Instance.Height = this.ActualHeight;
                 }
                 ResizeBottomAnimation(height, rect, lParam);
 
@@ -722,17 +727,6 @@ namespace DeskFrame
             }
         }
 
-
-        private void Window_SizeChanged(object sender, SizeChangedEventArgs e)
-        {
-            if (e.HeightChanged && !_isMinimized)
-            {
-                if (this.ActualHeight != 30 && !_isOnEdge)
-                {
-                        Instance.Height = this.ActualHeight;
-                }
-            }
-        }
         private void AnimateChevron(bool flip, bool onLoad, double animationSpeed)
         {
 
@@ -769,7 +763,6 @@ namespace DeskFrame
             rotateTransform.BeginAnimation(RotateTransform.AngleProperty, rotateAnimation);
         }
 
-        bool _canAnimate = true;
         private void Minimize_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
         {
 
