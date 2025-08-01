@@ -131,8 +131,8 @@ public class InstanceController
         var subWindow = new DeskFrameWindow(Instances.Last());
         subWindow.ChangeBackgroundOpacity(Instances.Last().Opacity);
         _subWindows.Add(subWindow);
-        _subWindowsPtr.Add(new WindowInteropHelper(subWindow).Handle);
         subWindow.Show();
+        _subWindowsPtr.Add(new WindowInteropHelper(subWindow).Handle);
         InitDetails();
     }
 
@@ -431,9 +431,9 @@ public class InstanceController
             {
                 var subWindow = new DeskFrameWindow(Instance);
                 _subWindows.Add(subWindow);
-                _subWindowsPtr.Add(new WindowInteropHelper(subWindow).Handle);
                 subWindow.ChangeBackgroundOpacity(Instance.Opacity);
                 subWindow.Show();
+                _subWindowsPtr.Add(new WindowInteropHelper(subWindow).Handle);
                 InitDetails();
             }
 
