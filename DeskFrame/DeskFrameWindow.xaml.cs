@@ -220,11 +220,12 @@ namespace DeskFrame
                 double newWidth = (Math.Round(width / 85.0) * 85 + 13);
                 if (width != newWidth)
                 {
-                    if (wParam.ToInt32() == 2) // WMSZ_RIGHT
+                    int edge = wParam.ToInt32();
+                    if (edge == 2 || edge == 8) // WMSZ_RIGHT
                     {
                         rect.Right = rect.Left + (int)newWidth;
                     }
-                    else if (wParam.ToInt32() == 1) // WMSZ_LEFT
+                    if (edge == 1 || edge == 7) // WMSZ_LEFT
                     {
                         rect.Left = rect.Right - (int)newWidth;
                     }
@@ -728,7 +729,7 @@ namespace DeskFrame
             {
                 if (this.ActualHeight != 30 && !_isOnEdge)
                 {
-                    Instance.Height = this.ActualHeight;
+                        Instance.Height = this.ActualHeight;
                 }
             }
         }
