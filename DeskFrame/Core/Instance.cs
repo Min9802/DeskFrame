@@ -28,6 +28,7 @@ public class Instance : INotifyPropertyChanged
     private bool _checkFolderSize = false;
     private bool _showInGrid = true;
     private bool _autoExpandonCursor = false;
+    private bool _showShortcutArrow = false;
     private string _titleBarColor = "#0C000000";
     private string _titleTextColor = "#FFFFFF";
     private string _borderColor = "#FFFFFF";
@@ -276,6 +277,18 @@ public class Instance : INotifyPropertyChanged
             {
                 _autoExpandonCursor = value;
                 OnPropertyChanged(nameof(AutoExpandonCursor), value.ToString());
+            }
+        }
+    }  
+    public bool ShowShortcutArrow
+    {
+        get => _showShortcutArrow;
+        set
+        {
+            if (_showShortcutArrow != value)
+            {
+                _showShortcutArrow = value;
+                OnPropertyChanged(nameof(ShowShortcutArrow), value.ToString());
             }
         }
     }

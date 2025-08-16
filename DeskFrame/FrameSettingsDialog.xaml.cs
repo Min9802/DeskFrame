@@ -93,6 +93,7 @@ namespace DeskFrame
             ShowHiddenFilesIconCheckBox.IsChecked = _instance.ShowHiddenFilesIcon;
             ShowDisplayNameCheckBox.IsChecked = _instance.ShowDisplayName;
             AutoExpandonCursorCheckBox.IsChecked = _instance.AutoExpandonCursor;
+            ShowShortcutArrowCheckBox.IsChecked = _instance.ShowShortcutArrow;
             TitleTextAutoSuggestionBox.Text = _instance.TitleFontFamily;
             _frame.title.FontSize = _instance.TitleFontSize;
             _frame.title.TextWrapping = TextWrapping.Wrap;
@@ -322,6 +323,7 @@ namespace DeskFrame
                 _instance.IdleOpacity = _originalInstance.IdleOpacity;
                 _instance.AnimationSpeed = _originalInstance.AnimationSpeed;
                 _instance.AutoExpandonCursor = _originalInstance.AutoExpandonCursor;
+                _instance.ShowShortcutArrow = _originalInstance.ShowShortcutArrow;
                 if (_originalInstance.Folder != _instance.Folder)
                 {
                     _instance.Folder = _originalInstance.Folder;
@@ -364,6 +366,7 @@ namespace DeskFrame
                 TitleTextAutoSuggestionBox.Text = _instance.TitleFontFamily;
                 
                 AutoExpandonCursorCheckBox.IsChecked = _instance.AutoExpandonCursor;
+                ShowShortcutArrowCheckBox.IsChecked = _instance.ShowShortcutArrow;
 
                 ShowOnVirtualDesktopTextBox.Text = _instance.ShowOnVirtualDesktops != null
                       ? string.Join(",", _instance.ShowOnVirtualDesktops)
@@ -443,6 +446,15 @@ namespace DeskFrame
         private void AutoExpandonCursorCheckBox_Unchecked(object sender, RoutedEventArgs e)
         {
             _instance.AutoExpandonCursor = false;
+        }
+        private void ShowShortcutArrowCheckBox_Checked(object sender, RoutedEventArgs e)
+        {
+            _instance.ShowShortcutArrow = true;
+        }
+
+        private void ShowShortcutArrowCheckBox_Unchecked(object sender, RoutedEventArgs e)
+        {
+            _instance.ShowShortcutArrow = false;
         }
         private void ChangeFolderButton_Click(object sender, RoutedEventArgs e)
         {
@@ -537,10 +549,11 @@ namespace DeskFrame
                     TitleFontSizeNumberBox.Value = instance.TitleFontSize;
                     TitleTextAlignmentComboBox.SelectedIndex = (int)instance.TitleTextAlignment;
                     AutoExpandonCursorCheckBox.IsChecked = instance.AutoExpandonCursor;
+                    ShowShortcutArrowCheckBox.IsChecked = instance.ShowShortcutArrow;
                 };
                 contextMenu.Items.Add(menuItem);
             }
             ChangeStyleDropDownButton.Flyout = contextMenu;
-        }
+        } 
     }
 }

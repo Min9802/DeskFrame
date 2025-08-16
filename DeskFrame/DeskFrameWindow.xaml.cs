@@ -39,6 +39,8 @@ using WindowsDesktop;
 using System.Windows.Controls.Primitives;
 using System.Windows.Threading;
 using static DeskFrame.Util.Interop;
+using IWshRuntimeLibrary;
+using File = System.IO.File;
 namespace DeskFrame
 {
     public partial class DeskFrameWindow : System.Windows.Window
@@ -1493,7 +1495,7 @@ namespace DeskFrame
                 }
             }
         }
-     
+
         private void FileItem_MouseLeave(object sender, MouseEventArgs? e)
         {
             if (sender is Border border && border.DataContext is FileItem fileItem)
@@ -1514,12 +1516,56 @@ namespace DeskFrame
             }
         }
 
-        public static BitmapSource? GetIconFromShortcut(string shortcutPath)
+        public  BitmapSource? GetIconFromShortcut(string shortcutPath)
         {
+            WshShell shell = new WshShell();
+            IWshShortcut link = (IWshShortcut)shell.CreateShortcut(shortcutPath);
+
+            string targetPath = link.TargetPath;
+            string iconPath = link.IconLocation;
+            int iconIndex = 0;
+
+            if (!string.IsNullOrEmpty(iconPath))
+            {
+                string[] parts = iconPath.Split(',');
+                iconPath = parts[0];
+                if (parts.Length > 1)
+                    int.TryParse(parts[1], out iconIndex);
+            }
+
+            string pathToGetIcon = !string.IsNullOrEmpty(targetPath) ? targetPath : iconPath;
+
             SHFILEINFO shinfo = new SHFILEINFO();
+            IntPtr result = SHGetFileInfo(pathToGetIcon, 0, ref shinfo, (uint)Marshal.SizeOf(shinfo), SHGFI_ICON | SHGFI_LARGEICON);
 
-            IntPtr result = SHGetFileInfo(shortcutPath, 0, ref shinfo, (uint)Marshal.SizeOf(shinfo), SHGFI_ICON | SHGFI_LARGEICON);
+            if (string.IsNullOrEmpty(pathToGetIcon) || Instance.ShowShortcutArrow)
+            {
+                result = SHGetFileInfo(shortcutPath, 0, ref shinfo, (uint)Marshal.SizeOf(shinfo), SHGFI_ICON | SHGFI_LARGEICON);
 
+                if (shinfo.hIcon != IntPtr.Zero)
+                {
+                    BitmapSource source = Imaging.CreateBitmapSourceFromHIcon(
+                        shinfo.hIcon,
+                        System.Windows.Int32Rect.Empty,
+                        BitmapSizeOptions.FromEmptyOptions());
+
+                    DestroyIcon(shinfo.hIcon);
+                    return source;
+                }
+                return null;
+            }
+
+            if (shinfo.hIcon != IntPtr.Zero)
+            {
+                BitmapSource source = Imaging.CreateBitmapSourceFromHIcon(
+                    shinfo.hIcon,
+                    Int32Rect.Empty,
+                    BitmapSizeOptions.FromEmptyOptions());
+
+                DestroyIcon(shinfo.hIcon);
+                return source;
+            }
+            result = SHGetFileInfo(shortcutPath, 0, ref shinfo, (uint)Marshal.SizeOf(shinfo), SHGFI_ICON | SHGFI_LARGEICON);
             if (shinfo.hIcon != IntPtr.Zero)
             {
                 BitmapSource source = Imaging.CreateBitmapSourceFromHIcon(
@@ -1721,9 +1767,49 @@ namespace DeskFrame
                                 icons[0],
                                 Int32Rect.Empty,
                                 BitmapSizeOptions.FromEmptyOptions());
-
-                            source.Freeze();
                             Interop.DestroyIcon(icons[0]);
+                            if (Instance.ShowShortcutArrow)
+                            {
+                                IntPtr[] overlayIcons = new IntPtr[1];
+                                int overlayExtracted = Interop.ExtractIconEx(
+                                    Environment.SystemDirectory + "\\shell32.dll",
+                                    29,
+                                    overlayIcons,
+                                    null,
+                                    1);
+
+                                if (overlayExtracted > 0 && overlayIcons[0] != IntPtr.Zero)
+                                {
+                                    var overlay = Imaging.CreateBitmapSourceFromHIcon(
+                                        overlayIcons[0],
+                                        Int32Rect.Empty,
+                                        BitmapSizeOptions.FromEmptyOptions());
+                                    Interop.DestroyIcon(overlayIcons[0]);
+
+                                    var visual = new DrawingVisual();
+                                    using (var dc = visual.RenderOpen())
+                                    {
+                                        dc.DrawImage(source, new Rect(0, 0, source.PixelWidth, source.PixelHeight));
+                                        dc.DrawImage(overlay, new Rect(
+                                            source.PixelWidth - overlay.PixelWidth,
+                                            source.PixelHeight - overlay.PixelHeight,
+                                            overlay.PixelWidth,
+                                            overlay.PixelHeight));
+                                    }
+
+                                    var rtb = new RenderTargetBitmap(
+                                        source.PixelWidth,
+                                        source.PixelHeight,
+                                        source.DpiX,
+                                        source.DpiY,
+                                        PixelFormats.Pbgra32);
+                                    rtb.Render(visual);
+                                    rtb.Freeze();
+
+                                    return rtb;
+                                }
+                            }
+                            source.Freeze();
                             return source;
                         }
                         return null;

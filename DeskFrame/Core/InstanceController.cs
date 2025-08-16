@@ -38,6 +38,7 @@ public class InstanceController
                 key.SetValue("IsLocked", instance.IsLocked!);
                 key.SetValue("ShowInGrid", instance.ShowInGrid!);
                 key.SetValue("AutoExpandonCursor", instance.AutoExpandonCursor);
+                key.SetValue("ShowShortcutArrow", instance.ShowShortcutArrow);
                 key.SetValue("TitleBarColor", instance.TitleBarColor!);
                 key.SetValue("TitleTextColor", instance.TitleTextColor!);
                 key.SetValue("TitleTextAlignment", instance.TitleTextAlignment.ToString());
@@ -95,6 +96,7 @@ public class InstanceController
                 key.SetValue("IsLocked", instance.IsLocked);
                 key.SetValue("ShowInGrid", instance.ShowInGrid);
                 key.SetValue("AutoExpandonCursor", instance.AutoExpandonCursor);
+                key.SetValue("ShowShortcutArrow", instance.ShowShortcutArrow);
                 if (instance.TitleBarColor != null) key.SetValue("TitleBarColor", instance.TitleBarColor);
                 if (instance.TitleTextColor != null) key.SetValue("TitleTextColor", instance.TitleTextColor);
                 key.SetValue("TitleTextAlignment", instance.TitleTextAlignment.ToString());
@@ -297,6 +299,10 @@ public class InstanceController
                                             case "AutoExpandonCursor":
                                                 temp.AutoExpandonCursor = bool.Parse(value.ToString()!);
                                                 Debug.WriteLine($"AutoExpandonCursor added\t{temp.AutoExpandonCursor}");
+                                                break;
+                                            case "ShowShortcutArrow":
+                                                temp.ShowShortcutArrow = bool.Parse(value.ToString()!);
+                                                Debug.WriteLine($"ShowShortcutArrow added\t{temp.ShowShortcutArrow}");
                                                 break;
                                             case "TitleBarColor":
                                                 temp.TitleBarColor = value.ToString()!;
