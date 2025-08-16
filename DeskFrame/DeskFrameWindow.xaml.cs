@@ -854,6 +854,16 @@ namespace DeskFrame
         }
         private void AnimateWindowHeight(double targetHeight, double animationSpeed)
         {
+            double currentHeight = this.ActualHeight;
+
+            var freezeAnimation = new DoubleAnimation
+            {
+                To = currentHeight,
+                Duration = TimeSpan.Zero,
+                FillBehavior = FillBehavior.HoldEnd
+            };
+            this.BeginAnimation(HeightProperty, freezeAnimation);
+
             var animation = new DoubleAnimation
             {
                 To = targetHeight,
@@ -864,7 +874,7 @@ namespace DeskFrame
             };
             animation.Completed += (s, e) =>
             {
-                _canAnimate = true;
+              //  _canAnimate = true;
                 if (targetHeight == 30)
                 {
                     scrollViewer.ScrollToTop();
@@ -884,7 +894,7 @@ namespace DeskFrame
                     }
                 );
             };
-            _canAnimate = false;
+          // _canAnimate = false;
             this.BeginAnimation(HeightProperty, animation);
         }
 
