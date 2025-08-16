@@ -28,7 +28,7 @@ public class Instance : INotifyPropertyChanged
     private bool _checkFolderSize = false;
     private bool _showInGrid = true;
     private bool _autoExpandonCursor = false;
-    private bool _showShortcutArrow = false;
+    private bool _showShortcutArrow = true;
     private string _titleBarColor = "#0C000000";
     private string _titleTextColor = "#FFFFFF";
     private string _borderColor = "#FFFFFF";
