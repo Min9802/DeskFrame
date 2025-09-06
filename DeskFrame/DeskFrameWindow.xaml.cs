@@ -64,10 +64,12 @@ namespace DeskFrame
         private bool _checkForChages = false;
         private bool _canAutoClose = true;
         private bool _isLocked = false;
-        private bool _isOnEdge = false;
+        private bool _isOnTop = false;
+        private bool _isOnBottom = false;
         bool _canAnimate = true;
         private double _originalHeight;
         public int neighborFrameCount = 0;
+        private double _previousHeight = -1;
         public bool isMouseDown = false;
         private ICollectionView _collectionView;
         private CancellationTokenSource _cts = new CancellationTokenSource();
@@ -244,12 +246,60 @@ namespace DeskFrame
                     handled = true;
                     return (IntPtr)4;
                 }
-                else if (!_isMinimized && this.ActualHeight != 30 && !_isOnEdge && _canAnimate)
+                else if (!_isMinimized && this.ActualHeight != 30 && !_isOnTop && _canAnimate)
                 {
                     Instance.Height = this.ActualHeight;
                 }
                 ResizeBottomAnimation(height, rect, lParam);
 
+            }
+            if (msg == 0x0005 && _isOnBottom) // WM_SIZE
+            {
+                double newHeight = (lParam.ToInt32() >> 16) & 0xFFFF;
+                if (_previousHeight != -1 && _previousHeight != newHeight)
+                {
+                    double delta = newHeight - _previousHeight;
+                    _previousHeight = newHeight;
+                    IntPtr hwnd = new WindowInteropHelper(this).Handle;
+                    var workingArea = SystemParameters.WorkArea;
+                    Interop.RECT windowRect;
+                    Interop.GetWindowRect(hwnd, out windowRect);
+                    WindowChrome.SetWindowChrome(this,
+                      new WindowChrome
+                      {
+                          ResizeBorderThickness = new Thickness(0),
+                          CaptionHeight = 0
+                      });
+                    if (delta > 0) // UP
+                    {
+                        Application.Current.Dispatcher.BeginInvoke(() =>
+                        {
+                            Interop.SetWindowPos(hwnd, IntPtr.Zero, (int)this.Left,
+                                    (int)((this.Top - delta) - windowRect.Bottom <= SystemParameters.WorkArea.Bottom ? (int)(this.Top -= delta) : this.Height - SystemParameters.WorkArea.Bottom - 30),
+                                0, 0,
+                                  SWP_NOMOVE | SWP_NOSIZE 
+                                  );
+
+                        }, DispatcherPriority.Normal);
+
+
+                    }
+                    else
+                    {
+                        Interop.SetWindowPos(hwnd, IntPtr.Zero, (int)this.Left,
+                                (int)((this.Top - delta) - windowRect.Bottom <= SystemParameters.WorkArea.Bottom ? (int)(this.Top -= delta) : this.Height - SystemParameters.WorkArea.Bottom - 30),
+                            0, 0,
+                              SWP_NOMOVE | SWP_NOSIZE | SWP_NOACTIVATE | SWP_NOREDRAW
+                              );
+
+                    }
+                    if (this.Top + 30 > workingArea.Bottom)
+                    {
+                        this.Top = workingArea.Bottom - 30;
+                    }
+                }
+                _previousHeight = newHeight;
+                return 4;
             }
 
             if (msg == 70)
@@ -309,6 +359,7 @@ namespace DeskFrame
 
             int newWindowLeft = windowLeft;
             int newWindowTop = windowTop;
+            int newWindowBottom = windowBottom;
 
             var workingArea = SystemParameters.WorkArea;
             //if (Math.Abs(windowLeft - workingArea.Left) <= _snapDistance)
@@ -325,22 +376,34 @@ namespace DeskFrame
             //{
             //    _isOnEdge = false;
             //}
-
+            Debug.WriteLine(windowBottom + " " + (workingArea.Bottom <= windowBottom));
             if (Math.Abs(windowTop - workingArea.Top) <= _snapDistance)
             {
                 newWindowTop = (int)workingArea.Top;
                 WindowBackground.CornerRadius = new CornerRadius(0, 0, 5, 5);
-                _isOnEdge = true;
+                _isOnBottom = false;
+                _isOnTop = true;
             }
             else if (Math.Abs(windowBottom - workingArea.Bottom) <= _snapDistance)
             {
                 newWindowTop = (int)(workingArea.Bottom - (windowBottom - windowTop));
             }
-            else
+            else if (!_isOnBottom)
             {
-                _isOnEdge = false;
+                _isOnTop = false;
                 WindowBackground.CornerRadius = new CornerRadius(5);
                 titleBar.CornerRadius = new CornerRadius(5, 5, 0, 0);
+            }
+            if (workingArea.Bottom <= windowBottom)
+            {
+                newWindowBottom = (int)workingArea.Bottom;
+                WindowBackground.CornerRadius = new CornerRadius(5, 5, 0, 0);
+                _isOnTop = false;
+                _isOnBottom = true;
+            }
+            else
+            {
+                _isOnBottom = false;
             }
             neighborFrameCount = 0;
 
@@ -399,8 +462,8 @@ namespace DeskFrame
                     if (!_wOnLeft._isMinimized)
                     {
                         _wOnLeft.WindowBorder.CornerRadius = new CornerRadius(
-                            topLeft: _wOnLeft._isOnEdge ? 0 : _wOnLeft._wOnLeft == null ? 5 : 0,
-                            topRight: _wOnLeft._isOnEdge ? 0 : 5,
+                            topLeft: _wOnLeft._isOnTop ? 0 : _wOnLeft._wOnLeft == null ? 5 : 0,
+                            topRight: _wOnLeft._isOnTop ? 0 : 5,
                             bottomRight: 5,
                             bottomLeft: 5
                         );
@@ -414,8 +477,8 @@ namespace DeskFrame
                     else
                     {
                         _wOnLeft.WindowBorder.CornerRadius = new CornerRadius(
-                            topLeft: _wOnLeft._isOnEdge ? 0 : _wOnLeft._wOnLeft == null ? 5 : 0,
-                            topRight: _wOnLeft._isOnEdge ? 0 : 5,
+                            topLeft: _wOnLeft._isOnTop ? 0 : _wOnLeft._wOnLeft == null ? 5 : 0,
+                            topRight: _wOnLeft._isOnTop ? 0 : 5,
                             bottomRight: 5,
                             bottomLeft: _wOnLeft._wOnLeft == null ? 5 : 0
                         );
@@ -431,8 +494,8 @@ namespace DeskFrame
                     if (!_wOnRight._isMinimized)
                     {
                         _wOnRight.WindowBorder.CornerRadius = new CornerRadius(
-                            topLeft: _wOnRight._isOnEdge ? 0 : 5,
-                            topRight: _wOnRight._isOnEdge ? 0 : _wOnRight._wOnRight == null ? 5 : 0,
+                            topLeft: _wOnRight._isOnTop ? 0 : 5,
+                            topRight: _wOnRight._isOnTop ? 0 : _wOnRight._wOnRight == null ? 5 : 0,
                             bottomRight: 5,
                             bottomLeft: 5
                         );
@@ -446,8 +509,8 @@ namespace DeskFrame
                     else
                     {
                         _wOnRight.WindowBorder.CornerRadius = new CornerRadius(
-                        topLeft: _wOnRight._isOnEdge ? 0 : 5,
-                        topRight: _wOnRight._isOnEdge ? 0 : _wOnRight._wOnRight == null ? 5 : 0,
+                        topLeft: _wOnRight._isOnTop ? 0 : 5,
+                        topRight: _wOnRight._isOnTop ? 0 : _wOnRight._wOnRight == null ? 5 : 0,
                         bottomRight: _wOnRight._wOnRight == null ? 5 : 0,
                         bottomLeft: 5
                         );
@@ -462,35 +525,66 @@ namespace DeskFrame
             }
             if (!_isMinimized)
             {
-                WindowBorder.CornerRadius = new CornerRadius(
-                    topLeft: _isOnEdge ? 0 : _wOnLeft == null ? 5 : 0,
-                    topRight: _isOnEdge ? 0 : _wOnRight == null ? 5 : 0,
-                    bottomRight: 5,
-                    bottomLeft: 5
-                );
-                WindowBackground.CornerRadius = WindowBorder.CornerRadius;
-                titleBar.CornerRadius = new CornerRadius(
-                    topLeft: WindowBorder.CornerRadius.TopLeft,
-                    topRight: WindowBorder.CornerRadius.TopRight,
-                    bottomRight: 0,
-                    bottomLeft: 0
-                );
+                if (_isOnBottom)
+                {
+                    WindowBorder.CornerRadius = new CornerRadius(
+                        topLeft: 5,
+                        topRight: 5,
+                        bottomRight: 0,
+                        bottomLeft: 0
+                    );
+                    WindowBackground.CornerRadius = WindowBorder.CornerRadius;
+                    titleBar.CornerRadius = new CornerRadius(
+                        topLeft: WindowBorder.CornerRadius.TopLeft,
+                        topRight: WindowBorder.CornerRadius.TopRight,
+                        bottomRight: 5,
+                        bottomLeft: 5
+                    );
+                }
+                else
+                {
+                    WindowBorder.CornerRadius = new CornerRadius(
+                        topLeft: _isOnTop ? 0 : _wOnLeft == null ? 5 : 0,
+                        topRight: _isOnTop ? 0 : _wOnRight == null ? 5 : 0,
+                        bottomRight: 5,
+                        bottomLeft: 5
+                    );
+                    WindowBackground.CornerRadius = WindowBorder.CornerRadius;
+                    titleBar.CornerRadius = new CornerRadius(
+                        topLeft: WindowBorder.CornerRadius.TopLeft,
+                        topRight: WindowBorder.CornerRadius.TopRight,
+                        bottomRight: 0,
+                        bottomLeft: 0
+                    );
+                }
             }
             else
             {
-                WindowBorder.CornerRadius = new CornerRadius(
-                    topLeft: _isOnEdge ? 0 : _wOnLeft == null ? 5 : 0,
-                    topRight: _isOnEdge ? 0 : _wOnRight == null ? 5 : 0,
-                    bottomRight: _wOnRight == null ? 5 : 0,
-                    bottomLeft: _wOnLeft == null ? 5 : 0
-                );
+                if (_isOnBottom)
+                {
+                    WindowBorder.CornerRadius = new CornerRadius(
+                        topLeft: _wOnLeft == null ? 5 : 0,
+                        topRight: _wOnRight == null ? 5 : 0,
+                        bottomRight: 0,
+                        bottomLeft: 0
+                   );
+                }
+                else
+                {
+                    WindowBorder.CornerRadius = new CornerRadius(
+                        topLeft: _isOnTop ? 0 : _wOnLeft == null ? 5 : 0,
+                        topRight: _isOnTop ? 0 : _wOnRight == null ? 5 : 0,
+                        bottomRight: _wOnRight == null ? 5 : 0,
+                        bottomLeft: _wOnLeft == null ? 5 : 0
+                    );
+                }
                 WindowBackground.CornerRadius = WindowBorder.CornerRadius;
                 titleBar.CornerRadius = WindowBorder.CornerRadius;
             }
 
 
 
-            if (newWindowLeft != windowLeft || newWindowTop != windowTop)
+            if (newWindowLeft != windowLeft || newWindowTop != windowTop || newWindowBottom != windowBottom)
             {
                 Interop.SetWindowPos(hwnd, IntPtr.Zero, newWindowLeft, newWindowTop, 0, 0, Interop.SWP_NOREDRAW | Interop.SWP_NOACTIVATE | Interop.SWP_NOZORDER | Interop.SWP_NOSIZE);
             }
@@ -876,7 +970,7 @@ namespace DeskFrame
             };
             animation.Completed += (s, e) =>
             {
-              //  _canAnimate = true;
+                //  _canAnimate = true;
                 if (targetHeight == 30)
                 {
                     scrollViewer.ScrollToTop();
@@ -896,7 +990,7 @@ namespace DeskFrame
                     }
                 );
             };
-          // _canAnimate = false;
+            // _canAnimate = false;
             this.BeginAnimation(HeightProperty, animation);
         }
 
@@ -1996,6 +2090,7 @@ namespace DeskFrame
         }
         private void MainWindow_SourceInitialized(object sender, EventArgs e)
         {
+            _previousHeight = Instance.Height;
             KeepWindowBehind();
         }
 
@@ -2558,7 +2653,7 @@ namespace DeskFrame
             KeepWindowBehind();
             _canAutoClose = true;
             AnimateWindowOpacity(1, Instance.AnimationSpeed);
-            if ((Instance.AutoExpandonCursor || _isOnEdge) && _isMinimized)
+            if ((Instance.AutoExpandonCursor || _isOnTop) && _isMinimized)
             {
                 Minimize_MouseLeftButtonDown(null, null);
             }
@@ -2590,7 +2685,7 @@ namespace DeskFrame
             };
             timer.Start();
 
-            if ((Instance.AutoExpandonCursor || _isOnEdge) && !_isMinimized && _canAutoClose)
+            if ((Instance.AutoExpandonCursor || _isOnTop) && !_isMinimized && _canAutoClose)
             {
                 Task.Run(() =>
                 {
