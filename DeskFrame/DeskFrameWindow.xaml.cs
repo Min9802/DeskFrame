@@ -1610,7 +1610,7 @@ namespace DeskFrame
             }
         }
 
-        public  BitmapSource? GetIconFromShortcut(string shortcutPath)
+        public BitmapSource? GetIconFromShortcut(string shortcutPath)
         {
             WshShell shell = new WshShell();
             IWshShortcut link = (IWshShortcut)shell.CreateShortcut(shortcutPath);
