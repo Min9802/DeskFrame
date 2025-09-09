@@ -340,7 +340,7 @@ namespace DeskFrame
                     double delta = newHeight - _previousHeight;
                     _previousHeight = newHeight;
                     Interop.GetWindowRect(hwnd, out RECT windowRect);
-               
+
                     if (delta > 0) // UP
                     {
                         Application.Current.Dispatcher.BeginInvoke(() =>
@@ -392,7 +392,7 @@ namespace DeskFrame
 
             return IntPtr.Zero;
         }
-       
+
 
         public void HandleWindowMove(bool initWindow)
         {
@@ -497,6 +497,22 @@ namespace DeskFrame
                     neighborFrameCount++;
                 }
 
+                if (Math.Abs(windowLeft - otherRight) <= _snapDistance && Math.Abs(windowBottom - otherBottom) <= _snapDistance)
+                {
+                    newWindowLeft = otherRight;
+                    newWindowBottom = otherBottom;
+                    _wOnLeft = otherWindow;
+                    onLeft = true;
+                    neighborFrameCount++;
+                }
+                else if (Math.Abs(windowRight - otherLeft) <= _snapDistance && Math.Abs(windowBottom - otherBottom) <= _snapDistance)
+                {
+                    newWindowLeft = otherLeft - (windowRight - windowLeft);
+                    newWindowBottom = otherBottom;
+                    _wOnRight = otherWindow;
+                    onRight = true;
+                    neighborFrameCount++;
+                }
 
                 if (Math.Abs(windowTop - otherBottom) <= _snapDistance && Math.Abs(windowLeft - otherLeft) <= _snapDistance)
                 {
@@ -506,14 +522,13 @@ namespace DeskFrame
                 {
                     newWindowTop = otherTop - (windowBottom - windowTop);
                 }
-                if (neighborFrameCount == 2) break;
             }
-            if (neighborFrameCount == 2)
+            if (neighborFrameCount >= 2)
             {
                 WindowBackground.CornerRadius = new CornerRadius(0);
                 titleBar.CornerRadius = new CornerRadius(0);
             }
-            if (neighborFrameCount == 0) // TODO: adjust bottom window's corner rad
+            if (neighborFrameCount == 0)
             {
                 if (_wOnLeft != null && !onLeft)
                 {
@@ -522,8 +537,8 @@ namespace DeskFrame
                         _wOnLeft.WindowBorder.CornerRadius = new CornerRadius(
                             topLeft: _wOnLeft._isOnTop ? 0 : _wOnLeft._wOnLeft == null ? 5 : 0,
                             topRight: _wOnLeft._isOnTop ? 0 : 5,
-                            bottomRight: 5,
-                            bottomLeft: 5
+                            bottomRight: _wOnLeft._isOnBottom ? 0 : 5,
+                            bottomLeft: _wOnLeft._isOnBottom ? 0 : 5
                         );
                         _wOnLeft.titleBar.CornerRadius = new CornerRadius(
                             topLeft: _wOnLeft.WindowBorder.CornerRadius.TopLeft,
@@ -537,8 +552,8 @@ namespace DeskFrame
                         _wOnLeft.WindowBorder.CornerRadius = new CornerRadius(
                             topLeft: _wOnLeft._isOnTop ? 0 : _wOnLeft._wOnLeft == null ? 5 : 0,
                             topRight: _wOnLeft._isOnTop ? 0 : 5,
-                            bottomRight: 5,
-                            bottomLeft: _wOnLeft._wOnLeft == null ? 5 : 0
+                            bottomRight: _wOnLeft._isOnBottom ? 0 : 5,
+                            bottomLeft: _wOnLeft._wOnLeft == null ? (_wOnLeft._isOnBottom ? 0 : 5) : 0
                         );
                         _wOnLeft.titleBar.CornerRadius = _wOnLeft.WindowBorder.CornerRadius;
 
@@ -554,8 +569,8 @@ namespace DeskFrame
                         _wOnRight.WindowBorder.CornerRadius = new CornerRadius(
                             topLeft: _wOnRight._isOnTop ? 0 : 5,
                             topRight: _wOnRight._isOnTop ? 0 : _wOnRight._wOnRight == null ? 5 : 0,
-                            bottomRight: 5,
-                            bottomLeft: 5
+                            bottomRight: _wOnRight._isOnBottom ? 0 : 5,
+                            bottomLeft: _wOnRight._isOnBottom ? 0 : 5
                         );
                         _wOnRight.titleBar.CornerRadius = new CornerRadius(
                             topLeft: _wOnRight.WindowBorder.CornerRadius.TopLeft,
@@ -567,10 +582,10 @@ namespace DeskFrame
                     else
                     {
                         _wOnRight.WindowBorder.CornerRadius = new CornerRadius(
-                        topLeft: _wOnRight._isOnTop ? 0 : 5,
-                        topRight: _wOnRight._isOnTop ? 0 : _wOnRight._wOnRight == null ? 5 : 0,
-                        bottomRight: _wOnRight._wOnRight == null ? 5 : 0,
-                        bottomLeft: 5
+                            topLeft: _wOnRight._isOnTop ? 0 : 5,
+                            topRight: _wOnRight._isOnTop ? 0 : _wOnRight._wOnRight == null ? 5 : 0,
+                            bottomRight: _wOnRight._wOnRight == null ? (_wOnRight._isOnBottom ? 0 : 5) : 0,
+                            bottomLeft: _wOnRight._isOnBottom ? 0 : 5
                         );
                         _wOnRight.titleBar.CornerRadius = _wOnRight.WindowBorder.CornerRadius;
 
