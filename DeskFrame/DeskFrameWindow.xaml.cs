@@ -215,7 +215,6 @@ namespace DeskFrame
         }
         private void MouseLeaveWindow()
         {
-            Debug.WriteLine(IsPointInsideRect);
             var timer = new DispatcherTimer();
             timer.Interval = TimeSpan.FromMilliseconds(1);
             timer.Tick += (s, e) =>
@@ -331,7 +330,6 @@ namespace DeskFrame
                 {
                     Instance.Height = this.ActualHeight;
                 }
-                ResizeBottomAnimation(height, rect, lParam);
 
             }
             if (msg == 0x0005 && _isOnBottom) // WM_SIZE
@@ -394,25 +392,7 @@ namespace DeskFrame
 
             return IntPtr.Zero;
         }
-        private void ResizeBottomAnimation(double targetBottom, Interop.RECT rect, IntPtr lParam)
-        {
-            if (!_canAnimate) return;
-            Debug.WriteLine("KKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKK");
-            var animation = new DoubleAnimation
-            {
-                To = targetBottom,
-                Duration = TimeSpan.FromMilliseconds(10),
-                FillBehavior = FillBehavior.Stop
-            };
-
-            animation.Completed += (s, e) =>
-            {
-                _canAnimate = true;
-                Marshal.StructureToPtr(rect, lParam, true);
-            };
-            _canAnimate = false;
-            this.BeginAnimation(HeightProperty, animation);
-        }
+       
 
         public void HandleWindowMove(bool initWindow)
         {
