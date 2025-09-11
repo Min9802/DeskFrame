@@ -10,6 +10,9 @@ namespace DeskFrame.Util
 {
     public static class Interop
     {
+        [DllImport("user32.dll")]
+        public static extern short GetAsyncKeyState(int vKey);
+        
         [DllImport("shell32.dll", CharSet = CharSet.Unicode)]
         public static extern int ExtractIconEx(string lpszFile, int nIconIndex, IntPtr[] phiconLarge, IntPtr[]? phiconSmall, int nIcons);
 

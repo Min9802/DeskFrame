@@ -57,7 +57,7 @@ namespace DeskFrame
         private bool _dragdropIntoFolder;
         string _dropIntoFolderPath;
         FrameworkElement _lastBorder;
-
+        private bool _mouseIsOver;
         private bool _isMinimized = false;
         private int _snapDistance = 8;
         private int _currentVD;
@@ -215,17 +215,17 @@ namespace DeskFrame
         }
         private void MouseLeaveWindow()
         {
-            var timer = new DispatcherTimer();
-            timer.Interval = TimeSpan.FromMilliseconds(1);
+            var timer = new System.Windows.Forms.Timer();
+            timer.Interval = 1;
             timer.Tick += (s, e) =>
             {
                 if (this.Top < 0)
                 {
                     this.Top = 0;
                 }
-                if (!IsCursorWithinWindowBounds() && !_isLeftButtonDown)
+                if (!IsCursorWithinWindowBounds() && (GetAsyncKeyState(0x01) & 0x8000) == 0) // Left mouse button is not down
                 {
-
+                    _mouseIsOver = false;
                     if (_canAutoClose) FilterTextBox.Text = null;
                     this.SetNoActivate();
                     var timer = new DispatcherTimer
@@ -252,9 +252,10 @@ namespace DeskFrame
 
                     if ((Instance.AutoExpandonCursor || _isOnTop) && !_isMinimized && _canAutoClose)
                     {
+                        AnimateWindowOpacity(Instance.IdleOpacity, Instance.AnimationSpeed);
+                        Minimize_MouseLeftButtonDown(null, null);
                         Task.Run(() =>
                         {
-                            bool isInside = Dispatcher.Invoke(() => IsCursorWithinWindowBounds());
                             try
                             {
                                 foreach (var fileItem in FileItems)
@@ -262,21 +263,18 @@ namespace DeskFrame
                                     fileItem.IsSelected = false;
                                     fileItem.Background = Brushes.Transparent;
                                 }
-
                             }
                             catch { }
-
-                            Dispatcher.InvokeAsync(() =>
-                            {
-                                AnimateWindowOpacity(Instance.IdleOpacity, Instance.AnimationSpeed);
-                                Minimize_MouseLeftButtonDown(null, null);
-                            });
                         });
                     }
                     else
                     {
                         AnimateWindowOpacity(Instance.IdleOpacity, Instance.AnimationSpeed);
                     }
+                }
+                if (!_mouseIsOver)
+                {
+                    timer.Stop();
                 }
             };
             timer.Start();
@@ -959,7 +957,7 @@ namespace DeskFrame
                 _originalHeight = this.ActualHeight;
                 _isMinimized = true;
                 Instance.Minimized = true;
-               // Debug.WriteLine("minimize: " + Instance.Height);
+                // Debug.WriteLine("minimize: " + Instance.Height);
                 AnimateWindowHeight(titleBar.Height, Instance.AnimationSpeed);
             }
             else
@@ -973,7 +971,7 @@ namespace DeskFrame
                 _isMinimized = false;
                 Instance.Minimized = false;
 
-               // Debug.WriteLine("unminimize: " + Instance.Height);
+                // Debug.WriteLine("unminimize: " + Instance.Height);
                 AnimateWindowHeight(Instance.Height, Instance.AnimationSpeed);
             }
             HandleWindowMove(false);
@@ -2756,6 +2754,7 @@ namespace DeskFrame
         }
         private void Window_MouseEnter(object sender, MouseEventArgs e)
         {
+            _mouseIsOver = true;
             this.Activate();
             var hwnd = new WindowInteropHelper(this).Handle;
             BringFrameToFront(hwnd);
@@ -2786,6 +2785,11 @@ namespace DeskFrame
             {
                 HiddenFilesIconGrid.Visibility = Instance.ShowHiddenFilesIcon ? Visibility.Visible : Visibility.Collapsed;
             }
+        }
+
+        private void Window_MouseLeave(object sender, MouseEventArgs e)
+        {
+            MouseLeaveWindow();
         }
     }
 }
