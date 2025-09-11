@@ -680,21 +680,23 @@ namespace DeskFrame
 
         private void SetAsDesktopChild()
         {
-            ArrayList windowHandles = new ArrayList();
-            Interop.EnumedWindow callback = Interop.EnumWindowCallback;
-            Interop.EnumWindows(callback, windowHandles);
-
-            foreach (IntPtr windowHandle in windowHandles)
+            IntPtr shellView = IntPtr.Zero;
+            EnumWindows((tophandle, _) =>
             {
-                IntPtr progmanHandle = Interop.FindWindowEx(windowHandle, IntPtr.Zero, "SHELLDLL_DefView", null);
-                if (progmanHandle != IntPtr.Zero)
+                IntPtr shellViewIntPtr = FindWindowEx(tophandle, IntPtr.Zero, "SHELLDLL_DefView", null);
+                if (shellViewIntPtr != IntPtr.Zero)
                 {
-                    var interopHelper = new WindowInteropHelper(this);
-                    interopHelper.EnsureHandle();
-                    interopHelper.Owner = progmanHandle;
-                    break;
+                    shellView = shellViewIntPtr;
+                    return false;
                 }
-            }
+                return true;
+            }, IntPtr.Zero);
+
+            if (shellView == IntPtr.Zero) throw new InvalidOperationException("SHELLDLL_DefView not found.");
+
+            var interopHelper = new WindowInteropHelper(this);
+            interopHelper.EnsureHandle();
+            SetParent(interopHelper.Handle, shellView);
         }
         public void SetAsToolWindow()
         {
@@ -1060,28 +1062,28 @@ namespace DeskFrame
                 {
                     scrollViewer.ScrollToTop();
                 }
-                WindowChrome.SetWindowChrome(this, Instance.IsLocked ?
-                new WindowChrome
-                {
-                    ResizeBorderThickness = new Thickness(0),
-                    CaptionHeight = 0
-                }
-                : _isOnBottom ?
-                    new WindowChrome
-                    {
-                        GlassFrameThickness = new Thickness(5),
-                        CaptionHeight = 0,
-                        ResizeBorderThickness = new Thickness(0, Instance.Minimized ? 0 : 5, 5, 0),
-                        CornerRadius = new CornerRadius(5)
-                    } :
-                    new WindowChrome
-                    {
-                        GlassFrameThickness = new Thickness(5),
-                        CaptionHeight = 0,
-                        ResizeBorderThickness = new Thickness(5, 0, 5, Instance.Minimized ? 0 : 5),
-                        CornerRadius = new CornerRadius(5)
-                    }
-                 );
+                //WindowChrome.SetWindowChrome(this, Instance.IsLocked ?
+                //new WindowChrome
+                //{
+                //    ResizeBorderThickness = new Thickness(0),
+                //    CaptionHeight = 0
+                //}
+                //: _isOnBottom ?
+                //    new WindowChrome
+                //    {
+                //        GlassFrameThickness = new Thickness(5),
+                //        CaptionHeight = 0,
+                //        ResizeBorderThickness = new Thickness(0, Instance.Minimized ? 0 : 5, 5, 0),
+                //        CornerRadius = new CornerRadius(5)
+                //    } :
+                //    new WindowChrome
+                //    {
+                //        GlassFrameThickness = new Thickness(5),
+                //        CaptionHeight = 0,
+                //        ResizeBorderThickness = new Thickness(5, 0, 5, Instance.Minimized ? 0 : 5),
+                //        CornerRadius = new CornerRadius(5)
+                //    }
+                // );
             };
             _canAnimate = false;
             this.BeginAnimation(HeightProperty, animation);
@@ -2126,28 +2128,28 @@ namespace DeskFrame
         private void MainWindow_Loaded(object sender, RoutedEventArgs e)
         {
             KeepWindowBehind();
-            WindowChrome.SetWindowChrome(this, Instance.IsLocked ?
-            new WindowChrome
-            {
-                ResizeBorderThickness = new Thickness(0),
-                CaptionHeight = 0
-            }
-            : _isOnBottom ?
-                new WindowChrome
-                {
-                    GlassFrameThickness = new Thickness(5),
-                    CaptionHeight = 0,
-                    ResizeBorderThickness = new Thickness(0, Instance.Minimized ? 0 : 5, 5, 0),
-                    CornerRadius = new CornerRadius(5)
-                } :
-                new WindowChrome
-                {
-                    GlassFrameThickness = new Thickness(5),
-                    CaptionHeight = 0,
-                    ResizeBorderThickness = new Thickness(5, 0, 5, Instance.Minimized ? 0 : 5),
-                    CornerRadius = new CornerRadius(5)
-                }
-            );
+            //WindowChrome.SetWindowChrome(this, Instance.IsLocked ?
+            //new WindowChrome
+            //{
+            //    ResizeBorderThickness = new Thickness(0),
+            //    CaptionHeight = 0
+            //}
+            //: _isOnBottom ?
+            //    new WindowChrome
+            //    {
+            //        GlassFrameThickness = new Thickness(5),
+            //        CaptionHeight = 0,
+            //        ResizeBorderThickness = new Thickness(0, Instance.Minimized ? 0 : 5, 5, 0),
+            //        CornerRadius = new CornerRadius(5)
+            //    } :
+            //    new WindowChrome
+            //    {
+            //        GlassFrameThickness = new Thickness(5),
+            //        CaptionHeight = 0,
+            //        ResizeBorderThickness = new Thickness(5, 0, 5, Instance.Minimized ? 0 : 5),
+            //        CornerRadius = new CornerRadius(5)
+            //    }
+            //);
             HandleWindowMove(true);
             try
             {
@@ -2300,28 +2302,28 @@ namespace DeskFrame
             {
                 _isLocked = !_isLocked;
                 ToggleIsLocked();
-                WindowChrome.SetWindowChrome(this, Instance.IsLocked ?
-                new WindowChrome
-                {
-                    ResizeBorderThickness = new Thickness(0),
-                    CaptionHeight = 0
-                }
-                : _isOnBottom ?
-                    new WindowChrome
-                    {
-                        GlassFrameThickness = new Thickness(5),
-                        CaptionHeight = 0,
-                        ResizeBorderThickness = new Thickness(5, Instance.Minimized ? 0 : 5, 5, 0),
-                        CornerRadius = new CornerRadius(5)
-                    } :
-                    new WindowChrome
-                    {
-                        GlassFrameThickness = new Thickness(5),
-                        CaptionHeight = 0,
-                        ResizeBorderThickness = new Thickness(5, 0, 5, Instance.Minimized ? 0 : 5),
-                        CornerRadius = new CornerRadius(5)
-                    }
-                );
+                //WindowChrome.SetWindowChrome(this, Instance.IsLocked ?
+                //new WindowChrome
+                //{
+                //    ResizeBorderThickness = new Thickness(0),
+                //    CaptionHeight = 0
+                //}
+                //: _isOnBottom ?
+                //    new WindowChrome
+                //    {
+                //        GlassFrameThickness = new Thickness(5),
+                //        CaptionHeight = 0,
+                //        ResizeBorderThickness = new Thickness(5, Instance.Minimized ? 0 : 5, 5, 0),
+                //        CornerRadius = new CornerRadius(5)
+                //    } :
+                //    new WindowChrome
+                //    {
+                //        GlassFrameThickness = new Thickness(5),
+                //        CaptionHeight = 0,
+                //        ResizeBorderThickness = new Thickness(5, 0, 5, Instance.Minimized ? 0 : 5),
+                //        CornerRadius = new CornerRadius(5)
+                //    }
+                //);
 
                 titleBar.Cursor = _isLocked ? System.Windows.Input.Cursors.Arrow : System.Windows.Input.Cursors.SizeAll;
             };

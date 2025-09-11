@@ -11,6 +11,12 @@ namespace DeskFrame.Util
     public static class Interop
     {
         [DllImport("user32.dll")]
+        public static extern bool EnumWindows(EnumWindowsProc lpEnumFunc, IntPtr lParam);
+        public delegate bool EnumWindowsProc(IntPtr hWnd, IntPtr lParam);
+
+        [DllImport("user32.dll")]
+        public static extern IntPtr SetParent(IntPtr hWndChild, IntPtr hWndNewParent);
+        [DllImport("user32.dll")]
         public static extern short GetAsyncKeyState(int vKey);
         
         [DllImport("shell32.dll", CharSet = CharSet.Unicode)]
