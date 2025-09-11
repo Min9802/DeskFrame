@@ -546,7 +546,7 @@ namespace DeskFrame
                     {
                         _wOnLeft.WindowBorder.CornerRadius = new CornerRadius(
                             topLeft: _wOnLeft._isOnTop ? 0 : _wOnLeft._wOnLeft == null ? 5 : 0,
-                            topRight: _wOnLeft._isOnTop ? 0 : 5,
+                            topRight: _wOnLeft._isOnTop ? 0 : (_wOnLeft._isOnBottom ? 0 : 5),
                             bottomRight: _wOnLeft._isOnBottom ? 0 : 5,
                             bottomLeft: _wOnLeft._isOnBottom ? 0 : 5
                         );
@@ -561,7 +561,7 @@ namespace DeskFrame
                     {
                         _wOnLeft.WindowBorder.CornerRadius = new CornerRadius(
                             topLeft: _wOnLeft._isOnTop ? 0 : _wOnLeft._wOnLeft == null ? 5 : 0,
-                            topRight: _wOnLeft._isOnTop ? 0 : 5,
+                            topRight: _wOnLeft._isOnTop ? 0 : (_wOnLeft._isOnBottom ? 0 : 5),
                             bottomRight: _wOnLeft._isOnBottom ? 0 : 5,
                             bottomLeft: _wOnLeft._wOnLeft == null ? (_wOnLeft._isOnBottom ? 0 : 5) : 0
                         );
@@ -577,7 +577,7 @@ namespace DeskFrame
                     if (!_wOnRight._isMinimized)
                     {
                         _wOnRight.WindowBorder.CornerRadius = new CornerRadius(
-                            topLeft: _wOnRight._isOnTop ? 0 : 5,
+                            topLeft: _wOnRight._isOnTop ? 0 : (_wOnRight._isOnBottom ? 0 : 5),
                             topRight: _wOnRight._isOnTop ? 0 : _wOnRight._wOnRight == null ? 5 : 0,
                             bottomRight: _wOnRight._isOnBottom ? 0 : 5,
                             bottomLeft: _wOnRight._isOnBottom ? 0 : 5
@@ -592,7 +592,7 @@ namespace DeskFrame
                     else
                     {
                         _wOnRight.WindowBorder.CornerRadius = new CornerRadius(
-                            topLeft: _wOnRight._isOnTop ? 0 : 5,
+                            topLeft: _wOnRight._isOnTop ? 0 : (_wOnRight._isOnBottom ? 0 : 5),
                             topRight: _wOnRight._isOnTop ? 0 : _wOnRight._wOnRight == null ? 5 : 0,
                             bottomRight: _wOnRight._wOnRight == null ? (_wOnRight._isOnBottom ? 0 : 5) : 0,
                             bottomLeft: _wOnRight._isOnBottom ? 0 : 5
