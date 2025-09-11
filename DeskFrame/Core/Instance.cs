@@ -644,7 +644,7 @@ public class Instance : INotifyPropertyChanged
         {
             if ((!propertyName.Contains("Pos")))
             {
-                Debug.WriteLine($"Property {propertyName} has changed.");
+               // Debug.WriteLine($"Property {propertyName} has changed.");
             }
             if (!_settingDefault && Name != "empty" && Folder != null)
             {

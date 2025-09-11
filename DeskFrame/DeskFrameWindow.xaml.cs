@@ -959,7 +959,7 @@ namespace DeskFrame
                 _originalHeight = this.ActualHeight;
                 _isMinimized = true;
                 Instance.Minimized = true;
-                Debug.WriteLine("minimize: " + Instance.Height);
+               // Debug.WriteLine("minimize: " + Instance.Height);
                 AnimateWindowHeight(titleBar.Height, Instance.AnimationSpeed);
             }
             else
@@ -973,7 +973,7 @@ namespace DeskFrame
                 _isMinimized = false;
                 Instance.Minimized = false;
 
-                Debug.WriteLine("unminimize: " + Instance.Height);
+               // Debug.WriteLine("unminimize: " + Instance.Height);
                 AnimateWindowHeight(Instance.Height, Instance.AnimationSpeed);
             }
             HandleWindowMove(false);
