@@ -434,20 +434,29 @@ namespace DeskFrame
                 {
                     newWindowTop = (int)workingArea.Top;
                     WindowBackground.CornerRadius = new CornerRadius(0, 0, 5, 5);
-                    _isOnBottom = false;
-                    _isOnTop = true;
+                    if (initWindow || _isLeftButtonDown)
+                    {
+                        _isOnBottom = false;
+                        _isOnTop = true;
+                    }
                 }
                 else if (Math.Abs(windowBottom - workingArea.Bottom) <= _snapDistance)
                 {
                     newWindowTop = (int)(workingArea.Bottom - (windowBottom - windowTop));
                     newWindowBottom = (int)workingArea.Bottom;
                     WindowBackground.CornerRadius = new CornerRadius(5, 5, 0, 0);
-                    _isOnTop = false;
-                    _isOnBottom = true;
+                    if (initWindow || _isLeftButtonDown)
+                    {
+                        _isOnTop = false;
+                        _isOnBottom = true;
+                    }
                 }
                 else if (!_isOnBottom)
                 {
-                    _isOnTop = false;
+                    if (initWindow || _isLeftButtonDown)
+                    {
+                        _isOnTop = false;
+                    }
                     WindowBackground.CornerRadius = new CornerRadius(5);
                     titleBar.CornerRadius = new CornerRadius(5, 5, 0, 0);
                 }
@@ -455,10 +464,13 @@ namespace DeskFrame
                 {
                     newWindowBottom = (int)workingArea.Bottom;
                     WindowBackground.CornerRadius = new CornerRadius(5, 5, 0, 0);
-                    _isOnTop = false;
-                    _isOnBottom = true;
+                    if (initWindow || _isLeftButtonDown)
+                    {
+                        _isOnTop = false;
+                        _isOnBottom = true;
+                    }
                 }
-                else
+                else if (initWindow || _isLeftButtonDown)
                 {
                     _isOnBottom = false;
                 }
@@ -500,7 +512,7 @@ namespace DeskFrame
                 if (Math.Abs(windowLeft - otherRight) <= _snapDistance && Math.Abs(windowBottom - otherBottom) <= _snapDistance)
                 {
                     newWindowLeft = otherRight;
-                    newWindowBottom = otherBottom;
+                    newWindowBottom = (int)workingArea.Bottom;
                     _wOnLeft = otherWindow;
                     onLeft = true;
                     neighborFrameCount++;
@@ -508,7 +520,7 @@ namespace DeskFrame
                 else if (Math.Abs(windowRight - otherLeft) <= _snapDistance && Math.Abs(windowBottom - otherBottom) <= _snapDistance)
                 {
                     newWindowLeft = otherLeft - (windowRight - windowLeft);
-                    newWindowBottom = otherBottom;
+                    newWindowBottom = (int)workingArea.Bottom;
                     _wOnRight = otherWindow;
                     onRight = true;
                     neighborFrameCount++;
@@ -657,7 +669,7 @@ namespace DeskFrame
 
 
 
-            if (newWindowLeft != windowLeft || newWindowTop != windowTop || newWindowBottom != windowBottom && !_isLeftButtonDown)
+            if (!_isOnBottom && (newWindowLeft != windowLeft || newWindowTop != windowTop || newWindowBottom != windowBottom && !_isLeftButtonDown))
             {
                 Interop.SetWindowPos(hwnd, IntPtr.Zero, newWindowLeft, newWindowTop, 0, 0, Interop.SWP_NOREDRAW | Interop.SWP_NOACTIVATE | Interop.SWP_NOZORDER | Interop.SWP_NOSIZE);
             }
