@@ -7,6 +7,7 @@ using Forms = System.Windows;
 public class Instance : INotifyPropertyChanged
 {
     public event PropertyChangedEventHandler? PropertyChanged;
+    public bool isWindowClosing = false;
 
     private double _posX;
     private double _posY;
@@ -615,6 +616,7 @@ public class Instance : INotifyPropertyChanged
     }
     protected void OnPropertyChanged(string propertyName, string value)
     {
+        if (isWindowClosing) return;
         string[] notGlobalProperties = {
             "PosX",
             "PosY",

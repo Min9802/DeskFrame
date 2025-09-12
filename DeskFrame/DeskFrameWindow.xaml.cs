@@ -2793,5 +2793,10 @@ namespace DeskFrame
         {
             MouseLeaveWindow();
         }
+
+        private void Window_Closing(object sender, CancelEventArgs e)
+        {
+            Instance.isWindowClosing = true;
+        }
     }
 }

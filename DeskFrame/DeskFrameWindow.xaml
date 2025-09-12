@@ -24,7 +24,7 @@
          MouseMove="Window_MouseMove" 
          LocationChanged="Window_LocationChanged"
          KeyDown="Window_KeyDown"
-         MouseEnter="Window_MouseEnter" MouseLeave="Window_MouseLeave">
+         MouseEnter="Window_MouseEnter" MouseLeave="Window_MouseLeave" Closing="Window_Closing">
 
     <Window.Resources>
 
