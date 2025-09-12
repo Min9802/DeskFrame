@@ -7,7 +7,7 @@
         xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
         xmlns:local="clr-namespace:DeskFrame" xmlns:ui1="http://schemas.lepo.co/wpfui/2022/xaml"
         mc:Ignorable="d"
-        Title="MainWindow" Height="450" Width="800" Initialized="Window_Initialized">
+        Title="MainWindow" Height="450" Width="800" Initialized="Window_Initialized" Loaded="Window_Loaded">
     <tray:NotifyIcon Grid.Row="0" FocusOnLeftClick="True"  
                   
                    Name="TrayIcon" MenuOnRightClick="True"

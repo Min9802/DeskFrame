@@ -12,6 +12,7 @@ namespace DeskFrame
     {
         private string url = "https://api.github.com/repos/PinchToDebug/DeskFrame/releases/latest";
         bool startOnLogin;
+        private uint _taskbarRestartMessage;
         public static InstanceController _controller;
         public MainWindow()
         {
@@ -35,7 +36,7 @@ namespace DeskFrame
         }
         private async void Update()
         {
-            await Updater.CheckUpdateAsync(url,false);
+            await Updater.CheckUpdateAsync(url, false);
         }
 
         private void addDesktopFrame_Click(object sender, RoutedEventArgs e)
@@ -115,7 +116,7 @@ namespace DeskFrame
             {
             }
         }
-    
+
         private void ExitApp(object sender, RoutedEventArgs e)
         {
             Application.Current.Shutdown();
@@ -125,5 +126,27 @@ namespace DeskFrame
         {
             new SettingsWindow(_controller).Show();
         }
+        private void Window_Loaded(object sender, RoutedEventArgs e)
+        {
+            _taskbarRestartMessage = RegisterWindowMessage("TaskbarCreated");
+            var hwndSource = HwndSource.FromHwnd(new WindowInteropHelper(this).Handle);
+            hwndSource.AddHook(WndProc);
+        }
+        private IntPtr WndProc(IntPtr hwnd, int msg, IntPtr wParam, IntPtr lParam, ref bool handled)
+        {
+            if (msg == _taskbarRestartMessage)
+            {
+                // always recreate on UI thread
+                Application.Current.Dispatcher.Invoke(() =>
+                {
+                    TrayIcon.Register();
+                    if (!_controller.isInitializingInstances)
+                        _controller.CheckFrameWindowsLive();
+                });
+            }
+            return IntPtr.Zero;
+        }
+
+
     }
 }

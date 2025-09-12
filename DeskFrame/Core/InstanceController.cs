@@ -7,6 +7,7 @@ using System.Windows.Interop;
 public class InstanceController
 {
     public static string appName = "DeskFrame";
+    public bool isInitializingInstances = false;
     public List<Instance> Instances = new List<Instance>();
     public RegistryHelper reg = new RegistryHelper(appName);
     public List<DeskFrameWindow> _subWindows = new List<DeskFrameWindow>();
@@ -139,7 +140,11 @@ public class InstanceController
         _subWindowsPtr.Add(new WindowInteropHelper(subWindow).Handle);
         InitDetails();
     }
-
+    public void RemoveInstance(Instance instance, DeskFrameWindow window)
+    {
+        Instances.Remove(instance);
+        _subWindows.Remove(window);
+    }
     public void ChangeBlur(bool toBlur)
     {
         foreach (DeskFrameWindow window in _subWindows)
@@ -155,9 +160,31 @@ public class InstanceController
             window.ChangeBackgroundOpacity(num);
         }
     }
-
+    public void CheckFrameWindowsLive()
+    {
+        int closedCount = 0;
+        if (_subWindows.Count != 0 &&
+            !isInitializingInstances)
+        {
+            foreach (var window in _subWindows)
+            {
+                window.Close();
+            }
+            _subWindows.Clear();
+            foreach (var Instance in Instances)
+            {
+                var subWindow = new DeskFrameWindow(Instance);
+                _subWindows.Add(subWindow);
+                subWindow.ChangeBackgroundOpacity(Instance.Opacity);
+                subWindow.Show();
+                _subWindowsPtr.Add(new WindowInteropHelper(subWindow).Handle);
+                InitDetails();
+            }
+        }
+    }
     public void InitInstances()
     {
+        isInitializingInstances = true;
         Debug.WriteLine("Init...");
         try
         {
@@ -459,5 +486,6 @@ public class InstanceController
         {
             Debug.WriteLine($"ERROR reading key: {ex.Message}");
         }
+        isInitializingInstances = false;
     }
 }

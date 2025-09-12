@@ -681,17 +681,25 @@ namespace DeskFrame
         private void SetAsDesktopChild()
         {
             IntPtr shellView = IntPtr.Zero;
-            EnumWindows((tophandle, _) =>
-            {
-                IntPtr shellViewIntPtr = FindWindowEx(tophandle, IntPtr.Zero, "SHELLDLL_DefView", null);
-                if (shellViewIntPtr != IntPtr.Zero)
-                {
-                    shellView = shellViewIntPtr;
-                    return false;
-                }
-                return true;
-            }, IntPtr.Zero);
 
+           while (true)
+            {
+                while (shellView == IntPtr.Zero)
+                {
+                    EnumWindows((tophandle, _) =>
+                    {
+                        IntPtr shellViewIntPtr = FindWindowEx(tophandle, IntPtr.Zero, "SHELLDLL_DefView", null);
+                        if (shellViewIntPtr != IntPtr.Zero)
+                        {
+                            shellView = shellViewIntPtr;
+                            return false;
+                        }
+                        return true;
+                    }, IntPtr.Zero);
+                }
+                if (shellView == IntPtr.Zero) Thread.Sleep(1000);
+                else break;
+            }
             if (shellView == IntPtr.Zero) throw new InvalidOperationException("SHELLDLL_DefView not found.");
 
             var interopHelper = new WindowInteropHelper(this);
@@ -2356,6 +2364,7 @@ namespace DeskFrame
                     {
                         Registry.CurrentUser.DeleteSubKeyTree(Instance.GetKeyLocation());
                     }
+                    MainWindow._controller.RemoveInstance(Instance, this);
                     this.Close();
 
                 }
