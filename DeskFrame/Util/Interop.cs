@@ -11,8 +11,14 @@ namespace DeskFrame.Util
     public static class Interop
     {
         [DllImport("user32.dll")]
+        public static extern bool ScreenToClient(IntPtr hWnd, ref POINT lpPoint);
+
+        [StructLayout(LayoutKind.Sequential)]
+        public struct POINT { public int X; public int Y; }
+
+        [DllImport("user32.dll")]
         [return: MarshalAs(UnmanagedType.Bool)]
-        public static extern bool IsWindow(IntPtr hWnd); 
+        public static extern bool IsWindow(IntPtr hWnd);
 
         [DllImport("user32.dll", CharSet = CharSet.Auto)]
         public static extern uint RegisterWindowMessage(string lpString);
@@ -25,7 +31,7 @@ namespace DeskFrame.Util
         public static extern IntPtr SetParent(IntPtr hWndChild, IntPtr hWndNewParent);
         [DllImport("user32.dll")]
         public static extern short GetAsyncKeyState(int vKey);
-        
+
         [DllImport("shell32.dll", CharSet = CharSet.Unicode)]
         public static extern int ExtractIconEx(string lpszFile, int nIconIndex, IntPtr[] phiconLarge, IntPtr[]? phiconSmall, int nIcons);
 
@@ -50,14 +56,18 @@ namespace DeskFrame.Util
             public uint cy;
             public uint flags;
         }
-       
+
         public const uint GW_HWNDPREV = 3;
         public const uint GW_HWNDNEXT = 2;
         public const int GWL_EXSTYLE = -20;
+        public const int GWL_STYLE = -16;
         public const int WS_EX_NOACTIVATE = 0x08000000;
         public const int WS_EX_TOOLWINDOW = 0x00000080;
+        public const int WS_CHILD = 0x40000000;
+        public const int WS_POPUP = unchecked((int)0x80000000);
         public const uint SWP_NOOWNERZORDER = 0x0200;
         public const uint SWP_NOSENDCHANGING = 0x0400;
+        public const uint SWP_SHOWWINDOW = 0x0040;
 
 
         [DllImport("user32.dll")]

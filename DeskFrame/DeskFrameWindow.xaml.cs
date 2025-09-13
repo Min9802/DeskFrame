@@ -61,6 +61,7 @@ namespace DeskFrame
         private bool _isMinimized = false;
         private int _snapDistance = 8;
         private int _currentVD;
+        int _oriPosX, _oriPosY;
         private bool _isBlack = true;
         private bool _checkForChages = false;
         private bool _canAutoClose = true;
@@ -219,10 +220,6 @@ namespace DeskFrame
             timer.Interval = 1;
             timer.Tick += (s, e) =>
             {
-                if (this.Top < 0)
-                {
-                    this.Top = 0;
-                }
                 if (!IsCursorWithinWindowBounds() && (GetAsyncKeyState(0x01) & 0x8000) == 0) // Left mouse button is not down
                 {
                     _mouseIsOver = false;
@@ -682,7 +679,7 @@ namespace DeskFrame
         {
             IntPtr shellView = IntPtr.Zero;
 
-           while (true)
+            while (true)
             {
                 while (shellView == IntPtr.Zero)
                 {
@@ -704,7 +701,22 @@ namespace DeskFrame
 
             var interopHelper = new WindowInteropHelper(this);
             interopHelper.EnsureHandle();
-            SetParent(interopHelper.Handle, shellView);
+            IntPtr hwnd = interopHelper.Handle;
+            SetParent(hwnd, shellView);
+
+            int style = (int)GetWindowLong(hwnd, GWL_STYLE);
+            style &= ~WS_POPUP; // remove flag, to make sure it doesn't interfere
+            style |= WS_CHILD; // add flag
+            SetWindowLong(hwnd, GWL_STYLE, style);
+
+            // convert coords to parent-relative coords
+            POINT pt = new POINT { X = _oriPosX, Y = _oriPosY };
+            ScreenToClient(shellView, ref pt);
+
+            SetWindowPos(hwnd, IntPtr.Zero,
+                         pt.X, pt.Y,
+                         0, 0,
+                         SWP_NOSIZE | SWP_NOZORDER | SWP_NOACTIVATE | SWP_SHOWWINDOW);
         }
         public void SetAsToolWindow()
         {
@@ -820,7 +832,6 @@ namespace DeskFrame
                 }
             }
         }
-
         public DeskFrameWindow(Instance instance)
         {
             InitializeComponent();
@@ -839,6 +850,8 @@ namespace DeskFrame
             this.Opacity = Instance.IdleOpacity;
             _path = instance.Folder;
             _isLocked = instance.IsLocked;
+            _oriPosX = (int)instance.PosX;
+            _oriPosY = (int)instance.PosY;
             this.Top = instance.PosY;
             this.Left = instance.PosX;
 
