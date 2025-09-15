@@ -276,10 +276,34 @@ namespace DeskFrame
             };
             timer.Start();
         }
+        private void HandleRightClick(Window root, IntPtr lParam)
+        {
+            POINT pt = new POINT
+            {
+                X = (short)(lParam.ToInt32() & 0xFFFF),
+                Y = (short)((lParam.ToInt32() >> 16) & 0xFFFF)
+            };
+
+            System.Windows.Point relativePt = root.PointFromScreen(new System.Windows.Point(pt.X, pt.Y));
+
+            if (root.InputHitTest(relativePt) is DependencyObject hit)
+            {
+                var listView = FindParentOrChild<ListView>(hit);
+                if (listView != null)
+                {
+                    var mouseArgs = new MouseButtonEventArgs(Mouse.PrimaryDevice, Environment.TickCount, MouseButton.Right)
+                    {
+                        RoutedEvent = UIElement.MouseRightButtonUpEvent,
+                        Source = listView
+                    };
+                    FileListView_MouseRightButtonUp(listView, mouseArgs);
+                }
+            }
+        }
 
         private IntPtr WndProc(IntPtr hWnd, int msg, IntPtr wParam, IntPtr lParam, ref bool handled)
         {
-            if (!(HwndSource.FromHwnd(hWnd).RootVisual is System.Windows.Window rootVisual))
+            if (!(HwndSource.FromHwnd(hWnd).RootVisual is Window rootVisual))
                 return IntPtr.Zero;
 
             if (msg == 0x0201) // WM_LBUTTONDOWN
@@ -291,6 +315,11 @@ namespace DeskFrame
             {
                 _isLeftButtonDown = false;
                 workingArea = SystemParameters.WorkArea;
+            }
+            if (msg == 0x0205) // WM_RBUTTONUP
+            {
+                HandleRightClick(rootVisual, lParam);
+                handled = true;
             }
 
             if (msg == 0x0214) // WM_SIZING
