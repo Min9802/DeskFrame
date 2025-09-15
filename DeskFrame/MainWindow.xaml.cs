@@ -6,6 +6,8 @@ using Wpf.Ui.Controls;
 using Application = System.Windows.Application;
 using static DeskFrame.Util.Interop;
 using System.Windows.Interop;
+using H.Hooks;
+using MouseEventArgs = H.Hooks.MouseEventArgs;
 namespace DeskFrame
 {
     public partial class MainWindow : Window
@@ -14,6 +16,34 @@ namespace DeskFrame
         bool startOnLogin;
         private uint _taskbarRestartMessage;
         public static InstanceController _controller;
+        private LowLevelMouseHook _lowLevelMouseHook;
+        private static bool _doubleClickToHide;
+        public bool DoubleClickToHide
+        {
+            get => _doubleClickToHide;
+            set
+            {
+                if (_doubleClickToHide != value)
+                {
+                    _doubleClickToHide = value;
+                    OnDoubleToClickHideChanged();
+                }
+            }
+        }
+        private void OnDoubleToClickHideChanged()
+        {
+            if (_doubleClickToHide)
+            {
+                _lowLevelMouseHook = new LowLevelMouseHook { AddKeyboardKeys = true };
+                _lowLevelMouseHook.DoubleClick += HandleGlobalDoubleClick;
+                _lowLevelMouseHook.Start();
+            }
+            else
+            {
+                _lowLevelMouseHook.Stop();
+            }
+        }
+
         public MainWindow()
         {
             InitializeComponent();
@@ -23,7 +53,8 @@ namespace DeskFrame
             _controller.InitInstances();
             if (_controller.reg.KeyExistsRoot("startOnLogin")) startOnLogin = (bool)_controller.reg.ReadKeyValueRoot("startOnLogin");
             AutorunToggle.IsChecked = startOnLogin;
-           // if (_controller.reg.KeyExistsRoot("blurBackground")) BlurToggle.IsChecked = (bool)_controller.reg.ReadKeyValueRoot("blurBackground");
+            // if (_controller.reg.KeyExistsRoot("blurBackground")) BlurToggle.IsChecked = (bool)_controller.reg.ReadKeyValueRoot("blurBackground");
+            if (_controller.reg.KeyExistsRoot("DoubleClickToHide")) DoubleClickToHide = (bool)_controller.reg.ReadKeyValueRoot("DoubleClickToHide");
             if (_controller.reg.KeyExistsRoot("AutoUpdate") && (bool)_controller.reg.ReadKeyValueRoot("AutoUpdate"))
             {
                 Update();
@@ -34,6 +65,21 @@ namespace DeskFrame
                 _controller.reg.WriteToRegistryRoot("AutoUpdate", "False");
             }
         }
+        private void HandleGlobalDoubleClick(object? sender, MouseEventArgs e)
+        {
+            POINT pt = new POINT { X = e.Position.X, Y = e.Position.Y };
+            IntPtr hwndUnderCursor = WindowFromPoint(pt);
+            IntPtr desktopListView = GetDesktopListViewHandle();
+
+            if (hwndUnderCursor == desktopListView)
+            {
+                Application.Current.Dispatcher.Invoke(() =>
+                {
+                    _controller.ChangeVisibility();
+                });
+            }
+        }
+
         private async void Update()
         {
             await Updater.CheckUpdateAsync(url, false);
@@ -63,6 +109,23 @@ namespace DeskFrame
             int exStyle = (int)GetWindowLong(hwnd, GWL_EXSTYLE);
             exStyle |= WS_EX_TOOLWINDOW | WS_EX_NOACTIVATE;
             SetWindowLong(hwnd, GWL_EXSTYLE, (IntPtr)exStyle);
+        }
+        private static IntPtr GetDesktopListViewHandle()
+        {
+            IntPtr progman = FindWindow("Progman", null);
+            IntPtr defView = FindWindowEx(progman, IntPtr.Zero, "SHELLDLL_DefView", null);
+
+            if (defView == IntPtr.Zero)
+            {
+                IntPtr workerw = IntPtr.Zero;
+                do
+                {
+                    workerw = FindWindowEx(IntPtr.Zero, workerw, "WorkerW", null);
+                    defView = FindWindowEx(workerw, IntPtr.Zero, "SHELLDLL_DefView", null);
+                }
+                while (workerw != IntPtr.Zero && defView == IntPtr.Zero);
+            }
+            return FindWindowEx(defView, IntPtr.Zero, "SysListView32", "FolderView");
         }
         private void CloseHide()
         {
@@ -124,7 +187,7 @@ namespace DeskFrame
 
         private void Settings_Button_Click(object sender, RoutedEventArgs e)
         {
-            new SettingsWindow(_controller).Show();
+            new SettingsWindow(_controller, this).Show();
         }
         private void Window_Loaded(object sender, RoutedEventArgs e)
         {
@@ -146,7 +209,11 @@ namespace DeskFrame
             }
             return IntPtr.Zero;
         }
-
+        protected override void OnClosed(EventArgs e)
+        {
+            _lowLevelMouseHook.Stop();
+            base.OnClosed(e);
+        }
 
     }
 }

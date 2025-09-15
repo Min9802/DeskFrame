@@ -10,16 +10,18 @@ namespace DeskFrame
         InstanceController _controller;
         DeskFrameWindow _dWindows;
         Instance _instance;
-        public SettingsWindow(InstanceController controller)
+        MainWindow _window;
+        public SettingsWindow(InstanceController controller, MainWindow window)
         {
             InitializeComponent();
             this.LocationChanged += Window_LocationChanged;
             this.MinHeight = 0;
             this.MinWidth = 200;
-
+            _window = window;
             _controller = controller;
             // if (_controller.reg.KeyExistsRoot("blurBackground")) blurToggle.IsChecked = (bool)_controller.reg.ReadKeyValueRoot("blurBackground");
             if (_controller.reg.KeyExistsRoot("AutoUpdate")) AutoUpdateToggleSwitch.IsChecked = (bool)_controller.reg.ReadKeyValueRoot("AutoUpdate");
+            if (_controller.reg.KeyExistsRoot("DoubleClickToHide")) DoubleClickToHideSwitch.IsChecked = (bool)_controller.reg.ReadKeyValueRoot("DoubleClickToHide");
         }
 
         private void blurToggle_CheckChanged(object sender, System.Windows.RoutedEventArgs e)
@@ -128,5 +130,12 @@ namespace DeskFrame
                 _dWindows.Close();
             }
         }
+        private void DoubleClickToHideSwitch_Click(object sender, RoutedEventArgs e)
+        {
+            _controller.reg.WriteToRegistryRoot("DoubleClickToHide", DoubleClickToHideSwitch.IsChecked!);
+            _window.DoubleClickToHide = (bool)DoubleClickToHideSwitch.IsChecked!;
+        }
+
+
     }
 }

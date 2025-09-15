@@ -12,6 +12,7 @@ public class InstanceController
     public RegistryHelper reg = new RegistryHelper(appName);
     public List<DeskFrameWindow> _subWindows = new List<DeskFrameWindow>();
     public List<IntPtr> _subWindowsPtr = new List<IntPtr>();
+    private bool Visible = true;
     public void WriteOverInstanceToKey(Instance instance, string oldKey)
     {
 
@@ -180,6 +181,25 @@ public class InstanceController
                 _subWindowsPtr.Add(new WindowInteropHelper(subWindow).Handle);
                 InitDetails();
             }
+        }
+    }
+    public void ChangeVisibility()
+    {
+        if (Visible)
+        {
+            foreach (var window in _subWindows)
+            {
+                window.Hide();
+            }
+            Visible = false;
+        }
+        else
+        {
+            foreach (var window in _subWindows)
+            {
+                window.Show();
+            }
+            Visible = true;
         }
     }
     public void InitInstances()

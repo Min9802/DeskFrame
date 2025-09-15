@@ -11,6 +11,10 @@ namespace DeskFrame.Util
     public static class Interop
     {
         [DllImport("user32.dll")]
+        public static extern IntPtr WindowFromPoint(POINT Point);
+        [DllImport("user32.dll", SetLastError = true)]
+        public static extern IntPtr FindWindow(string lpClassName, string lpWindowName); 
+        [DllImport("user32.dll")]
         public static extern bool ScreenToClient(IntPtr hWnd, ref POINT lpPoint);
 
         [StructLayout(LayoutKind.Sequential)]

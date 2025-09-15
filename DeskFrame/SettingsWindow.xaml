@@ -11,8 +11,8 @@
         WindowStyle="None" 
         ResizeMode="NoResize"
         Height="366" 
-                 Width="273"
-                 MaxWidth="273" Closing="FluentWindow_Closing">
+                 Width="464"
+                 Closing="FluentWindow_Closing">
     <Grid>
         <StackPanel>
             <ui:TitleBar Title="DeskFrame settings" Name="Titlebar" Padding="8,0,0,0" Height="30"  CanMaximize="False" ShowMinimize="False" ApplicationTheme="Dark" ShowMaximize="False" >
@@ -22,18 +22,16 @@
             </ui:TitleBar>
             <StackPanel Orientation="Vertical" Margin="10,25,0,0" >
             </StackPanel>
+
             <StackPanel >
                 <ui:Button x:Name="ExportSettingsButton" Content="Export settings" Click="ExportSettingsButton_Click" Margin="10,20,0,0"/>
                 <StackPanel Orientation="Horizontal">
                     <ui:Button x:Name="DefaultFrameStyleButton" Content="Default frame style"  Margin="10,20,0,0" Click="DefaultFrameStyleButton_Click"/>
-                    <ui:Button x:Name="ResetDefaultFrameStyleButton" Content="Reset" Icon="{ui:SymbolIcon ArrowReset24}" Margin="10,20,0,0" Click="ResetDefaultFrameStyleButton_Click" />
+                    <ui:Button x:Name="ResetDefaultFrameStyleButton" Content="Reset default style" Icon="{ui:SymbolIcon ArrowReset24}" Margin="10,20,0,0" Click="ResetDefaultFrameStyleButton_Click" />
                 </StackPanel>
-                <TextBlock Foreground="White" Margin="10,30,0,0">
-                    Check for update on start
-                    <LineBreak/>
-                    and every 6 hours
-                </TextBlock>
-                <ui:ToggleSwitch x:Name="AutoUpdateToggleSwitch" Content="Auto update" Click="AutoUpdateToggleSwitch_Click" Margin="10,10,0,0"/>
+                <ui:ToggleSwitch  Margin="10,20,0,0" x:Name="AutoUpdateToggleSwitch" Content="Auto update. Check for update on start and every 6 hours " Click="AutoUpdateToggleSwitch_Click"/>
+                <ui:ToggleSwitch  Margin="10,20,0,0" x:Name="DoubleClickToHideSwitch" Content="Double click on desktop to toggle hide every frame" Click="DoubleClickToHideSwitch_Click"/>
+
             </StackPanel>
         </StackPanel>
 
