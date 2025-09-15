@@ -22,8 +22,8 @@
 
                 <ui:ToggleSwitch x:Name="AutorunToggle" Content="Start on login"
                              Checked="AutorunToggle_CheckChanged"  Unchecked="AutorunToggle_CheckChanged"  />
-                <ui:ToggleSwitch x:Name="BlurToggle" Content="Enable blur"
-                Checked="BlurToggle_CheckChanged"  Unchecked="BlurToggle_CheckChanged" />
+                <!--<ui:ToggleSwitch x:Name="BlurToggle" Content="Enable blur"
+                Checked="BlurToggle_CheckChanged"  Unchecked="BlurToggle_CheckChanged" />-->
                 
                 <Separator Margin="0,3,0,3"/>
 

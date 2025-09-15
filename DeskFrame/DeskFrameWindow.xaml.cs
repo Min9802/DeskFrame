@@ -2107,12 +2107,11 @@ namespace DeskFrame
             KeepWindowBehind();
             RegistryHelper rgh = new RegistryHelper("DeskFrame");
             bool toBlur = true;
-            if (rgh.KeyExistsRoot("blurBackground"))
-            {
-                toBlur = (bool)rgh.ReadKeyValueRoot("blurBackground");
-            }
-
-            BackgroundType(toBlur);
+            //if (rgh.KeyExistsRoot("blurBackground"))
+            //{
+            //    toBlur = (bool)rgh.ReadKeyValueRoot("blurBackground");
+            //}
+           // BackgroundType(toBlur);
         }
 
         public void ChangeBackgroundOpacity(int num)

@@ -23,7 +23,7 @@ namespace DeskFrame
             _controller.InitInstances();
             if (_controller.reg.KeyExistsRoot("startOnLogin")) startOnLogin = (bool)_controller.reg.ReadKeyValueRoot("startOnLogin");
             AutorunToggle.IsChecked = startOnLogin;
-            if (_controller.reg.KeyExistsRoot("blurBackground")) BlurToggle.IsChecked = (bool)_controller.reg.ReadKeyValueRoot("blurBackground");
+           // if (_controller.reg.KeyExistsRoot("blurBackground")) BlurToggle.IsChecked = (bool)_controller.reg.ReadKeyValueRoot("blurBackground");
             if (_controller.reg.KeyExistsRoot("AutoUpdate") && (bool)_controller.reg.ReadKeyValueRoot("AutoUpdate"))
             {
                 Update();
@@ -87,11 +87,11 @@ namespace DeskFrame
             await Updater.CheckUpdateAsync(url,true);
 
         }
-        private void BlurToggle_CheckChanged(object sender, System.Windows.RoutedEventArgs e)
-        {
-            _controller.reg.WriteToRegistryRoot("blurBackground", BlurToggle.IsChecked!);
-            _controller.ChangeBlur((bool)BlurToggle.IsChecked!);
-        }
+        //private void BlurToggle_CheckChanged(object sender, System.Windows.RoutedEventArgs e)
+        //{
+        //    _controller.reg.WriteToRegistryRoot("blurBackground", BlurToggle.IsChecked!);
+        //    _controller.ChangeBlur((bool)BlurToggle.IsChecked!);
+        //}
         private void AutorunToggle_CheckChanged(object sender, RoutedEventArgs e)
         {
             if ((bool)AutorunToggle.IsChecked!)
