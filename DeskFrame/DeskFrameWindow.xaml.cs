@@ -350,7 +350,7 @@ namespace DeskFrame
                     handled = true;
                     return (IntPtr)4;
                 }
-                else if (!_isMinimized && this.ActualHeight != 30 && !_isOnTop && _canAnimate)
+                else if (!_isMinimized && this.ActualHeight != 30 && _canAnimate)
                 {
                     Instance.Height = this.ActualHeight;
                 }
@@ -2111,7 +2111,7 @@ namespace DeskFrame
             //{
             //    toBlur = (bool)rgh.ReadKeyValueRoot("blurBackground");
             //}
-           // BackgroundType(toBlur);
+            // BackgroundType(toBlur);
         }
 
         public void ChangeBackgroundOpacity(int num)
