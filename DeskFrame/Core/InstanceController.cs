@@ -27,6 +27,7 @@ public class InstanceController
                 key.SetValue("PosY", instance.PosY!);
                 key.SetValue("Width", instance.Width!);
                 key.SetValue("Height", instance.Height!);
+                key.SetValue("IconSize", instance.IconSize!);
                 key.SetValue("IdleOpacity", instance.IdleOpacity!);
                 key.SetValue("AnimationSpeed", instance.AnimationSpeed!);
                 key.SetValue("Minimized", instance.Minimized!);
@@ -85,6 +86,7 @@ public class InstanceController
                 key.SetValue("PosY", instance.PosY);
                 key.SetValue("Width", instance.Width);
                 key.SetValue("Height", instance.Height);
+                key.SetValue("IconSize", instance.IconSize);
                 key.SetValue("IdleOpacity", instance.IdleOpacity);
                 key.SetValue("AnimationSpeed", instance.AnimationSpeed);
                 key.SetValue("Minimized", instance.Minimized);
@@ -282,7 +284,12 @@ public class InstanceController
                                                 {
                                                     temp.Height = parsedHeight;
                                                 }
-
+                                                break;
+                                            case "IconSize":
+                                                if (int.TryParse(value.ToString(), out int parseIconSize))
+                                                {
+                                                    temp.IconSize = parseIconSize;
+                                                }
                                                 break;
                                             case "IdleOpacity":
                                                 if (double.TryParse(value.ToString(), out double parsedIdleOpacity))

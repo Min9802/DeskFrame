@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.ComponentModel;
 using System.Windows.Media.Imaging;
 using System.Windows.Media;
 using System.Windows;
@@ -55,7 +50,7 @@ namespace DeskFrame.Core
 
                     // int.MaxValue for full height, 70 for 4 lines
                     // MaxHeight = _isSelected ? 70 : 40;
-                    MaxHeight = _isSelected ? 40 : 40;
+                    //MaxHeight = _isSelected ? 40 : 40;
                     TextTrimming = _isSelected ? TextTrimming.CharacterEllipsis : TextTrimming.CharacterEllipsis;
 
                     OnPropertyChanged(nameof(IsSelected));

@@ -306,7 +306,14 @@ namespace DeskFrame
         {
             if (!(HwndSource.FromHwnd(hWnd).RootVisual is Window rootVisual))
                 return IntPtr.Zero;
-
+            if (msg == 0x020A  && (GetAsyncKeyState(0x11) & 0x8000) != 0) // WM_MOUSEWHEEL && control down
+            {
+                int delta = (short)((int)wParam >> 16);
+                if (delta > 0) Instance.IconSize -= 4;
+                else if (delta < 0) Instance.IconSize += 4;
+                handled = true;
+                return 4;
+            }
             if (msg == 0x0201) // WM_LBUTTONDOWN
             {
                 _isLeftButtonDown = true;
@@ -326,22 +333,23 @@ namespace DeskFrame
             if (msg == 0x0214) // WM_SIZING
             {
                 Interop.RECT rect = (Interop.RECT)Marshal.PtrToStructure(lParam, typeof(Interop.RECT));
-                double width = rect.Right - rect.Left;
-                double newWidth = (Math.Round(width / 85.0) * 85 + 13);
-                if (width != newWidth)
-                {
-                    int edge = wParam.ToInt32();
-                    if (edge == 2 || edge == 8) // WMSZ_RIGHT
-                    {
-                        rect.Right = rect.Left + (int)newWidth;
-                    }
-                    if (edge == 1 || edge == 7) // WMSZ_LEFT
-                    {
-                        rect.Left = rect.Right - (int)newWidth;
-                    }
-                    Marshal.StructureToPtr(rect, lParam, true);
-                    Instance.Width = this.Width;
-                }
+                //double width = rect.Right - rect.Left;
+                //double newWidth = (Math.Round(width / 85.0) * 85 + 13);
+                //if (width != newWidth)
+                //{
+                //    int edge = wParam.ToInt32();
+                //    if (edge == 2 || edge == 8) // WMSZ_RIGHT
+                //    {
+                //        rect.Right = rect.Left + (int)newWidth;
+                //    }
+                //    if (edge == 1 || edge == 7) // WMSZ_LEFT
+                //    {
+                //        rect.Left = rect.Right - (int)newWidth;
+                //    }
+                //    Marshal.StructureToPtr(rect, lParam, true);
+                //    Instance.Width = this.Width;
+                //}
+                Instance.Width = this.Width;
                 double height = rect.Bottom - rect.Top;
                 if (height <= 102)
                 {

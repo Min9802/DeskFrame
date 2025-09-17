@@ -57,6 +57,9 @@ namespace DeskFrame
             AnimationSpeedLabel.Content = _instance.AnimationSpeed == 0.0 ? "OFF" : "x" + _instance.AnimationSpeed;
             IdleOpacitySlider.Value = _instance.IdleOpacity * 10;
             IdleOpacityLabel.Content = _instance.IdleOpacity * 100 + "%";
+            IconSizeSlider.Value = _instance.IconSize / 4;
+            IconSizeLabel.Content = _instance.IconSize;
+
             frame.AnimateWindowOpacity(_instance.IdleOpacity, _instance.AnimationSpeed);
             _frame = frame;
             if (!frame.VirtualDesktopSupported)
@@ -73,6 +76,7 @@ namespace DeskFrame
             _originalInstance.ShowOnVirtualDesktops = _instance.ShowOnVirtualDesktops;
             _originalInstance.AnimationSpeed = _instance.AnimationSpeed;
             _originalInstance.IdleOpacity = _instance.IdleOpacity;
+            _originalInstance.IconSize = _instance.IconSize;
             TitleBarColorTextBox.Text = _instance.TitleBarColor;
             TitleTextColorTextBox.Text = _instance.TitleTextColor;
             ListViewBackgroundColorTextBox.Text = _instance.ListViewBackgroundColor;
@@ -186,6 +190,9 @@ namespace DeskFrame
             AnimationSpeedLabel.Content = _instance.AnimationSpeed == 0 ? "OFF" : "x" + _instance.AnimationSpeed;
             _instance.IdleOpacity = IdleOpacitySlider.Value / 10;
             IdleOpacityLabel.Content = _instance.IdleOpacity * 100 + "%";
+            _instance.IconSize = (int)(IconSizeSlider.Value * 4);
+            IconSizeLabel.Content = _instance.IconSize;
+
             _frame.AnimateWindowOpacity(_instance.IdleOpacity, _instance.AnimationSpeed);
             _isValidTitleBarColor = TryParseColor(string.IsNullOrEmpty(TitleBarColorTextBox.Text) ? "#0C000000" : TitleBarColorTextBox.Text, TitleBarColorTextBox);
             _isValidTitleTextColor = TryParseColor(string.IsNullOrEmpty(TitleTextColorTextBox.Text) ? "#FFFFFF" : TitleTextColorTextBox.Text, TitleTextColorTextBox);
@@ -241,7 +248,7 @@ namespace DeskFrame
                 _frame.title.Foreground = new SolidColorBrush((Color)System.Windows.Media.ColorConverter.ConvertFromString(_instance.TitleTextColor));
                 _frame.title.Text = TitleTextBox.Text ?? _frame.Instance.Name;
                 _frame.WindowBackground.Background = new SolidColorBrush((Color)System.Windows.Media.ColorConverter.ConvertFromString(_instance.ListViewBackgroundColor)); ;
-
+               
 
                 TitleBarColorTextBox.Icon!.Foreground = new SolidColorBrush((Color)System.Windows.Media.ColorConverter.ConvertFromString(_instance.TitleBarColor));
                 TitleTextColorTextBox.Icon!.Foreground = new SolidColorBrush((Color)System.Windows.Media.ColorConverter.ConvertFromString(_instance.TitleTextColor));
@@ -321,6 +328,7 @@ namespace DeskFrame
                 _instance.TitleFontFamily = _originalInstance.TitleFontFamily;
                 _instance.ShowOnVirtualDesktops = _originalInstance.ShowOnVirtualDesktops;
                 _instance.IdleOpacity = _originalInstance.IdleOpacity;
+                _instance.IconSize = _originalInstance.IconSize;
                 _instance.AnimationSpeed = _originalInstance.AnimationSpeed;
                 _instance.AutoExpandonCursor = _originalInstance.AutoExpandonCursor;
                 _instance.ShowShortcutArrow = _originalInstance.ShowShortcutArrow;
@@ -345,6 +353,8 @@ namespace DeskFrame
                 IdleOpacitySlider.Value = _instance.IdleOpacity * 10;
                 _frame.AnimateWindowOpacity(_instance.IdleOpacity, _instance.AnimationSpeed);
                 IdleOpacityLabel.Content = _instance.IdleOpacity * 100 + "%";
+                IconSizeSlider.Value = _instance.IconSize / 4;
+                IconSizeLabel.Content = _instance.IconSize;
 
                 _instance.Folder = _originalInstance.Folder;
                 _instance.Name = _originalInstance.Name;
@@ -537,6 +547,8 @@ namespace DeskFrame
                     AnimationSpeedLabel.Content = instance.AnimationSpeed == 0.0 ? "OFF" : "x" + instance.AnimationSpeed;
                     IdleOpacitySlider.Value = instance.IdleOpacity * 10;
                     IdleOpacityLabel.Content = instance.IdleOpacity * 100 + "%";
+                    IconSizeSlider.Value = instance.IconSize / 4;
+                    IconSizeLabel.Content = instance.IconSize;
                     _backgroundBrush = TitleBarColorTextBox.Background;
                     _borderBrush = TitleBarColorTextBox.BorderBrush;
                     TitleBarColorTextBox.Text = instance.TitleBarColor;

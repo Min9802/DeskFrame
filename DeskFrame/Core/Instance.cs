@@ -46,6 +46,19 @@ public class Instance : INotifyPropertyChanged
     private int _folderOrder = 0;
     private int[] _showOnVirtualDesktops;
     private double _titleFontSize = 13;
+    private int _iconSize = 32;
+    public int IconSize
+    {
+        get => _iconSize;
+        set
+        {
+            if (_iconSize != value)
+            {
+                _iconSize = Math.Clamp(value, 16, 64);
+                OnPropertyChanged(nameof(IconSize), value.ToString());
+            }
+        }
+    }
     public double PosX
     {
         get => _posX;
@@ -612,6 +625,8 @@ public class Instance : INotifyPropertyChanged
             v = helper.ReadKeyValueRoot("TitleFontSize");
             if (v != null) _titleFontSize = double.Parse(v.ToString());
 
+            v = helper.ReadKeyValueRoot("IconSize");
+            if (v != null) _iconSize = int.Parse(v.ToString());
         }
     }
     protected void OnPropertyChanged(string propertyName, string value)
@@ -622,6 +637,7 @@ public class Instance : INotifyPropertyChanged
             "PosY",
             "Width",
             "Height",
+            "IconSize",
             "Name",
             "Folder",
             "Minimized",

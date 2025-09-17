@@ -372,7 +372,11 @@
                 <Label Content="Hide files (regex):" Height="30"/>
                 <ui:TextBox x:Name="FileFilterHideRegexTextBox" Margin="0,0,0,20" TextChanged="TextChangedHandler"/>
                 <CheckBox x:Name="ShowDisplayNameCheckBox" Content="Show icon text" Margin="-11,0,0,0" Checked="ShowDisplayNameCheckBox_Checked" Unchecked="ShowDisplayNameCheckBox_Checked"/>
-
+                <StackPanel Orientation="Horizontal">
+                    <Label Content="Icon size:" Height="30" Margin="0,20,0,0"/>
+                    <Label x:Name="IconSizeLabel" Content="0%" Height="30" Margin="5,20,0,0" Foreground="{DynamicResource {x:Static SystemColors.MenuHighlightBrushKey}}" FontWeight="Bold"/>
+                </StackPanel>
+                <Slider x:Name="IconSizeSlider" Width="200" TickPlacement="TopLeft" TickFrequency="1" Minimum="1" Maximum="16" ValueChanged="Slider_ValueChanged" IsSnapToTickEnabled="True"/>
             </StackPanel>
             <Button x:Name="RevertButton" Grid.Column="4" HorizontalAlignment="Right" Content="Revert" Margin="10" Height="30" Click="RevertButton_Click"  VerticalAlignment="Bottom"/>
 
