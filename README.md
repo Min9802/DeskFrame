@@ -20,7 +20,7 @@
 
 - 🔍 Instant search *(just type while frame is focused)*
 - 🎨 Fully customizable colors
-- 🌫️ Acrylic background with transparent colors
+- 🌫️ Background colors with transparency
 - 👁️ Toggle hidden files and file extensions
 - 📌 Sticky + lockable frames
 - ↕️ Open/close frame toggle
