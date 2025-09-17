@@ -211,7 +211,10 @@ namespace DeskFrame
         }
         protected override void OnClosed(EventArgs e)
         {
-            _lowLevelMouseHook.Stop();
+            if (_lowLevelMouseHook != null)
+            {
+                _lowLevelMouseHook.Stop();
+            }
             base.OnClosed(e);
         }
 
