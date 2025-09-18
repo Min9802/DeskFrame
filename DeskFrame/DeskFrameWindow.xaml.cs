@@ -771,7 +771,7 @@ namespace DeskFrame
         }
         private void Window_KeyDown(object sender, System.Windows.Input.KeyEventArgs e)
         {
-            if (e.Key == Key.Escape)
+            if (e.Key == Key.Escape || !_mouseIsOver)
             {
                 FilterTextBox.Text = null;
             }
@@ -786,7 +786,7 @@ namespace DeskFrame
                 Search.Visibility = Visibility.Collapsed;
                 title.Visibility = Visibility.Visible;
             }
-            else
+            else if (_mouseIsOver)
             {
                 Search.Visibility = Visibility.Visible;
                 title.Visibility = Visibility.Hidden;
@@ -797,8 +797,7 @@ namespace DeskFrame
             if (_collectionView == null)
                 return;
 
-
-            string filter = FilterTextBox.Text;
+            string filter = _mouseIsOver ? FilterTextBox.Text : "";
             _cts.Cancel();
             _cts = new CancellationTokenSource();
             var token = _cts.Token;
@@ -2718,19 +2717,26 @@ namespace DeskFrame
         }
         void BringFrameToFront(IntPtr hwnd)
         {
+            SendMessage(hwnd, WM_SETREDRAW, IntPtr.Zero, IntPtr.Zero);
             IntPtr hwndLower = Interop.GetWindow(GetWindowWithMinZIndex(MainWindow._controller._subWindowsPtr), GW_HWNDPREV);
-            IntPtr insertAfter = hwndLower != IntPtr.Zero ? hwndLower : IntPtr.Zero;
-            SetWindowPos(new WindowInteropHelper(this).Handle, insertAfter, 0, 0, 0, 0,
-                SWP_NOMOVE | SWP_NOSIZE | SWP_NOACTIVATE |
-                SWP_NOOWNERZORDER | SWP_NOSENDCHANGING);
+            IntPtr insertAfter = hwndLower != IntPtr.Zero ? hwndLower : IntPtr.Zero; ;
+            
+            SetWindowPos(hwnd, insertAfter, 0, 0, 0, 0,
+               SWP_NOMOVE | SWP_NOSIZE | SWP_NOACTIVATE | SWP_NOOWNERZORDER | SWP_NOSENDCHANGING);
+
+            SendMessage(hwnd, WM_SETREDRAW, 1, IntPtr.Zero);
+            InvalidateRect(hwnd, IntPtr.Zero, true);
+            UpdateWindow(hwnd);
         }
         private void Window_MouseEnter(object sender, MouseEventArgs e)
         {
             _mouseIsOver = true;
-            this.Activate();
             var hwnd = new WindowInteropHelper(this).Handle;
             BringFrameToFront(hwnd);
-            KeepWindowBehind();
+            SetForegroundWindow(hwnd);
+            this.Activate();
+            SetFocus(hwnd);
+            this.Focus();
             _canAutoClose = true;
             AnimateWindowOpacity(1, Instance.AnimationSpeed);
             if ((Instance.AutoExpandonCursor) && _isMinimized)

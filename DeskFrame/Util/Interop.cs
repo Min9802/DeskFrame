@@ -11,6 +11,21 @@ namespace DeskFrame.Util
     public static class Interop
     {
         [DllImport("user32.dll")]
+        public static extern IntPtr SendMessage(IntPtr hWnd, uint Msg, IntPtr wParam, IntPtr lParam);
+
+        [DllImport("user32.dll")]
+        public static extern bool InvalidateRect(IntPtr hWnd, IntPtr lpRect, bool bErase);
+
+        [DllImport("user32.dll")]
+        public static extern bool UpdateWindow(IntPtr hWnd);
+        [DllImport("user32.dll")]
+        public static extern bool SetFocus(IntPtr hWnd);
+        [DllImport("user32.dll")]
+        public static extern bool ShowWindow(IntPtr hWnd, int nCmdShow);
+        [DllImport("user32.dll")]
+        [return: MarshalAs(UnmanagedType.Bool)]
+        public static extern bool SetForegroundWindow(IntPtr hWnd);
+        [DllImport("user32.dll")]
         public static extern IntPtr WindowFromPoint(POINT Point);
         [DllImport("user32.dll", SetLastError = true)]
         public static extern IntPtr FindWindow(string lpClassName, string lpWindowName); 
@@ -72,14 +87,13 @@ namespace DeskFrame.Util
         public const uint SWP_NOOWNERZORDER = 0x0200;
         public const uint SWP_NOSENDCHANGING = 0x0400;
         public const uint SWP_SHOWWINDOW = 0x0040;
-
+        public const int SW_SHOWNA = 8;
 
         [DllImport("user32.dll")]
         public static extern IntPtr GetTopWindow(IntPtr hWnd);
 
         [DllImport("user32.dll")]
         public static extern IntPtr GetWindow(IntPtr hWnd, uint uCmd);
-
         [DllImport("user32.dll", EntryPoint = "GetWindowLong")]
         private static extern IntPtr GetWindowLong32(IntPtr hWnd, int nIndex);
 
@@ -120,6 +134,7 @@ namespace DeskFrame.Util
         [DllImport("user32.dll", SetLastError = true)]
         public static extern IntPtr FindWindowEx(IntPtr hWndParent, IntPtr hWndChildAfter, string lpszClass, string lpszWindow);
         public const int WM_NCACTIVATE = 0x0086;
+        public const uint WM_SETREDRAW = 0x000B;
         public const int WM_MOUSEACTIVATE = 0x0021;
         public const int WM_MOVING = 0x0216;
         public const int WM_LBUTTONDOWN = 0x0201;
