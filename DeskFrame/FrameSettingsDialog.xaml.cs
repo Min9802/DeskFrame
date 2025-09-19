@@ -477,11 +477,13 @@ namespace DeskFrame
             {
                 _instance.Folder = folderDialog.SelectedPath;
                 _frame._path = _instance.Folder;
-                _frame.title.Text = Path.GetFileName(_frame._path);
                 _instance.Name = Path.GetFileName(folderDialog.SelectedPath);
                 MainWindow._controller.WriteOverInstanceToKey(_instance, _lastInstanceName);
                 _lastInstanceName = _instance.Name;
                 _frame.LoadFiles(_frame._path);
+                _frame.title.Text = _instance.TitleText;
+                _instance.TitleText = _instance.TitleText;
+                TitleTextBox.Text = _instance.TitleText;
                 DataContext = this;
                 _frame.InitializeFileWatcher();
             }

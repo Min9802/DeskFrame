@@ -45,7 +45,7 @@ public class InstanceController
                 key.SetValue("TitleBarColor", instance.TitleBarColor!);
                 key.SetValue("TitleTextColor", instance.TitleTextColor!);
                 key.SetValue("TitleTextAlignment", instance.TitleTextAlignment.ToString());
-                key.SetValue("TitleText", instance.TitleText);
+                key.SetValue("TitleText", instance.TitleText != null ? instance.TitleText : instance.Name);
                 key.SetValue("BorderColor", instance.BorderColor!);
                 key.SetValue("BorderEnabled", instance.BorderEnabled!);
                 key.SetValue("FileFilterRegex", instance.FileFilterRegex!);
@@ -56,12 +56,18 @@ public class InstanceController
                 key.SetValue("Opacity", instance.Opacity);
                 key.SetValue("SortBy", instance.SortBy);
                 key.SetValue("FolderOrder", instance.FolderOrder);
-                key.SetValue("ShowOnVirtualDesktops", string.Join(",", instance.ShowOnVirtualDesktops));
+                if (instance.ShowOnVirtualDesktops != null && instance.ShowOnVirtualDesktops.Length > 0)
+                {
+                    key.SetValue("ShowOnVirtualDesktops", string.Join(",", instance.ShowOnVirtualDesktops));
+                }
                 key.SetValue("TitleFontSize", instance.TitleFontSize);
             }
-            Registry.CurrentUser.DeleteSubKey(@$"SOFTWARE\{appName}\Instances\{oldKey}", throwOnMissingSubKey: false);
         }
-        catch { }
+        catch (Exception ex)
+        {
+            Debug.WriteLine($"WriteOverInstanceToKey failed: {ex.Message}");
+        }
+        Registry.CurrentUser.DeleteSubKey(@$"SOFTWARE\{appName}\Instances\{oldKey}", throwOnMissingSubKey: false);
     }
     private void InitDetails()
     {
