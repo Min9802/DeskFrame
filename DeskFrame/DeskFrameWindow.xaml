@@ -47,6 +47,7 @@
             BorderThickness="1" MouseRightButtonDown="FileItem_RightClick">
                 <StackPanel Orientation="Vertical" HorizontalAlignment="Center">
                     <Image Margin="5" Source="{Binding Thumbnail}" Stretch="Uniform" 
+                           RenderOptions.BitmapScalingMode="HighQuality"
                            Width="{Binding DataContext.Instance.IconSize, RelativeSource={RelativeSource AncestorType=Window}, Converter={StaticResource IconSizeToHeightWidthConverter}}"
                            Height="{Binding DataContext.Instance.IconSize, RelativeSource={RelativeSource AncestorType=Window}, Converter={StaticResource IconSizeToHeightWidthConverter}}"
                            VerticalAlignment="Center" HorizontalAlignment="Center"
