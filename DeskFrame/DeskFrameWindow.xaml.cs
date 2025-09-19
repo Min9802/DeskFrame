@@ -336,26 +336,21 @@ namespace DeskFrame
 
             if (msg == 0x0214) // WM_SIZING
             {
+                int edge = wParam.ToInt32();
+                if (_isMinimized && (edge != 1 && edge != 2)) // block resizing except left or right edges
+                {
+                    var hwnd = new WindowInteropHelper(this).Handle;
+                    Interop.RECT currentRect;
+                    Interop.GetWindowRect(hwnd, out currentRect);
+                    Marshal.StructureToPtr(currentRect, lParam, true);
+                    handled = true;
+                    return IntPtr.Zero;
+                }
                 Interop.RECT rect = (Interop.RECT)Marshal.PtrToStructure(lParam, typeof(Interop.RECT));
-                //double width = rect.Right - rect.Left;
-                //double newWidth = (Math.Round(width / 85.0) * 85 + 13);
-                //if (width != newWidth)
-                //{
-                //    int edge = wParam.ToInt32();
-                //    if (edge == 2 || edge == 8) // WMSZ_RIGHT
-                //    {
-                //        rect.Right = rect.Left + (int)newWidth;
-                //    }
-                //    if (edge == 1 || edge == 7) // WMSZ_LEFT
-                //    {
-                //        rect.Left = rect.Right - (int)newWidth;
-                //    }
-                //    Marshal.StructureToPtr(rect, lParam, true);
-                //    Instance.Width = this.Width;
-                //}
+              
                 Instance.Width = this.Width;
                 double height = rect.Bottom - rect.Top;
-                if (height <= 102)
+                if (height <= 102 && !_isMinimized)
                 {
                     this.Height = 102;
                     rect.Bottom = rect.Top + 102;
