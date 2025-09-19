@@ -309,8 +309,8 @@ namespace DeskFrame
             if (msg == 0x020A && (GetAsyncKeyState(0x11) & 0x8000) != 0) // WM_MOUSEWHEEL && control down
             {
                 int delta = (short)((int)wParam >> 16);
-                if (delta > 0) Instance.IconSize -= 4;
-                else if (delta < 0) Instance.IconSize += 4;
+                if (delta < 0) Instance.IconSize -= 4;
+                else if (delta > 0) Instance.IconSize += 4;
                 handled = true;
                 return 4;
             }
