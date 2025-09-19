@@ -18,6 +18,8 @@ namespace DeskFrame
         public static InstanceController _controller;
         private LowLevelMouseHook _lowLevelMouseHook;
         private static bool _doubleClickToHide;
+        private DateTime _lastDoubleClickTime = DateTime.MinValue;
+
         public bool DoubleClickToHide
         {
             get => _doubleClickToHide;
@@ -67,6 +69,9 @@ namespace DeskFrame
         }
         private void HandleGlobalDoubleClick(object? sender, MouseEventArgs e)
         {
+            if ((DateTime.Now - _lastDoubleClickTime).TotalSeconds < 0.3) return;
+            _lastDoubleClickTime = DateTime.Now;
+
             POINT pt = new POINT { X = e.Position.X, Y = e.Position.Y };
             IntPtr hwndUnderCursor = WindowFromPoint(pt);
             IntPtr desktopListView = GetDesktopListViewHandle();
