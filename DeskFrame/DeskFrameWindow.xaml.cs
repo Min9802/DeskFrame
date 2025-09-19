@@ -306,7 +306,7 @@ namespace DeskFrame
         {
             if (!(HwndSource.FromHwnd(hWnd).RootVisual is Window rootVisual))
                 return IntPtr.Zero;
-            if (msg == 0x020A  && (GetAsyncKeyState(0x11) & 0x8000) != 0) // WM_MOUSEWHEEL && control down
+            if (msg == 0x020A && (GetAsyncKeyState(0x11) & 0x8000) != 0) // WM_MOUSEWHEEL && control down
             {
                 int delta = (short)((int)wParam >> 16);
                 if (delta > 0) Instance.IconSize -= 4;
@@ -2717,16 +2717,14 @@ namespace DeskFrame
         }
         void BringFrameToFront(IntPtr hwnd)
         {
-            SendMessage(hwnd, WM_SETREDRAW, IntPtr.Zero, IntPtr.Zero);
             IntPtr hwndLower = Interop.GetWindow(GetWindowWithMinZIndex(MainWindow._controller._subWindowsPtr), GW_HWNDPREV);
-            IntPtr insertAfter = hwndLower != IntPtr.Zero ? hwndLower : IntPtr.Zero; ;
-            
+            IntPtr insertAfter = hwndLower != IntPtr.Zero ? hwndLower : IntPtr.Zero;
+            SendMessage(hwnd, WM_SETREDRAW, 0, IntPtr.Zero);
+
             SetWindowPos(hwnd, insertAfter, 0, 0, 0, 0,
                SWP_NOMOVE | SWP_NOSIZE | SWP_NOACTIVATE | SWP_NOOWNERZORDER | SWP_NOSENDCHANGING);
 
             SendMessage(hwnd, WM_SETREDRAW, 1, IntPtr.Zero);
-            InvalidateRect(hwnd, IntPtr.Zero, true);
-            UpdateWindow(hwnd);
         }
         private void Window_MouseEnter(object sender, MouseEventArgs e)
         {
