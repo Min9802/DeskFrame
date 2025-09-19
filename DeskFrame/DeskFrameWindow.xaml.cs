@@ -60,7 +60,10 @@ namespace DeskFrame
         FrameworkElement _lastBorder;
         private bool _mouseIsOver;
         private bool _isMinimized = false;
+        private bool _isIngrid = true;
+        private bool _grabbedOnLeft;
         private int _snapDistance = 8;
+        private int _gridSnapDistance = 10;
         private int _currentVD;
         int _oriPosX, _oriPosY;
         private bool _isBlack = true;
@@ -318,6 +321,7 @@ namespace DeskFrame
             {
                 _isLeftButtonDown = true;
                 workingArea = SystemParameters.WorkArea;
+                _grabbedOnLeft = Mouse.GetPosition(this).X < this.Width / 2;
             }
             if (msg == 0x0202) // WM_LBUTTONUP
             {
@@ -409,10 +413,12 @@ namespace DeskFrame
                 structure.flags |= 4U;
                 Marshal.StructureToPtr<Interop.WINDOWPOS>(structure, lParam, false);
             }
-            if (msg == 0x0003) // WM_MOVE
+            if (msg == 0x0003 &&  // WM_MOVE
+                ((GetAsyncKeyState(0xA4) & 0x8000) == 0 && (GetAsyncKeyState(0xA5) & 0x8000) == 0)) // left and right alt isn't down
             {
-                HandleWindowMove(false);
+                _isIngrid = false;
 
+                HandleWindowMove(false);
                 if (_wOnLeft != null)
                 {
                     _wOnLeft.HandleWindowMove(false);
@@ -422,10 +428,96 @@ namespace DeskFrame
                     _wOnRight.HandleWindowMove(false);
                 }
             }
+            if (_isLeftButtonDown &&
+                ((GetAsyncKeyState(0xA4) & 0x8000) != 0 || (GetAsyncKeyState(0xA5) & 0x8000) != 0) && // left or right is alt down
+                msg == 0x0003) // WM_MOVE
+            {
+                SnapToGrid();
+            }
 
             return IntPtr.Zero;
         }
+        private void SnapToGrid()
+        {
+            IntPtr hwnd = new WindowInteropHelper(this).Handle;
 
+            Interop.RECT windowRect;
+            Interop.GetWindowRect(hwnd, out windowRect);
+
+            int windowLeft = windowRect.Left;
+            int windowTop = windowRect.Top;
+            int windowRight = windowRect.Right;
+            int windowBottom = windowRect.Bottom;
+
+            var mainWindow = Application.Current.MainWindow as MainWindow;
+            if (mainWindow == null) return;
+
+            int newWindowLeft = windowLeft;
+            int newWindowTop = windowTop;
+            int newWindowBottom = windowBottom;
+            foreach (var otherWindow in MainWindow._controller._subWindows)
+            {
+                if (otherWindow == this) continue;
+
+                IntPtr otherHwnd = new WindowInteropHelper(otherWindow).Handle;
+                Interop.RECT otherWindowRect;
+                Interop.GetWindowRect(otherHwnd, out otherWindowRect);
+
+                int otherLeft = otherWindowRect.Left;
+                int otherTop = otherWindowRect.Top;
+                int otherRight = otherWindowRect.Right;
+                int otherBottom = otherWindowRect.Bottom;
+                bool didSnap = false;
+                if (Math.Abs(windowLeft - otherRight) <= _gridSnapDistance && Math.Abs(windowTop - otherTop) <= titleBar.Height)
+                {
+                    newWindowLeft = otherRight + _gridSnapDistance;
+                    newWindowTop = otherTop;
+                    if (_grabbedOnLeft) didSnap = true;
+                }
+                else if (Math.Abs(windowRight - otherLeft) <= _gridSnapDistance && Math.Abs(windowTop - otherTop) <= titleBar.Height)
+                {
+                    newWindowLeft = otherLeft - (windowRight - windowLeft) - _gridSnapDistance;
+                    newWindowTop = otherTop;
+                    if (_grabbedOnLeft) didSnap = true;
+                }
+                if (_grabbedOnLeft && !didSnap)
+                {
+                    if (Math.Abs(windowTop - otherBottom) <= _gridSnapDistance && Math.Abs(windowLeft - otherLeft) <= _snapDistance)
+                    {
+                        newWindowTop = otherBottom + _gridSnapDistance;
+                        newWindowLeft = otherLeft;
+
+                    }
+                    else if (Math.Abs(windowBottom - otherTop) <= _gridSnapDistance && Math.Abs(windowLeft - otherLeft) <= _snapDistance)
+                    {
+                        newWindowTop = otherTop - (windowBottom - windowTop) - _gridSnapDistance;
+                        newWindowLeft = otherLeft;
+                    }
+                }
+
+                if (Math.Abs(windowRight - otherRight) <= _gridSnapDistance && Math.Abs(windowTop - otherBottom) <= _snapDistance)
+                {
+                    newWindowTop = otherBottom + _gridSnapDistance;
+                    newWindowLeft = otherRight - (windowRight - windowLeft);
+                }
+                else if (Math.Abs(windowRight - otherRight) <= _gridSnapDistance && Math.Abs(windowBottom - otherTop) <= _snapDistance)
+                {
+                    newWindowTop = otherTop - (windowBottom - windowTop) - _gridSnapDistance;
+                    newWindowLeft = otherRight - (windowRight - windowLeft);
+                }
+            }
+
+            if (newWindowLeft != windowLeft || newWindowTop != windowTop || newWindowBottom != windowBottom)
+            {
+                Interop.SetWindowPos(hwnd, IntPtr.Zero, newWindowLeft, newWindowTop, 0, 0, Interop.SWP_NOREDRAW | Interop.SWP_NOACTIVATE | Interop.SWP_NOZORDER | Interop.SWP_NOSIZE);
+                HandleWindowMove(false);
+                _isIngrid = true;
+            }
+            else
+            {
+                _isIngrid = false;
+            }
+        }
 
         public void HandleWindowMove(bool initWindow)
         {
@@ -702,7 +794,7 @@ namespace DeskFrame
 
 
 
-            if (!_isOnBottom && (newWindowLeft != windowLeft || newWindowTop != windowTop || newWindowBottom != windowBottom && !_isLeftButtonDown))
+            if (!_isIngrid && !_isOnBottom && (newWindowLeft != windowLeft || newWindowTop != windowTop || newWindowBottom != windowBottom && !_isLeftButtonDown))
             {
                 Interop.SetWindowPos(hwnd, IntPtr.Zero, newWindowLeft, newWindowTop, 0, 0, Interop.SWP_NOREDRAW | Interop.SWP_NOACTIVATE | Interop.SWP_NOZORDER | Interop.SWP_NOSIZE);
             }
