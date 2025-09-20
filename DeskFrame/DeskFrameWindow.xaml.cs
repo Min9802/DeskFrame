@@ -54,11 +54,12 @@ namespace DeskFrame
 
         public bool VirtualDesktopSupported;
         IntPtr hwnd;
-        Rect workingArea;
         private bool _dragdropIntoFolder;
         string _dropIntoFolderPath;
         FrameworkElement _lastBorder;
         private bool _mouseIsOver;
+        private bool _fixIsOnBottomInit = true;
+        private bool _didFixIsOnBottom = false;
         private bool _isMinimized = false;
         private bool _isIngrid = true;
         private bool _grabbedOnLeft;
@@ -229,6 +230,8 @@ namespace DeskFrame
                     _mouseIsOver = false;
                     if (_canAutoClose) FilterTextBox.Text = null;
                     this.SetNoActivate();
+                    if (_didFixIsOnBottom) _fixIsOnBottomInit = false;
+
                     var timer = new DispatcherTimer
                     {
                         Interval = TimeSpan.FromMilliseconds(1)
@@ -320,13 +323,11 @@ namespace DeskFrame
             if (msg == 0x0201) // WM_LBUTTONDOWN
             {
                 _isLeftButtonDown = true;
-                workingArea = SystemParameters.WorkArea;
                 _grabbedOnLeft = Mouse.GetPosition(this).X < this.Width / 2;
             }
             if (msg == 0x0202) // WM_LBUTTONUP
             {
                 _isLeftButtonDown = false;
-                workingArea = SystemParameters.WorkArea;
             }
             if (msg == 0x0205) // WM_RBUTTONUP
             {
@@ -347,7 +348,7 @@ namespace DeskFrame
                     return IntPtr.Zero;
                 }
                 Interop.RECT rect = (Interop.RECT)Marshal.PtrToStructure(lParam, typeof(Interop.RECT));
-              
+
                 Instance.Width = this.Width;
                 double height = rect.Bottom - rect.Top;
                 if (height <= 102 && !_isMinimized)
@@ -369,33 +370,55 @@ namespace DeskFrame
                 double newHeight = (lParam.ToInt32() >> 16) & 0xFFFF;
                 if (_previousHeight != -1 && _previousHeight != newHeight)
                 {
-                    double delta = newHeight - _previousHeight;
-                    _previousHeight = newHeight;
+                    IntPtr hwnd = new WindowInteropHelper(this).Handle;
+
+                    var workingArea = Screen.FromPoint(System.Windows.Forms.Control.MousePosition).WorkingArea;
+
                     Interop.GetWindowRect(hwnd, out RECT windowRect);
+                    POINT pt = new POINT { X = windowRect.Left, Y = windowRect.Top };
+                    ScreenToClient(GetParent(hwnd), ref pt);
+                    double delta = newHeight - _previousHeight;
+                    int newTop = (int)((pt.Y - delta) - windowRect.Bottom <= workingArea.Bottom ?
+                        (int)(pt.Y -= (int)delta) :
+                        Instance.Height - workingArea.Bottom - 30);
 
                     if (delta > 0) // UP
                     {
                         Application.Current.Dispatcher.BeginInvoke(() =>
                         {
-                            Interop.SetWindowPos(hwnd, IntPtr.Zero, (int)this.Left,
-                                    (int)((this.Top - delta) - windowRect.Bottom <= workingArea.Bottom ? (int)(this.Top -= delta) : this.Height - workingArea.Bottom - 30),
-                                0, 0,
-                                  SWP_NOMOVE | SWP_NOSIZE
+                            Interop.SetWindowPos(hwnd, IntPtr.Zero, pt.X,
+                                    newTop,
+                                    0, 0,
+                                   SWP_NOSIZE
                                   );
 
                         }, DispatcherPriority.Normal);
                     }
                     else
                     {
-                        Interop.SetWindowPos(hwnd, IntPtr.Zero, (int)this.Left,
-                                (int)((this.Top - delta) - windowRect.Bottom <= workingArea.Bottom ? (int)(this.Top -= delta) : this.Height - workingArea.Bottom - 30),
-                            0, 0,
-                              SWP_NOMOVE | SWP_NOSIZE | SWP_NOACTIVATE | SWP_NOREDRAW
+                        Interop.SetWindowPos(hwnd, IntPtr.Zero, pt.X,
+                                newTop,
+                                0, 0,
+                               SWP_NOSIZE | SWP_NOACTIVATE | SWP_NOREDRAW
                               );
                     }
                     if (this.Top + 30 > workingArea.Bottom)
                     {
-                        this.Top = workingArea.Bottom - 30;
+                        // this.Top = workingArea.Bottom - 30;
+                        _didFixIsOnBottom = true;
+                        Interop.SetWindowPos(hwnd, IntPtr.Zero, pt.X,
+                              workingArea.Bottom - 30,
+                              0, 0,
+                             SWP_NOSIZE | SWP_NOACTIVATE | SWP_NOREDRAW
+                            );
+                    }
+                    if (_fixIsOnBottomInit && pt.Y + this.Height != workingArea.Bottom)
+                    {
+                        Interop.SetWindowPos(hwnd, IntPtr.Zero, pt.X,
+                           (int)(workingArea.Bottom - this.Height + 1), // +1 pixel because otherwise it hovers  by 1 px above the desktop
+                           0, 0,
+                          SWP_NOSIZE | SWP_NOACTIVATE | SWP_NOREDRAW
+                         );
                     }
                 }
                 _previousHeight = newHeight;
@@ -504,7 +527,11 @@ namespace DeskFrame
 
             if (newWindowLeft != windowLeft || newWindowTop != windowTop || newWindowBottom != windowBottom)
             {
-                Interop.SetWindowPos(hwnd, IntPtr.Zero, newWindowLeft, newWindowTop, 0, 0, Interop.SWP_NOREDRAW | Interop.SWP_NOACTIVATE | Interop.SWP_NOZORDER | Interop.SWP_NOSIZE);
+                POINT pt = new POINT { X = newWindowLeft, Y = newWindowTop };
+                ScreenToClient(GetParent(hwnd), ref pt);
+                SetWindowPos(hwnd, IntPtr.Zero, pt.X, pt.Y, 0, 0,
+                             SWP_NOZORDER | SWP_NOSIZE | SWP_NOACTIVATE);
+
                 HandleWindowMove(false);
                 _isIngrid = true;
             }
@@ -513,7 +540,6 @@ namespace DeskFrame
                 _isIngrid = false;
             }
         }
-
         public void HandleWindowMove(bool initWindow)
         {
 
@@ -533,6 +559,9 @@ namespace DeskFrame
             int newWindowTop = windowTop;
             int newWindowBottom = windowBottom;
 
+
+            var workingArea = Screen.FromPoint(System.Windows.Forms.Control.MousePosition).WorkingArea;
+
             //if (Math.Abs(windowLeft - workingArea.Left) <= _snapDistance)
             //{
             //    newWindowLeft = (int)workingArea.Left;
@@ -550,6 +579,10 @@ namespace DeskFrame
             // Debug.WriteLine(windowBottom + " " + (workingArea.Bottom <= windowBottom));
             if (_isLeftButtonDown || initWindow)
             {
+                POINT pt = new POINT { X = newWindowLeft, Y = newWindowTop };
+                ScreenToClient(GetParent(hwnd), ref pt);
+                windowTop = pt.Y;
+                windowBottom = pt.Y + (windowBottom - windowTop);
                 if (Math.Abs(windowTop - workingArea.Top) <= _snapDistance)
                 {
                     newWindowTop = (int)workingArea.Top;
@@ -560,7 +593,7 @@ namespace DeskFrame
                         _isOnTop = true;
                     }
                 }
-                else if (Math.Abs(windowBottom - workingArea.Bottom) <= _snapDistance)
+                else if (Math.Abs(windowBottom - workingArea.Bottom) - 2 <= _snapDistance)
                 {
                     newWindowTop = (int)(workingArea.Bottom - (windowBottom - windowTop));
                     newWindowBottom = (int)workingArea.Bottom;
@@ -791,7 +824,10 @@ namespace DeskFrame
 
             if (!_isIngrid && !_isOnBottom && (newWindowLeft != windowLeft || newWindowTop != windowTop || newWindowBottom != windowBottom && !_isLeftButtonDown))
             {
-                Interop.SetWindowPos(hwnd, IntPtr.Zero, newWindowLeft, newWindowTop, 0, 0, Interop.SWP_NOREDRAW | Interop.SWP_NOACTIVATE | Interop.SWP_NOZORDER | Interop.SWP_NOSIZE);
+                POINT pt = new POINT { X = newWindowLeft, Y = newWindowTop };
+                ScreenToClient(GetParent(hwnd), ref pt);
+                SetWindowPos(hwnd, IntPtr.Zero, pt.X, pt.Y, 0, 0,
+                             SWP_NOZORDER | SWP_NOSIZE | SWP_NOACTIVATE);
             }
         }
 
@@ -963,7 +999,6 @@ namespace DeskFrame
             this.Loaded += MainWindow_Loaded;
             this.SourceInitialized += MainWindow_SourceInitialized!;
             hwnd = new WindowInteropHelper(this).Handle;
-            workingArea = SystemParameters.WorkArea;
             this.StateChanged += (sender, args) =>
             {
                 this.WindowState = WindowState.Normal;

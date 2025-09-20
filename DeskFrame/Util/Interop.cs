@@ -11,11 +11,11 @@ namespace DeskFrame.Util
     public static class Interop
     {
         [DllImport("user32.dll")]
+        public static extern IntPtr GetParent(IntPtr hWnd);
+        [DllImport("user32.dll")]
         public static extern IntPtr SendMessage(IntPtr hWnd, uint Msg, IntPtr wParam, IntPtr lParam);
-
         [DllImport("user32.dll")]
         public static extern bool InvalidateRect(IntPtr hWnd, IntPtr lpRect, bool bErase);
-
         [DllImport("user32.dll")]
         public static extern bool UpdateWindow(IntPtr hWnd);
         [DllImport("user32.dll")]
