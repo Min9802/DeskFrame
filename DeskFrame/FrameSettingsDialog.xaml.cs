@@ -248,7 +248,7 @@ namespace DeskFrame
                 _frame.title.Foreground = new SolidColorBrush((Color)System.Windows.Media.ColorConverter.ConvertFromString(_instance.TitleTextColor));
                 _frame.title.Text = TitleTextBox.Text ?? _frame.Instance.Name;
                 _frame.WindowBackground.Background = new SolidColorBrush((Color)System.Windows.Media.ColorConverter.ConvertFromString(_instance.ListViewBackgroundColor)); ;
-               
+
 
                 TitleBarColorTextBox.Icon!.Foreground = new SolidColorBrush((Color)System.Windows.Media.ColorConverter.ConvertFromString(_instance.TitleBarColor));
                 TitleTextColorTextBox.Icon!.Foreground = new SolidColorBrush((Color)System.Windows.Media.ColorConverter.ConvertFromString(_instance.TitleTextColor));
@@ -374,7 +374,7 @@ namespace DeskFrame
                 ListViewFontShadowColorTextBox.Text = _instance.ListViewFontShadowColor;
                 TitleFontSizeNumberBox.Value = _instance.TitleFontSize;
                 TitleTextAutoSuggestionBox.Text = _instance.TitleFontFamily;
-                
+
                 AutoExpandonCursorCheckBox.IsChecked = _instance.AutoExpandonCursor;
                 ShowShortcutArrowCheckBox.IsChecked = _instance.ShowShortcutArrow;
 
@@ -535,6 +535,9 @@ namespace DeskFrame
         }
         private void ChangeStyleDropDownButton_Click(object sender, RoutedEventArgs e)
         {
+            if (MainWindow._controller.Instances.Count <= 1) 
+                return;
+
             ContextMenu contextMenu = new ContextMenu();
             foreach (var instance in MainWindow._controller.Instances)
             {
@@ -568,6 +571,6 @@ namespace DeskFrame
                 contextMenu.Items.Add(menuItem);
             }
             ChangeStyleDropDownButton.Flyout = contextMenu;
-        } 
+        }
     }
 }
