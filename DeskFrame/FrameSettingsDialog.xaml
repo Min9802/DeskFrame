@@ -12,7 +12,7 @@
         Background="#66232323" 
         WindowStyle="None" 
         ResizeMode="NoResize"
-        Height="720" 
+        Height="740" 
         Width="770"
         MinWidth="0"
         MinHeight="0">
@@ -152,7 +152,8 @@
                 </StackPanel>
                 <Slider x:Name="IdleOpacitySlider" Width="200" TickPlacement="TopLeft" TickFrequency="1" Minimum="1" Maximum="10" ValueChanged="Slider_ValueChanged" IsSnapToTickEnabled="True"/>
                 <CheckBox x:Name="AutoExpandonCursorCheckBox" Content="Expand on cursor over" Margin="-11,10,0,0" Checked="AutoExpandonCursorCheckBox_Checked" Unchecked="AutoExpandonCursorCheckBox_Unchecked"/>
-                <CheckBox x:Name="ShowShortcutArrowCheckBox" Content="Show shortcut arrow" Margin="-11,10,0,0" Checked="ShowShortcutArrowCheckBox_Checked" Unchecked="ShowShortcutArrowCheckBox_Unchecked"/>
+                <CheckBox x:Name="ShowShortcutArrowCheckBox" Content="Show shortcut arrow" Margin="-11,0,0,0" Checked="ShowShortcutArrowCheckBox_Checked" Unchecked="ShowShortcutArrowCheckBox_Unchecked"/>
+                <CheckBox x:Name="CheckFolderSizeCheckBox" Content="Show folder size in menu" Margin="-11,0,0,0" Checked="CheckFolderSizeCheckBox_Checkked" Unchecked="CheckFolderSizeCheckBox_Uncheckked"/>
 
 
             </StackPanel>

@@ -42,6 +42,7 @@ public class InstanceController
                 key.SetValue("ShowInGrid", instance.ShowInGrid!);
                 key.SetValue("AutoExpandonCursor", instance.AutoExpandonCursor);
                 key.SetValue("ShowShortcutArrow", instance.ShowShortcutArrow);
+                key.SetValue("CheckFolderSize", instance.CheckFolderSize);
                 key.SetValue("TitleBarColor", instance.TitleBarColor!);
                 key.SetValue("TitleTextColor", instance.TitleTextColor!);
                 key.SetValue("TitleTextAlignment", instance.TitleTextAlignment.ToString());
@@ -107,6 +108,7 @@ public class InstanceController
                 key.SetValue("ShowInGrid", instance.ShowInGrid);
                 key.SetValue("AutoExpandonCursor", instance.AutoExpandonCursor);
                 key.SetValue("ShowShortcutArrow", instance.ShowShortcutArrow);
+                key.SetValue("CheckFolderSize", instance.CheckFolderSize);
                 if (instance.TitleBarColor != null) key.SetValue("TitleBarColor", instance.TitleBarColor);
                 if (instance.TitleTextColor != null) key.SetValue("TitleTextColor", instance.TitleTextColor);
                 key.SetValue("TitleTextAlignment", instance.TitleTextAlignment.ToString());
@@ -363,6 +365,10 @@ public class InstanceController
                                             case "ShowShortcutArrow":
                                                 temp.ShowShortcutArrow = bool.Parse(value.ToString()!);
                                                 Debug.WriteLine($"ShowShortcutArrow added\t{temp.ShowShortcutArrow}");
+                                                break;
+                                            case "CheckFolderSize":
+                                                temp.CheckFolderSize = bool.Parse(value.ToString()!);
+                                                Debug.WriteLine($"CheckFolderSize added\t{temp.CheckFolderSize}");
                                                 break;
                                             case "TitleBarColor":
                                                 temp.TitleBarColor = value.ToString()!;

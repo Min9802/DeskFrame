@@ -93,11 +93,14 @@ namespace DeskFrame
             FileFilterRegexTextBox.Text = _instance.FileFilterRegex;
             FileFilterHideRegexTextBox.Text = _instance.FileFilterHideRegex;
             TitleTextAlignmentComboBox.SelectedIndex = (int)_instance.TitleTextAlignment;
+            
             ShowFileExtensionIconCheckBox.IsChecked = _instance.ShowFileExtensionIcon;
             ShowHiddenFilesIconCheckBox.IsChecked = _instance.ShowHiddenFilesIcon;
             ShowDisplayNameCheckBox.IsChecked = _instance.ShowDisplayName;
             AutoExpandonCursorCheckBox.IsChecked = _instance.AutoExpandonCursor;
             ShowShortcutArrowCheckBox.IsChecked = _instance.ShowShortcutArrow;
+            CheckFolderSizeCheckBox.IsChecked = _instance.CheckFolderSize;
+
             TitleTextAutoSuggestionBox.Text = _instance.TitleFontFamily;
             _frame.title.FontSize = _instance.TitleFontSize;
             _frame.title.TextWrapping = TextWrapping.Wrap;
@@ -332,6 +335,8 @@ namespace DeskFrame
                 _instance.AnimationSpeed = _originalInstance.AnimationSpeed;
                 _instance.AutoExpandonCursor = _originalInstance.AutoExpandonCursor;
                 _instance.ShowShortcutArrow = _originalInstance.ShowShortcutArrow;
+                _instance.CheckFolderSize = _originalInstance.CheckFolderSize;
+
                 if (_originalInstance.Folder != _instance.Folder)
                 {
                     _instance.Folder = _originalInstance.Folder;
@@ -377,6 +382,7 @@ namespace DeskFrame
 
                 AutoExpandonCursorCheckBox.IsChecked = _instance.AutoExpandonCursor;
                 ShowShortcutArrowCheckBox.IsChecked = _instance.ShowShortcutArrow;
+                CheckFolderSizeCheckBox.IsChecked = _instance.CheckFolderSize;
 
                 ShowOnVirtualDesktopTextBox.Text = _instance.ShowOnVirtualDesktops != null
                       ? string.Join(",", _instance.ShowOnVirtualDesktops)
@@ -466,6 +472,14 @@ namespace DeskFrame
         {
             _instance.ShowShortcutArrow = false;
         }
+        private void CheckFolderSizeCheckBox_Checkked(object sender, RoutedEventArgs e)
+        {
+            _instance.CheckFolderSize = true;
+        }
+        private void CheckFolderSizeCheckBox_Uncheckked(object sender, RoutedEventArgs e)
+        {
+            _instance.CheckFolderSize = false;
+        }
         private void ChangeFolderButton_Click(object sender, RoutedEventArgs e)
         {
             var folderDialog = new FolderBrowserDialog
@@ -535,7 +549,7 @@ namespace DeskFrame
         }
         private void ChangeStyleDropDownButton_Click(object sender, RoutedEventArgs e)
         {
-            if (MainWindow._controller.Instances.Count <= 1) 
+            if (MainWindow._controller.Instances.Count <= 1)
                 return;
 
             ContextMenu contextMenu = new ContextMenu();
@@ -567,6 +581,8 @@ namespace DeskFrame
                     TitleTextAlignmentComboBox.SelectedIndex = (int)instance.TitleTextAlignment;
                     AutoExpandonCursorCheckBox.IsChecked = instance.AutoExpandonCursor;
                     ShowShortcutArrowCheckBox.IsChecked = instance.ShowShortcutArrow;
+                    CheckFolderSizeCheckBox.IsChecked = instance.CheckFolderSize;
+
                 };
                 contextMenu.Items.Add(menuItem);
             }

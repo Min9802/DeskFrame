@@ -2628,10 +2628,12 @@ namespace DeskFrame
             InfoText.Inlines.Add(new Run($"Folders: ") { Foreground = Brushes.White });
             InfoText.Inlines.Add(new Run($"{_folderCount}") { Foreground = Brushes.CornflowerBlue });
             InfoText.Inlines.Add(new Run("\n"));
-
-            InfoText.Inlines.Add(new Run($"Folder Size: ") { Foreground = Brushes.White });
-            InfoText.Inlines.Add(new Run($"{_folderSize}") { Foreground = Brushes.CornflowerBlue });
-            InfoText.Inlines.Add(new Run("\n"));
+            if (Instance.CheckFolderSize)
+            {
+                InfoText.Inlines.Add(new Run($"Folder Size: ") { Foreground = Brushes.White });
+                InfoText.Inlines.Add(new Run($"{_folderSize}") { Foreground = Brushes.CornflowerBlue });
+                InfoText.Inlines.Add(new Run("\n"));
+            }
 
             InfoText.Inlines.Add(new Run($"Last Updated: ") { Foreground = Brushes.White });
             InfoText.Inlines.Add(new Run($"{_lastUpdated.ToString("hh:mm tt")}") { Foreground = Brushes.CornflowerBlue });
