@@ -25,6 +25,32 @@ public class RegistryHelper
         }
         catch { }
     }
+    public void WriteMultiLineRegistry(string keyName, List<string> list, Instance instance)
+    {
+        try
+        {
+            if (string.IsNullOrEmpty(instance?.Name))
+            {
+                Debug.WriteLine("Instance is null reg not written");
+                return;
+            }
+            using (RegistryKey key = Registry.CurrentUser.CreateSubKey(instance.GetKeyLocation()))
+            {
+                if (list == null || list.Count == 0)
+                {
+                    key.SetValue(keyName, new string[0], RegistryValueKind.MultiString);
+                }
+                else
+                {
+                    key.SetValue(keyName, list.ToArray(), RegistryValueKind.MultiString);
+                }
+            }
+        }
+        catch
+        {
+        }
+    }
+
     public void WriteIntArrayToRegistry(string keyName, int[] values, Instance instance)
     {
         try

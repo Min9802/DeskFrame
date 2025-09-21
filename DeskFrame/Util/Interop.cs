@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.Win32.SafeHandles;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
@@ -28,7 +29,7 @@ namespace DeskFrame.Util
         [DllImport("user32.dll")]
         public static extern IntPtr WindowFromPoint(POINT Point);
         [DllImport("user32.dll", SetLastError = true)]
-        public static extern IntPtr FindWindow(string lpClassName, string lpWindowName); 
+        public static extern IntPtr FindWindow(string lpClassName, string lpWindowName);
         [DllImport("user32.dll")]
         public static extern bool ScreenToClient(IntPtr hWnd, ref POINT lpPoint);
 
@@ -331,7 +332,52 @@ namespace DeskFrame.Util
         {
             int GetImage(System.Drawing.Size size, int flags, out IntPtr phbm);
         }
+        [DllImport("kernel32.dll", SetLastError = true)]
+        private static extern bool GetFileInformationByHandle(SafeFileHandle hFile, out BY_HANDLE_FILE_INFORMATION lpFileInformation);
+        [StructLayout(LayoutKind.Sequential)]
+        private struct BY_HANDLE_FILE_INFORMATION
+        {
+            public uint FileAttributes;
+            public long CreationTime;
+            public long LastAccessTime;
+            public long LastWriteTime;
+            public uint VolumeSerialNumber;
+            public uint FileSizeHigh;
+            public uint FileSizeLow;
+            public uint NumberOfLinks;
+            public uint FileIndexHigh;
+            public uint FileIndexLow;
+        }
+        [DllImport("kernel32.dll", SetLastError = true, CharSet = CharSet.Unicode)]
+        private static extern SafeFileHandle CreateFile(
+            string lpFileName,
+            uint dwDesiredAccess,
+            uint dwShareMode,
+            IntPtr lpSecurityAttributes,
+            uint dwCreationDisposition,
+            uint dwFlagsAndAttributes,
+            IntPtr hTemplateFile);
 
+        private const uint FILE_FLAG_BACKUP_SEMANTICS = 0x02000000;
+        private const uint FILE_READ_ATTRIBUTES = 0x80;
+        private const uint FILE_SHARE_READWRITE = 0x7;
+        private const uint OPEN_EXISTING = 3;
+        public static ulong GetFileId(string path)
+        {
+            try
+            {
+                using var handle = CreateFile(path, FILE_READ_ATTRIBUTES, FILE_SHARE_READWRITE,
+                    IntPtr.Zero, OPEN_EXISTING, FILE_FLAG_BACKUP_SEMANTICS, IntPtr.Zero);
+                if (handle.IsInvalid)
+                    return 0;
+                return GetFileInformationByHandle(handle, out var info) ?
+                    ((ulong)info.FileIndexHigh << 32) | info.FileIndexLow : 0;
+            }
+            catch
+            {
+                return 0;
+            }
+        }
 
     }
 

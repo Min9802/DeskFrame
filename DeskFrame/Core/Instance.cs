@@ -18,6 +18,7 @@ public class Instance : INotifyPropertyChanged
     private string _name;
     private string _folder;
     private string _titleFontFamily = "Segoe UI";
+    private bool _lastAccesedToFirstRow = false;
     private bool _settingDefault;
     private bool _minimized;
     private bool _showHiddenFiles;
@@ -41,6 +42,7 @@ public class Instance : INotifyPropertyChanged
     private string _listViewBackgroundColor = "#0C000000";
     private string _listViewFontColor = "#FFFFFF";
     private string _listViewFontShadowColor = "#000000";
+    private List<string> _lastAccessedFiles = new List<string>();
     private int _opacity = 26;
     private int _sortBy = 1;
     private int _folderOrder = 0;
@@ -56,6 +58,18 @@ public class Instance : INotifyPropertyChanged
             {
                 _iconSize = Math.Clamp(value, 16, 64);
                 OnPropertyChanged(nameof(IconSize), value.ToString());
+            }
+        }
+    }
+    public List<string> LastAccessedFiles
+    {
+        get => _lastAccessedFiles;
+        set
+        {
+            if (_lastAccessedFiles != value)
+            {
+                _lastAccessedFiles = value ?? new List<string>();
+                OnPropertyChanged(nameof(LastAccessedFiles), value.ToString());
             }
         }
     }
@@ -206,6 +220,18 @@ public class Instance : INotifyPropertyChanged
             }
         }
     }
+    public bool LastAccesedToFirstRow
+    {
+        get => _lastAccesedToFirstRow;
+        set
+        {
+            if (_lastAccesedToFirstRow != value)
+            {
+                _lastAccesedToFirstRow = value;
+                OnPropertyChanged(nameof(LastAccesedToFirstRow), value.ToString());
+            }
+        }
+    }
     public bool ShowFileExtension
     {
         get => _showFileExtension;
@@ -281,7 +307,7 @@ public class Instance : INotifyPropertyChanged
                 OnPropertyChanged(nameof(ShowInGrid), value.ToString());
             }
         }
-    }    
+    }
     public bool AutoExpandonCursor
     {
         get => _autoExpandonCursor;
@@ -293,7 +319,7 @@ public class Instance : INotifyPropertyChanged
                 OnPropertyChanged(nameof(AutoExpandonCursor), value.ToString());
             }
         }
-    }  
+    }
     public bool ShowShortcutArrow
     {
         get => _showShortcutArrow;
@@ -600,10 +626,10 @@ public class Instance : INotifyPropertyChanged
 
             v = helper.ReadKeyValueRoot("TitleBarColor");
             if (v != null) _titleBarColor = v.ToString();
-            
+
             v = helper.ReadKeyValueRoot("TitleTextColor");
             if (v != null) _titleTextColor = v.ToString();
-           
+
             v = helper.ReadKeyValueRoot("ListViewBackgroundColor");
             if (v != null) _listViewBackgroundColor = v.ToString();
 
@@ -666,7 +692,11 @@ public class Instance : INotifyPropertyChanged
             }
             if (!_settingDefault && Name != "empty" && Folder != null)
             {
-                if (propertyName != "ShowOnVirtualDesktops")
+                if (propertyName == "LastAccessedFiles")
+                {
+                    MainWindow._controller.reg.WriteMultiLineRegistry(propertyName, LastAccessedFiles, this);
+                }
+                else if (propertyName != "ShowOnVirtualDesktops")
                 {
                     MainWindow._controller.reg.WriteToRegistry(propertyName, value, this);
                 }

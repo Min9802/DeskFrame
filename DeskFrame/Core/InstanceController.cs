@@ -34,6 +34,7 @@ public class InstanceController
                 key.SetValue("Folder", instance.Folder!);
                 key.SetValue("TitleFontFamily", instance.TitleFontFamily!);
                 key.SetValue("ShowHiddenFiles", instance.ShowHiddenFiles!);
+                key.SetValue("LastAccesedToFirstRow", instance.LastAccesedToFirstRow);
                 key.SetValue("ShowFileExtension", instance.ShowFileExtension!);
                 key.SetValue("ShowFileExtensionIcon", instance.ShowFileExtensionIcon!);
                 key.SetValue("ShowHiddenFilesIcon", instance.ShowHiddenFilesIcon!);
@@ -60,6 +61,10 @@ public class InstanceController
                 if (instance.ShowOnVirtualDesktops != null && instance.ShowOnVirtualDesktops.Length > 0)
                 {
                     key.SetValue("ShowOnVirtualDesktops", string.Join(",", instance.ShowOnVirtualDesktops));
+                }
+                if (instance.LastAccessedFiles != null && instance.LastAccessedFiles.Count > 0)
+                {
+                    key.SetValue("LastAccessedFiles", instance.LastAccessedFiles.ToArray(), RegistryValueKind.MultiString);
                 }
                 key.SetValue("TitleFontSize", instance.TitleFontSize);
             }
@@ -100,6 +105,7 @@ public class InstanceController
                 if (instance.Folder != null) key.SetValue("Folder", instance.Folder);
                 if (instance.TitleFontFamily != null) key.SetValue("TitleFontFamily", instance.TitleFontFamily);
                 key.SetValue("ShowHiddenFiles", instance.ShowHiddenFiles);
+                key.SetValue("LastAccesedToFirstRow", instance.LastAccesedToFirstRow);
                 key.SetValue("ShowFileExtension", instance.ShowFileExtension);
                 key.SetValue("ShowFileExtensionIcon", instance.ShowFileExtensionIcon);
                 key.SetValue("ShowHiddenFilesIcon", instance.ShowHiddenFilesIcon);
@@ -124,6 +130,10 @@ public class InstanceController
                 key.SetValue("SortBy", instance.SortBy);
                 key.SetValue("FolderOrder", instance.FolderOrder);
                 if (instance.ShowOnVirtualDesktops != null) key.SetValue("ShowOnVirtualDesktops", string.Join(",", instance.ShowOnVirtualDesktops));
+                if (instance.LastAccessedFiles != null && instance.LastAccessedFiles.Count > 0)
+                {
+                    key.SetValue("LastAccessedFiles", instance.LastAccessedFiles.ToArray(), RegistryValueKind.MultiString);
+                }
                 key.SetValue("TitleFontSize", instance.TitleFontSize);
             }
         }
@@ -334,6 +344,10 @@ public class InstanceController
                                                 temp.ShowHiddenFiles = bool.Parse(value.ToString()!);
                                                 Debug.WriteLine($"ShowHiddenFiles added\t{temp.ShowHiddenFiles}");
                                                 break;
+                                            case "LastAccesedToFirstRow":
+                                                temp.LastAccesedToFirstRow = bool.Parse(value.ToString()!);
+                                                Debug.WriteLine($"LastAccesedToFirstRow added\t{temp.LastAccesedToFirstRow}");
+                                                break;
                                             case "ShowFileExtension":
                                                 temp.ShowFileExtension = bool.Parse(value.ToString()!);
                                                 Debug.WriteLine($"ShowFileExtension added\t{temp.ShowFileExtension}");
@@ -458,6 +472,13 @@ public class InstanceController
                                                     }
                                                 }
                                                 break; ;
+                                            case "LastAccessedFiles":
+                                                if (value is string[] strArray)
+                                                {
+                                                    temp.LastAccessedFiles = new List<string>(strArray);
+                                                }
+                                                break;
+
                                             case "TitleFontSize":
                                                 if (double.TryParse(value.ToString(), out double parsedFontSize))
                                                 {
