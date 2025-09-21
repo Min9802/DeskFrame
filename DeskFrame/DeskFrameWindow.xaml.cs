@@ -164,9 +164,9 @@ namespace DeskFrame
                 items = sorter(items);
 
             if (folderOrder == 1)
-                items = items.OrderBy(i => i.IsFolder);
-            else if (folderOrder == 2)
                 items = items.OrderBy(i => !i.IsFolder);
+            else if (folderOrder == 2)
+                items = items.OrderBy(i => i.IsFolder);
 
             return new ObservableCollection<FileItem>(items);
         }
@@ -1467,14 +1467,15 @@ namespace DeskFrame
                 }
 
                 fileEntries = await SortFileItemsToList(fileEntries, (int)Instance.SortBy, Instance.FolderOrder);
-                if (Instance.FolderOrder == 1)
-                {
-                    fileEntries = fileEntries.OrderBy(x => x is FileInfo).ToList();
-                }
-                else if (Instance.FolderOrder == 2)
-                {
-                    fileEntries = fileEntries.OrderByDescending(x => x is FileInfo).ToList();
-                }
+                //if (Instance.FolderOrder == 1)
+                //    fileEntries = fileEntries.OrderByDescending(x => x is DirectoryInfo).ToList();
+                //{
+                //}
+                //else if (Instance.FolderOrder == 2)
+                //{
+                //    fileEntries = fileEntries.OrderBy(x => x is FileInfo).ToList();
+
+                //}
                 if (Instance.LastAccesedToFirstRow)
                 {
                     var wrapPanel = FindParentOrChild<WrapPanel>(FileWrapPanel);
