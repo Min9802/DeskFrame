@@ -69,9 +69,10 @@ namespace DeskFrame
         }
         private void HandleGlobalDoubleClick(object? sender, MouseEventArgs e)
         {
+            if (e.Keys.ToString() != "MouseLeft") return;
             if ((DateTime.Now - _lastDoubleClickTime).TotalSeconds < 0.3) return;
             _lastDoubleClickTime = DateTime.Now;
-
+            
             POINT pt = new POINT { X = e.Position.X, Y = e.Position.Y };
             IntPtr hwndUnderCursor = WindowFromPoint(pt);
             IntPtr desktopListView = GetDesktopListViewHandle();
