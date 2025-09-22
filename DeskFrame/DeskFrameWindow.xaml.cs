@@ -64,19 +64,6 @@ namespace DeskFrame
                 if (_itemPerRow != value)
                 {
                     _itemPerRow = value;
-                    if (Instance.LastAccesedToFirstRow)
-                    {
-                        var wrapPanel = FindParentOrChild<WrapPanel>(FileWrapPanel);
-                        if (wrapPanel != null)
-                        {
-                            double itemWidth = wrapPanel.ItemWidth;
-                            if (_previousItemPerRow != _itemPerRow)
-                            {
-                                FirstRowByLastAccessed(FileItems, Instance.LastAccessedFiles, ItemPerRow);
-                                _previousItemPerRow = _itemPerRow;
-                            }
-                        }
-                    }
                 }
             }
         }
@@ -176,7 +163,7 @@ namespace DeskFrame
         public async Task<List<FileSystemInfo>> SortFileItemsToList(List<FileSystemInfo> fileItems, int sortBy, int folderOrder)
         {
             var fileItemSizes = new List<(FileSystemInfo item, long size)>();
-
+            
             foreach (var item in fileItems)
             {
                 long size = await GetItemSizeAsync(item);
@@ -206,7 +193,41 @@ namespace DeskFrame
             else if (folderOrder == 2)
                 sortedItems = sortedItems.OrderBy(i => i.item is DirectoryInfo).ToList();
 
-            return sortedItems.Select(x => x.item).ToList();
+
+            var sortedFileInfos = sortedItems.Select(x => x.item).ToList();
+            if (Instance.LastAccesedToFirstRow)
+            {
+                FirstRowByLastAccessed(sortedFileInfos, Instance.LastAccessedFiles, ItemPerRow);
+            }
+            return sortedFileInfos;
+        }
+        public void FirstRowByLastAccessed(List<FileSystemInfo> items, List<string> lastAccessedFileIds, int topN)
+        {
+            if (items == null || items.Count == 0 || lastAccessedFileIds == null || lastAccessedFileIds.Count == 0 || topN <= 0)
+                return;
+
+            var fileLookup = items
+                .Where(f => f.FullName != null)
+                .GroupBy(f => GetFileId(f.FullName).ToString())
+                .ToDictionary(g => g.Key, g => g.ToList());
+
+            var topIds = lastAccessedFileIds
+                .Where(id => fileLookup.ContainsKey(id))
+                .Take(topN)
+                .ToList();
+
+            var topFiles = new List<FileSystemInfo>();
+            foreach (var id in topIds)
+            {
+                if (!fileLookup.ContainsKey(id))
+                    continue;
+                topFiles.AddRange(fileLookup[id]);
+            }
+
+            var remainingFiles = items.Except(topFiles).ToList();
+            items.Clear();
+            items.AddRange(topFiles);
+            items.AddRange(remainingFiles);
         }
 
         private async Task<long> GetItemSizeAsync(FileSystemInfo entry, CancellationToken token = default)
@@ -340,7 +361,7 @@ namespace DeskFrame
             if (wrapPanel != null)
             {
                 double itemWidth = wrapPanel.ItemWidth;
-                ItemPerRow = (int)(this.Width - 1 / itemWidth);
+                ItemPerRow = (int)((this.Width) / itemWidth);
                 _previousHeight = ItemPerRow;
             }
             if (items == null || items.Count == 0 || lastAccessedFiles == null || lastAccessedFiles.Count == 0 || topN <= 0)
@@ -437,11 +458,14 @@ namespace DeskFrame
                     if (wrapPanel != null)
                     {
                         double itemWidth = wrapPanel.ItemWidth;
-                        ItemPerRow = (int)(this.Width - 1 / itemWidth);
-                        if (_previousItemPerRow != ItemPerRow)
+                        double newWidth = rect.Right - rect.Left;
+                        int newItemPerRow = (int)Math.Floor(newWidth / itemWidth);
+
+                        if (_previousItemPerRow != newItemPerRow)
                         {
+                            ItemPerRow = newItemPerRow;
                             FirstRowByLastAccessed(FileItems, Instance.LastAccessedFiles, ItemPerRow);
-                            _previousItemPerRow = ItemPerRow;
+                            _previousItemPerRow = newItemPerRow;
                         }
                     }
                 }
@@ -1465,27 +1489,17 @@ namespace DeskFrame
                 {
                     return;
                 }
-
-                fileEntries = await SortFileItemsToList(fileEntries, (int)Instance.SortBy, Instance.FolderOrder);
-                //if (Instance.FolderOrder == 1)
-                //    fileEntries = fileEntries.OrderByDescending(x => x is DirectoryInfo).ToList();
-                //{
-                //}
-                //else if (Instance.FolderOrder == 2)
-                //{
-                //    fileEntries = fileEntries.OrderBy(x => x is FileInfo).ToList();
-
-                //}
                 if (Instance.LastAccesedToFirstRow)
                 {
                     var wrapPanel = FindParentOrChild<WrapPanel>(FileWrapPanel);
                     if (wrapPanel != null)
                     {
                         double itemWidth = wrapPanel.ItemWidth;
-                        ItemPerRow = (int)(this.Width - 1 / itemWidth);
+                        ItemPerRow = (int)((this.Width) / itemWidth);
                     }
                     _previousItemPerRow = ItemPerRow;
                 }
+                fileEntries = await SortFileItemsToList(fileEntries, (int)Instance.SortBy, Instance.FolderOrder);
                 var fileNames = new HashSet<string>(fileEntries.Select(f => f.Name));
 
 
@@ -1777,6 +1791,13 @@ namespace DeskFrame
                         newList.Remove(fileId);
                         newList.Insert(0, fileId);
                         Instance.LastAccessedFiles = newList;
+                        var wrapPanel = FindParentOrChild<WrapPanel>(FileWrapPanel);
+                        if (wrapPanel != null)
+                        {
+                            double itemWidth = wrapPanel.ItemWidth;
+                            ItemPerRow = (int)((this.Width) / itemWidth);
+                            _previousHeight = ItemPerRow;
+                        }
                         FirstRowByLastAccessed(FileItems, Instance.LastAccessedFiles, ItemPerRow);
                     }
                 }
@@ -2197,7 +2218,7 @@ namespace DeskFrame
                 bool hasHttps = false;
                 foreach (var line in File.ReadAllLines(path))
                 {
-                    Debug.WriteLine(line);
+                    // Debug.WriteLine(line);
                     if (line.StartsWith("IconFile=", StringComparison.OrdinalIgnoreCase))
                     {
                         iconFile = line.Substring("IconFile=".Length).Trim();
