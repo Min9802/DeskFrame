@@ -12,8 +12,8 @@
         Background="#66232323" 
         WindowStyle="None" 
         ResizeMode="NoResize"
-        Height="740" 
-        Width="770"
+        Height="768" 
+        Width="840"
         MinWidth="0"
         MinHeight="0">
     <Grid>
@@ -31,11 +31,11 @@
         </ui:TitleBar>
         <Grid>
             <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="240"/>
+                <ColumnDefinition Width="260"/>
                 <ColumnDefinition Width="30"/>
-                <ColumnDefinition Width="230"/>
+                <ColumnDefinition Width="260"/>
                 <ColumnDefinition Width="30"/>
-                <ColumnDefinition Width="230"/>
+                <ColumnDefinition Width="260"/>
             </Grid.ColumnDefinitions>
             <ui:Flyout x:Name="uiFlyout"  Padding="13" IsTabStop="True" HorizontalAlignment="Right" VerticalAlignment="Center">
                 <StackPanel  x:Name="ColorCard" />
@@ -154,6 +154,7 @@
                 <CheckBox x:Name="AutoExpandonCursorCheckBox" Content="Expand on cursor over" Margin="-11,10,0,0" Checked="AutoExpandonCursorCheckBox_Checked" Unchecked="AutoExpandonCursorCheckBox_Unchecked"/>
                 <CheckBox x:Name="ShowShortcutArrowCheckBox" Content="Show shortcut arrow" Margin="-11,0,0,0" Checked="ShowShortcutArrowCheckBox_Checked" Unchecked="ShowShortcutArrowCheckBox_Unchecked"/>
                 <CheckBox x:Name="CheckFolderSizeCheckBox" Content="Show folder size in menu" Margin="-11,0,0,0" Checked="CheckFolderSizeCheckBox_Checkked" Unchecked="CheckFolderSizeCheckBox_Uncheckked"/>
+                <CheckBox x:Name="ShowLastAccessedToFirstRowCheckBox" Content="Show last accessed items first" Margin="-11,0,0,0" Checked="ShowLastAccessedToFirstRowCheckBox_Checked" Unchecked="ShowLastAccessedToFirstRowCheckBox_Unchecked"/>
 
 
             </StackPanel>

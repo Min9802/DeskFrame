@@ -100,6 +100,7 @@ namespace DeskFrame
             AutoExpandonCursorCheckBox.IsChecked = _instance.AutoExpandonCursor;
             ShowShortcutArrowCheckBox.IsChecked = _instance.ShowShortcutArrow;
             CheckFolderSizeCheckBox.IsChecked = _instance.CheckFolderSize;
+            ShowLastAccessedToFirstRowCheckBox.IsChecked = _instance.LastAccesedToFirstRow;
 
             TitleTextAutoSuggestionBox.Text = _instance.TitleFontFamily;
             _frame.title.FontSize = _instance.TitleFontSize;
@@ -336,6 +337,7 @@ namespace DeskFrame
                 _instance.AutoExpandonCursor = _originalInstance.AutoExpandonCursor;
                 _instance.ShowShortcutArrow = _originalInstance.ShowShortcutArrow;
                 _instance.CheckFolderSize = _originalInstance.CheckFolderSize;
+                _instance.LastAccesedToFirstRow = _originalInstance.LastAccesedToFirstRow;
 
                 if (_originalInstance.Folder != _instance.Folder)
                 {
@@ -383,6 +385,8 @@ namespace DeskFrame
                 AutoExpandonCursorCheckBox.IsChecked = _instance.AutoExpandonCursor;
                 ShowShortcutArrowCheckBox.IsChecked = _instance.ShowShortcutArrow;
                 CheckFolderSizeCheckBox.IsChecked = _instance.CheckFolderSize;
+                ShowLastAccessedToFirstRowCheckBox.IsChecked = _instance.LastAccesedToFirstRow;
+
 
                 ShowOnVirtualDesktopTextBox.Text = _instance.ShowOnVirtualDesktops != null
                       ? string.Join(",", _instance.ShowOnVirtualDesktops)
@@ -479,6 +483,16 @@ namespace DeskFrame
         private void CheckFolderSizeCheckBox_Uncheckked(object sender, RoutedEventArgs e)
         {
             _instance.CheckFolderSize = false;
+        }
+        private void ShowLastAccessedToFirstRowCheckBox_Checked(object sender, RoutedEventArgs e)
+        {
+            _instance.LastAccesedToFirstRow = true;
+            _frame.SortItems();
+        }
+        private void ShowLastAccessedToFirstRowCheckBox_Unchecked(object sender, RoutedEventArgs e)
+        {
+            _instance.LastAccesedToFirstRow = false;
+            _frame.SortItems();
         }
         private void ChangeFolderButton_Click(object sender, RoutedEventArgs e)
         {
@@ -582,6 +596,7 @@ namespace DeskFrame
                     AutoExpandonCursorCheckBox.IsChecked = instance.AutoExpandonCursor;
                     ShowShortcutArrowCheckBox.IsChecked = instance.ShowShortcutArrow;
                     CheckFolderSizeCheckBox.IsChecked = instance.CheckFolderSize;
+                    ShowLastAccessedToFirstRowCheckBox.IsChecked = instance.LastAccesedToFirstRow;
 
                 };
                 contextMenu.Items.Add(menuItem);
