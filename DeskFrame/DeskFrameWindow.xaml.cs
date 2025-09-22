@@ -340,7 +340,7 @@ namespace DeskFrame
             if (wrapPanel != null)
             {
                 double itemWidth = wrapPanel.ItemWidth;
-                ItemPerRow = (int)(this.Width / itemWidth);
+                ItemPerRow = (int)(this.Width - 1 / itemWidth);
                 _previousHeight = ItemPerRow;
             }
             if (items == null || items.Count == 0 || lastAccessedFiles == null || lastAccessedFiles.Count == 0 || topN <= 0)
@@ -430,14 +430,14 @@ namespace DeskFrame
                 {
                     Instance.Height = this.ActualHeight;
                 }
-               
+
                 if (Instance.LastAccesedToFirstRow)
                 {
                     var wrapPanel = FindParentOrChild<WrapPanel>(FileWrapPanel);
                     if (wrapPanel != null)
                     {
                         double itemWidth = wrapPanel.ItemWidth;
-                        ItemPerRow = (int)(this.Width / itemWidth);
+                        ItemPerRow = (int)(this.Width - 1 / itemWidth);
                         if (_previousItemPerRow != ItemPerRow)
                         {
                             FirstRowByLastAccessed(FileItems, Instance.LastAccessedFiles, ItemPerRow);
@@ -1482,7 +1482,7 @@ namespace DeskFrame
                     if (wrapPanel != null)
                     {
                         double itemWidth = wrapPanel.ItemWidth;
-                        ItemPerRow = (int)(this.Width / itemWidth);
+                        ItemPerRow = (int)(this.Width - 1 / itemWidth);
                     }
                     _previousItemPerRow = ItemPerRow;
                 }
