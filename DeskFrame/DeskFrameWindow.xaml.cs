@@ -148,8 +148,8 @@ namespace DeskFrame
 
             var sortOptions = new Dictionary<int, Func<IEnumerable<FileItem>, IOrderedEnumerable<FileItem>>>
             {
-                { (int)SortBy.NameAsc, x => x.OrderBy(i => string.IsNullOrEmpty(i.Name) ? string.Empty: Path.GetFileNameWithoutExtension(i.Name), StringComparer.OrdinalIgnoreCase)},
-                { (int)SortBy.NameDesc, x => x.OrderByDescending(i => string.IsNullOrEmpty(i.Name) ? string.Empty: Path.GetFileNameWithoutExtension(i.Name), StringComparer.OrdinalIgnoreCase)},
+                { (int)SortBy.NameAsc, x => x.OrderBy(i => Regex.Replace(i.Name ?? "", @"\d+", m => m.Value.PadLeft(10, '0')), StringComparer.OrdinalIgnoreCase)},
+                { (int)SortBy.NameDesc,x => x .OrderByDescending(i => Regex.Replace(i.Name ?? "", @"\d+", m => m.Value.PadLeft(10, '0')), StringComparer.OrdinalIgnoreCase)},
                 { (int)SortBy.DateModifiedAsc, x => x.OrderBy(i => i.DateModified) },
                 { (int)SortBy.DateModifiedDesc, x => x.OrderByDescending(i => i.DateModified) },
                 { (int)SortBy.DateCreatedAsc, x => x.OrderBy(i => i.DateCreated) },
@@ -185,8 +185,8 @@ namespace DeskFrame
 
             var sortOptions = new Dictionary<int, Func<List<(FileSystemInfo item, long size)>, IOrderedEnumerable<(FileSystemInfo item, long size)>>>
                 {
-                    { (int)SortBy.NameAsc, x => x.OrderBy(i => string.IsNullOrEmpty(i.item.Name) ? string.Empty : Path.GetFileNameWithoutExtension(i.item.Name), StringComparer.OrdinalIgnoreCase) },
-                    { (int)SortBy.NameDesc, x => x.OrderByDescending(i => string.IsNullOrEmpty(i.item.Name) ? string.Empty : Path.GetFileNameWithoutExtension(i.item.Name), StringComparer.OrdinalIgnoreCase) },
+                    { (int)SortBy.NameAsc, x => x.OrderBy(i => Regex.Replace(i.item.Name ?? "", @"\d+", m => m.Value.PadLeft(10, '0')), StringComparer.OrdinalIgnoreCase)},
+                    { (int)SortBy.NameDesc,x => x .OrderByDescending(i => Regex.Replace(i.item.Name ?? "", @"\d+", m => m.Value.PadLeft(10, '0')), StringComparer.OrdinalIgnoreCase)},
                     { (int)SortBy.DateModifiedAsc, x => x.OrderBy(i => i.item.LastWriteTime) },
                     { (int)SortBy.DateModifiedDesc, x => x.OrderByDescending(i => i.item.LastWriteTime) },
                     { (int)SortBy.DateCreatedAsc, x => x.OrderBy(i => i.item.CreationTime) },
