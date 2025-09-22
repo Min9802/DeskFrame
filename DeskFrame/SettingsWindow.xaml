@@ -5,6 +5,8 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml" 
         xmlns:local="clr-namespace:DeskFrame"
+        xmlns:properties="clr-namespace:DeskFrame.Properties;assembly=DeskFrame"
+        xmlns:prop="clr-namespace:DeskFrame.Properties"
         ExtendsContentIntoTitleBar="True"
         mc:Ignorable="d"    
         Background="#66232323" 
@@ -15,7 +17,7 @@
                  Closing="FluentWindow_Closing">
     <Grid>
         <StackPanel>
-            <ui:TitleBar Title="DeskFrame settings" Name="Titlebar" Padding="8,0,0,0" Height="30"  CanMaximize="False" ShowMinimize="False" ApplicationTheme="Dark" ShowMaximize="False" >
+            <ui:TitleBar Title="{x:Static prop:Lang.DeskFrameFrameSettings_TitleBarText}" Name="Titlebar" Padding="8,0,0,0" Height="30"  CanMaximize="False" ShowMinimize="False" ApplicationTheme="Dark" ShowMaximize="False" >
                 <ui:TitleBar.Icon>
                     <ui:ImageIcon Source="/ico.png" Margin="0,0,6,0" />
                 </ui:TitleBar.Icon>
@@ -24,19 +26,19 @@
             </StackPanel>
 
             <StackPanel >
-                <ui:Button x:Name="ExportSettingsButton" Content="Export settings" Click="ExportSettingsButton_Click" Margin="10,20,0,0"/>
+                <ui:Button x:Name="ExportSettingsButton" Content="{x:Static prop:Lang.DeskFrameFrameSettings_ExportSettings}" Click="ExportSettingsButton_Click" Margin="10,20,0,0"/>
                 <StackPanel Orientation="Horizontal">
-                    <ui:Button x:Name="DefaultFrameStyleButton" Content="Default frame style"  Margin="10,20,0,0" Click="DefaultFrameStyleButton_Click"/>
-                    <ui:Button x:Name="ResetDefaultFrameStyleButton" Content="Reset default style" Icon="{ui:SymbolIcon ArrowReset24}" Margin="10,20,0,0" Click="ResetDefaultFrameStyleButton_Click" />
+                    <ui:Button x:Name="DefaultFrameStyleButton" Content="{x:Static prop:Lang.DeskFrameFrameSettings_DefaultFrameStyle}"  Margin="10,20,0,0" Click="DefaultFrameStyleButton_Click"/>
+                    <ui:Button x:Name="ResetDefaultFrameStyleButton" Content="{x:Static prop:Lang.DeskFrameFrameSettings_ResetDefaultStyle}" Icon="{ui:SymbolIcon ArrowReset24}" Margin="10,20,0,0" Click="ResetDefaultFrameStyleButton_Click" />
                 </StackPanel>
-                <ui:ToggleSwitch  Margin="10,20,0,0" x:Name="AutoUpdateToggleSwitch" Content="Auto update. Check for update on start and every 6 hours " Click="AutoUpdateToggleSwitch_Click"/>
-                <ui:ToggleSwitch  Margin="10,20,0,0" x:Name="DoubleClickToHideSwitch" Content="Double click on desktop to toggle hide every frame" Click="DoubleClickToHideSwitch_Click"/>
+                <ui:ToggleSwitch x:Name="AutoUpdateToggleSwitch" Content="{x:Static prop:Lang.DeskFrameFrameSettings_AutoUpdate}" Margin="10,20,0,0" Click="AutoUpdateToggleSwitch_Click"/>
+                <ui:ToggleSwitch x:Name="DoubleClickToHideSwitch" Content="{x:Static prop:Lang.DeskFrameFrameSettings_DoubleClickHide}" Margin="10,20,0,0" Click="DoubleClickToHideSwitch_Click"/>
 
             </StackPanel>
         </StackPanel>
 
         <StackPanel Orientation="Horizontal"  HorizontalAlignment="Right" Margin="0,0,10,5" VerticalAlignment="Bottom">
-            <Label Content="Made with " HorizontalAlignment="Left" VerticalAlignment="Center" Foreground="DimGray"/>
+            <Label Content="{x:Static prop:Lang.DeskFrameFrameSettings_MadewithSpace}" HorizontalAlignment="Left" VerticalAlignment="Center" Foreground="DimGray"/>
             <ui:SymbolIcon Symbol="Heart20" Filled="True" Margin="0,-2,0,0" Foreground="DimGray"/>
         </StackPanel>
 

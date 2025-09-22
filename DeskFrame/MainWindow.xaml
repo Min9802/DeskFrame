@@ -6,6 +6,8 @@
         xmlns:tray="http://schemas.lepo.co/wpfui/2022/xaml/tray"
         xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
         xmlns:local="clr-namespace:DeskFrame" xmlns:ui1="http://schemas.lepo.co/wpfui/2022/xaml"
+        xmlns:properties="clr-namespace:DeskFrame.Properties;assembly=DeskFrame"
+        xmlns:prop="clr-namespace:DeskFrame.Properties"
         mc:Ignorable="d"
         Title="MainWindow" Height="450" Width="800" Initialized="Window_Initialized" Loaded="Window_Loaded">
     <tray:NotifyIcon Grid.Row="0" FocusOnLeftClick="True"  
@@ -16,23 +18,23 @@
             <ContextMenu MinWidth="65">
                 <MenuItem Name="versionHeader" Header="version" FontSize="10" IsEnabled="False" HorizontalAlignment="Center" Background="{x:Null}" FontFamily="Segoe Print"/>
 
-                <ui:MenuItem x:Name="Update_Button" Header="Check for updates" Click="Update_Button_Click" Icon="{ui:SymbolIcon Symbol=ArrowSync20}"/>
-                <ui:MenuItem x:Name="visitGithub_Buton" Header="Visit github" Click="visitGithub_Buton_Click" Icon="{ui:SymbolIcon Symbol=Link20}" />
+                <ui:MenuItem x:Name="Update_Button" Header="{x:Static prop:Lang.TrayContextMenu_CheckUpdateButton}" Click="Update_Button_Click" Icon="{ui:SymbolIcon Symbol=ArrowSync20}"/>
+                <ui:MenuItem x:Name="visitGithub_Buton" Header="{x:Static prop:Lang.TrayContextMenu_VisitGithub}" Click="visitGithub_Buton_Click" Icon="{ui:SymbolIcon Symbol=Link20}" />
                 <Separator Margin="0,3,0,3"/>
 
-                <ui:ToggleSwitch x:Name="AutorunToggle" Content="Start on login"
+                <ui:ToggleSwitch x:Name="AutorunToggle" Content="{x:Static prop:Lang.TrayContextMenu_StartOnLogin}"
                              Checked="AutorunToggle_CheckChanged"  Unchecked="AutorunToggle_CheckChanged"  />
                 <!--<ui:ToggleSwitch x:Name="BlurToggle" Content="Enable blur"
                 Checked="BlurToggle_CheckChanged"  Unchecked="BlurToggle_CheckChanged" />-->
                 
                 <Separator Margin="0,3,0,3"/>
 
-                <ui:MenuItem x:Name="Settings_Button" Header="Settings" 
+                <ui:MenuItem x:Name="Settings_Button" Header="{x:Static prop:Lang.TrayContextMenu_Settings}"
                              Icon="{ui:SymbolIcon Symbol=Settings20}" Click="Settings_Button_Click" />
 
-                <MenuItem Name="addDesktopFrame" Height="34" Header="Add frame" Click="addDesktopFrame_Click" Icon="{ui:SymbolIcon Symbol=Add20}"/>
+                <MenuItem Name="addDesktopFrame" Height="34" Header="{x:Static prop:Lang.TrayContextMenu_AddFrame}" Click="addDesktopFrame_Click" Icon="{ui:SymbolIcon Symbol=Add20}"/>
                 <MenuItem x:Name="Exit_Button" Height="34" 
-                          Header="Exit" Click="ExitApp" Icon="{ui:SymbolIcon Symbol=ArrowExit20}" />
+                          Header="{x:Static prop:Lang.TrayContextMenu_Exit}" Click="ExitApp" Icon="{ui:SymbolIcon Symbol=ArrowExit20}" />
 
             </ContextMenu>
         </tray:NotifyIcon.Menu>

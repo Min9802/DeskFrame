@@ -5,7 +5,9 @@
          xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
          xmlns:local="clr-namespace:DeskFrame"
          xmlns:tray="http://schemas.lepo.co/wpfui/2022/xaml/tray"
-         xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml" 
+         xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
+        xmlns:properties="clr-namespace:DeskFrame.Properties;assembly=DeskFrame"
+        xmlns:prop="clr-namespace:DeskFrame.Properties"
          mc:Ignorable="d"
          Title="DeskFrameWindow"
          Height="450" Width="800"
@@ -193,7 +195,7 @@
                                      BorderThickness="0">
                             <ui:ListView.View >
                                 <ui:GridView >
-                                    <ui:GridViewColumn Width="250" Header="Name" x:Name="NameGridColumn">
+                                    <ui:GridViewColumn Width="250" Header="{x:Static prop:Lang.FrameGridView_Name}" x:Name="NameGridColumn">
                                         <GridViewColumn.CellTemplate>
                                             <DataTemplate>
                                                 <Grid>
@@ -228,7 +230,7 @@
                                         </GridViewColumn.CellTemplate>
                                     </ui:GridViewColumn>
 
-                                    <GridViewColumn Header="Date modified" Width="150" x:Name="DateModifiedGridColumn">
+                                    <GridViewColumn Header="{x:Static prop:Lang.FrameGridView_DateModified}" Width="150" x:Name="DateModifiedGridColumn">
                                         <GridViewColumn.CellTemplate>
                                             <DataTemplate>
                                                 <Grid  MaxWidth="{Binding ActualWidth, ElementName=DateModifiedGridColumn}">
@@ -252,7 +254,7 @@
                                             </DataTemplate>
                                         </GridViewColumn.CellTemplate>
                                     </GridViewColumn>
-                                    <GridViewColumn Header="Size" Width="110" x:Name="SizeGridColumn">
+                                    <GridViewColumn Header="{x:Static prop:Lang.FrameGridView_Size}" Width="110" x:Name="SizeGridColumn">
                                         <GridViewColumn.CellTemplate>
                                             <DataTemplate >
                                                 <StackPanel Margin="0,00,00,17" >
@@ -285,7 +287,7 @@
 
                     <Grid x:Name="addFolder" Visibility="Hidden">
                         <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center" >
-                            <TextBlock Text="Drop a folder" HorizontalAlignment="Center" Foreground="White" FontSize="14" Padding="0,0,0,10"/>
+                            <TextBlock Text="{x:Static prop:Lang.showFolderInGrid_DropFolder}" HorizontalAlignment="Center" Foreground="White" FontSize="14" Padding="0,0,0,10"/>
                             <ui:SymbolIcon Symbol="Add48" FontSize="88" Foreground="White" OpacityMask="#4CFFFFFF"/>
                         </StackPanel>
                     </Grid>

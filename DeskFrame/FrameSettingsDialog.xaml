@@ -6,26 +6,28 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml" 
         xmlns:local="clr-namespace:DeskFrame"
-        xmlns:colorpick="clr-namespace:DeskFrame.ColorPicker"     
+        xmlns:colorpick="clr-namespace:DeskFrame.ColorPicker"
+        xmlns:properties="clr-namespace:DeskFrame.Properties;assembly=DeskFrame"
+        xmlns:prop="clr-namespace:DeskFrame.Properties"
         ExtendsContentIntoTitleBar="True"
         mc:Ignorable="d"    
         Background="#66232323" 
         WindowStyle="None" 
         ResizeMode="NoResize"
-        Height="768" 
+        Height="800" 
         Width="840"
         MinWidth="0"
         MinHeight="0">
     <Grid>
-        <ui:TitleBar Title="Frame Settings" Name="Titlebar" Padding="8,0,0,0" Height="30" CanMaximize="False" ShowMinimize="False" ApplicationTheme="Dark" ShowMaximize="False" CloseClicked="Titlebar_CloseClicked">
+        <ui:TitleBar Title="{x:Static prop:Lang.FrameSettings_TitleBarText}" Name="Titlebar" Padding="8,0,0,0" Height="30" CanMaximize="False" ShowMinimize="False" ApplicationTheme="Dark" ShowMaximize="False" CloseClicked="Titlebar_CloseClicked">
             <ui:TitleBar.Icon>
                 <ui:ImageIcon Source="/ico.png" Margin="0,0,6,0" />
             </ui:TitleBar.Icon>
 
             <ui:TitleBar.TrailingContent>
                 <StackPanel Orientation="Horizontal">
-                    <ui:DropDownButton x:Name="ChangeStyleDropDownButton" HorizontalAlignment="Right" Content="Change style" VerticalAlignment="Top" Grid.Column="2" Margin="0,0,20,0" Height="30" Padding="10,0,10,0" Click="ChangeStyleDropDownButton_Click" />
-                    <ui:Button x:Name="ChangeFolderButton" HorizontalAlignment="Right" Content="Change folder" VerticalAlignment="Top" Grid.Column="2" Margin="0,0,10,0" Height="30" Padding="10,0,10,0" Click="ChangeFolderButton_Click"/>
+                    <ui:DropDownButton x:Name="ChangeStyleDropDownButton" Content="{x:Static prop:Lang.FrameSettings_ChangeStyle}" HorizontalAlignment="Right" VerticalAlignment="Top" Grid.Column="2" Margin="0,0,20,0" Height="30" Padding="10,0,10,0" Click="ChangeStyleDropDownButton_Click" />
+                    <ui:Button x:Name="ChangeFolderButton" Content="{x:Static prop:Lang.FrameSettings_ChangeFolder}" HorizontalAlignment="Right" VerticalAlignment="Top" Grid.Column="2" Margin="0,0,10,0" Height="30" Padding="10,0,10,0" Click="ChangeFolderButton_Click"/>
                 </StackPanel>
             </ui:TitleBar.TrailingContent>
         </ui:TitleBar>
@@ -41,7 +43,7 @@
                 <StackPanel  x:Name="ColorCard" />
             </ui:Flyout>
             <StackPanel Orientation="Vertical" Margin="20,45,10,0" Grid.Column="0">
-                <Label Content="Miscellaneous" Margin="0,0,0,17" Height="50"  FontWeight="Bold" HorizontalAlignment="Center" VerticalContentAlignment="Center" HorizontalContentAlignment="Center" VerticalAlignment="Bottom" >
+                <Label Content="{x:Static prop:Lang.FrameSettings_CategoryMiscellaneous}" Margin="0,0,0,17" Height="50"  FontWeight="Bold" HorizontalAlignment="Center" VerticalContentAlignment="Center" HorizontalContentAlignment="Center" VerticalAlignment="Bottom" >
                     <Label.Foreground>
                         <SolidColorBrush Color="{DynamicResource {x:Static SystemColors.HighlightColorKey}}"/>
                     </Label.Foreground>
@@ -58,7 +60,7 @@
                             </LinearGradientBrush>
                         </ui:Button.Foreground>
                     </ui:Button>
-                    <Label Content="Border color (hex):"  VerticalAlignment="Center"/>
+                    <Label Content="{x:Static prop:Lang.FrameSettings_BorderColor}"  VerticalAlignment="Center"/>
                 </StackPanel>
                 <Grid>
                     <Rectangle  Width="20" Height="20" RadiusX="5"   IsHitTestVisible="False" Panel.ZIndex="2" RadiusY="5" HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,7,16,0">
@@ -99,7 +101,7 @@
                             </LinearGradientBrush>
                         </ui:Button.Foreground>
                     </ui:Button>
-                    <Label Content="Background color (hex):" Height="30"/>
+                    <Label Content="{x:Static prop:Lang.FrameSettings_BackgroundColor}" Height="30"/>
                 </StackPanel>
                 <Grid>
                     <Rectangle  Width="20" Height="20" RadiusX="5"   IsHitTestVisible="False" Panel.ZIndex="2" RadiusY="5" HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,7,16,0">
@@ -130,38 +132,48 @@
                     </ui:TextBox>
                 </Grid>
 
-                <Label Content="Visible on virtual desktop:" Height="30"/>
-                <ui:TextBox x:Name="ShowOnVirtualDesktopTextBox" PlaceholderText="All (or e.g. 1,2,3)" Margin="0,0,0,20" TextChanged="TextChangedHandler"/>
+                <Label Content="{x:Static prop:Lang.FrameSettings_ShowOnVirtualDesktopLabel}" Height="30"/>
+                <ui:TextBox x:Name="ShowOnVirtualDesktopTextBox" PlaceholderText="{x:Static prop:Lang.FrameSettings_ShowOnVirtualDesktopPlaceHolder}" Margin="0,0,0,20" TextChanged="TextChangedHandler"/>
 
 
-                <Label Content="Title bar icons:" Height="30"/>
+                <Label Content="{x:Static prop:Lang.FrameSettings_ShowFileExtensionIcon}" Height="30"/>
                 <StackPanel Orientation="Vertical">
-                    <CheckBox x:Name="ShowFileExtensionIconCheckBox" Content="File extensions" Margin="-11,0,10,0" Checked="ShowFileExtensionIconCheckBox_Checked" Unchecked="ShowFileExtensionIconCheckBox_Checked"/>
-                    <CheckBox x:Name="ShowHiddenFilesIconCheckBox" Content="Hidden files" Margin="-11,0,0,0" Checked="ShowHiddenFilesIconCheckBox_Checked" Unchecked="ShowHiddenFilesIconCheckBox_Checked"/>
+                    <CheckBox x:Name="ShowFileExtensionIconCheckBox" Content="{x:Static prop:Lang.FrameSettings_ShowFileExtensionIcon}" Margin="-11,0,10,0" Checked="ShowFileExtensionIconCheckBox_Checked" Unchecked="ShowFileExtensionIconCheckBox_Checked"/>
+                    <CheckBox x:Name="ShowHiddenFilesIconCheckBox" Content="{x:Static prop:Lang.FrameSettings_ShowHiddenFilesIcon}" Margin="-11,0,0,0" Checked="ShowHiddenFilesIconCheckBox_Checked" Unchecked="ShowHiddenFilesIconCheckBox_Checked"/>
                 </StackPanel>
 
                 <StackPanel Orientation="Horizontal">
-                    <Label Content="Animation speed:" Height="30" Margin="0,20,0,0"/>
+                    <Label Content="{x:Static prop:Lang.FrameSettings_AnimationSpeed}" Height="30" Margin="0,20,0,0"/>
                     <Label x:Name="AnimationSpeedLabel" Content="0.0" Height="30" Margin="5,20,0,0" Foreground="{DynamicResource {x:Static SystemColors.MenuHighlightBrushKey}}" FontWeight="Bold"/>
                 </StackPanel>
                 <Slider x:Name="AnimationSpeedSlider" Width="200" TickPlacement="TopLeft" TickFrequency="1" Minimum="0" Maximum="10" ValueChanged="Slider_ValueChanged" IsSnapToTickEnabled="True"/>
-                
+
                 <StackPanel Orientation="Horizontal">
-                    <Label Content="Idle opacity:" Height="30" Margin="0,20,0,0"/>
+                    <Label Content="{x:Static prop:Lang.FrameSettings_IdleOpacityLabel}" Height="30" Margin="0,20,0,0"/>
                     <Label x:Name="IdleOpacityLabel" Content="0%" Height="30" Margin="5,20,0,0" Foreground="{DynamicResource {x:Static SystemColors.MenuHighlightBrushKey}}" FontWeight="Bold"/>
                 </StackPanel>
                 <Slider x:Name="IdleOpacitySlider" Width="200" TickPlacement="TopLeft" TickFrequency="1" Minimum="1" Maximum="10" ValueChanged="Slider_ValueChanged" IsSnapToTickEnabled="True"/>
-                <CheckBox x:Name="AutoExpandonCursorCheckBox" Content="Expand on cursor over" Margin="-11,10,0,0" Checked="AutoExpandonCursorCheckBox_Checked" Unchecked="AutoExpandonCursorCheckBox_Unchecked"/>
-                <CheckBox x:Name="ShowShortcutArrowCheckBox" Content="Show shortcut arrow" Margin="-11,0,0,0" Checked="ShowShortcutArrowCheckBox_Checked" Unchecked="ShowShortcutArrowCheckBox_Unchecked"/>
-                <CheckBox x:Name="CheckFolderSizeCheckBox" Content="Show folder size in menu" Margin="-11,0,0,0" Checked="CheckFolderSizeCheckBox_Checkked" Unchecked="CheckFolderSizeCheckBox_Uncheckked"/>
-                <CheckBox x:Name="ShowLastAccessedToFirstRowCheckBox" Content="Show last accessed items first" Margin="-11,0,0,0" Checked="ShowLastAccessedToFirstRowCheckBox_Checked" Unchecked="ShowLastAccessedToFirstRowCheckBox_Unchecked"/>
+
+                <CheckBox x:Name="AutoExpandonCursorCheckBox" Margin="-11,10,0,0" Checked="AutoExpandonCursorCheckBox_Checked" Unchecked="AutoExpandonCursorCheckBox_Unchecked">
+                    <TextBlock Text="{x:Static prop:Lang.FrameSettings_AutoExpandonCursor}" TextWrapping="Wrap"/>
+                </CheckBox>
+                <CheckBox x:Name="ShowShortcutArrowCheckBox" Margin="-11,0,0,0" Checked="ShowShortcutArrowCheckBox_Checked" Unchecked="ShowShortcutArrowCheckBox_Unchecked">
+                    <TextBlock Text="{x:Static prop:Lang.FrameSettings_ShowShortcutArrow}" TextWrapping="Wrap"/>
+                </CheckBox>
+                <CheckBox x:Name="CheckFolderSizeCheckBox" Margin="-11,0,0,0" Checked="CheckFolderSizeCheckBox_Checkked" Unchecked="CheckFolderSizeCheckBox_Uncheckked">
+                    <TextBlock Text="{x:Static prop:Lang.FrameSettings_CheckFolderSize}" TextWrapping="Wrap"/>
+                </CheckBox>
+                <CheckBox x:Name="ShowLastAccessedToFirstRowCheckBox" Margin="-11,0,0,0" Checked="ShowLastAccessedToFirstRowCheckBox_Checked" Unchecked="ShowLastAccessedToFirstRowCheckBox_Unchecked">
+                    <TextBlock Text="{x:Static prop:Lang.FrameSettings_ShowLastAccessedItem}" TextWrapping="Wrap"/>
+                </CheckBox>
+
 
 
             </StackPanel>
             <Separator HorizontalAlignment="Center"  Grid.Column="1" Margin="0,20,0,20"/>
 
             <StackPanel  Orientation="Vertical" Margin="10,45,10,0" Grid.Column="2">
-                <Label Content="Title bar" Foreground="{DynamicResource {x:Static SystemColors.HighlightBrushKey}}" Margin="0,0,0,20" Height="50"  FontWeight="Bold" HorizontalAlignment="Center" VerticalContentAlignment="Center" HorizontalContentAlignment="Center" VerticalAlignment="Bottom" />
+                <Label Content="{x:Static prop:Lang.FrameSettings_CategoryTitleBar}" Foreground="{DynamicResource {x:Static SystemColors.HighlightBrushKey}}" Margin="0,0,0,20" Height="50"  FontWeight="Bold" HorizontalAlignment="Center" VerticalContentAlignment="Center" HorizontalContentAlignment="Center" VerticalAlignment="Bottom" />
 
                 <StackPanel Orientation="Horizontal">
                     <ui:Button x:Name="TitleBarColorButton"  HorizontalAlignment="Center" VerticalAlignment="Top" Margin="1,1,5,0" Icon="{ui:SymbolIcon Color24}" Padding="-10" Click="TitleBarColorButton_Click">
@@ -173,7 +185,7 @@
                             </LinearGradientBrush>
                         </ui:Button.Foreground>
                     </ui:Button>
-                    <Label Content="Background color (hex):" Height="30"/>
+                    <Label Content="{x:Static prop:Lang.FrameSettings_BackgroundColor}" Height="30"/>
                 </StackPanel>
 
                 <Grid>
@@ -215,7 +227,7 @@
                             </LinearGradientBrush>
                         </ui:Button.Foreground>
                     </ui:Button>
-                    <Label Content="Text color (hex):" Height="30"/>
+                    <Label Content="{x:Static prop:Lang.FrameSettings_TextColor}" Height="30"/>
                 </StackPanel>
 
                 <Grid>
@@ -248,25 +260,25 @@
                 </Grid>
 
 
-                <Label Content="Text:" Height="30"/>
+                <Label Content="{x:Static prop:Lang.FrameSettings_TitleBarText}" Height="30"/>
                 <ui:TextBox x:Name="TitleTextBox" Margin="0,0,0,20" TextChanged="TextChangedHandler"/>
 
 
 
 
-                <Label Content="Font:" Height="30"/>
+                <Label Content="{x:Static prop:Lang.FrameSettings_Font}" Height="30"/>
                 <ui:AutoSuggestBox x:Name="TitleTextAutoSuggestionBox"
                                    OriginalItemsSource="{Binding FontList}"
-                                   PlaceholderText="Search..." Margin="0,0,0,20"/>
+                                   PlaceholderText="{x:Static prop:Lang.FrameSettings_Searchdot}" Margin="0,0,0,20"/>
 
-                <Label Content="Text size:" Height="30"/>
+                <Label Content="{x:Static prop:Lang.FrameSettings_TextSize}" Height="30"/>
                 <ui:NumberBox x:Name="TitleFontSizeNumberBox"                             
                             Minimum="8"
                             Maximum="72"
                             SpinButtonPlacementMode="Inline"
                             Margin="0,0,0,20"/>
 
-                <Label Content="Text alignment:" Height="30"/>
+                <Label Content="{x:Static prop:Lang.FrameSettings_TextAlignment}" Height="30"/>
                 <ComboBox x:Name="TitleTextAlignmentComboBox" Margin="0,0,0,20" SelectionChanged="TitleTextAlignmentComboBox_SelectionChanged">
                     <ComboBoxItem Content="Left"/>
                     <ComboBoxItem Content="Center"/>
@@ -278,7 +290,7 @@
             <Separator HorizontalAlignment="Center"  Grid.Column="3" Margin="0,20,0,20"/>
 
             <StackPanel Orientation="Vertical" Margin="10,45,10,0" Grid.Column="4">
-                <Label Content="File items" Margin="0,0,0,20" Height="50"  FontWeight="Bold" HorizontalAlignment="Center" VerticalContentAlignment="Center" HorizontalContentAlignment="Center" VerticalAlignment="Bottom" >
+                <Label Content="{x:Static prop:Lang.FrameSettings_CategoryFileItems}" Margin="0,0,0,20" Height="50"  FontWeight="Bold" HorizontalAlignment="Center" VerticalContentAlignment="Center" HorizontalContentAlignment="Center" VerticalAlignment="Bottom" >
                     <Label.Foreground>
                         <SolidColorBrush Color="{DynamicResource {x:Static SystemColors.HighlightColorKey}}"/>
                     </Label.Foreground>
@@ -293,7 +305,7 @@
                             </LinearGradientBrush>
                         </ui:Button.Foreground>
                     </ui:Button>
-                    <Label Content="Text color (hex):" Height="30"/>
+                    <Label Content="{x:Static prop:Lang.FrameSettings_TextColor}" Height="30"/>
                 </StackPanel>
 
                 <Grid>
@@ -336,7 +348,7 @@
                             </LinearGradientBrush>
                         </ui:Button.Foreground>
                     </ui:Button>
-                    <Label Content="Text shadow color (hex):" Height="30"/>
+                    <Label Content="{x:Static prop:Lang.FrameSettings_TextShadowColor}" Height="30"/>
                 </StackPanel>
 
                 <Grid>
@@ -368,19 +380,19 @@
                     </ui:TextBox>
                 </Grid>
 
-                <Label Content="Show files (regex):" Height="30" />
+                <Label Content="{x:Static prop:Lang.FrameSettings_ShowFilesRegex}" Height="30" />
                 <ui:TextBox x:Name="FileFilterRegexTextBox" Margin="0,0,0,20" TextChanged="TextChangedHandler"/>
 
-                <Label Content="Hide files (regex):" Height="30"/>
+                <Label Content="{x:Static prop:Lang.FrameSettings_HideFilesRegex}" Height="30"/>
                 <ui:TextBox x:Name="FileFilterHideRegexTextBox" Margin="0,0,0,20" TextChanged="TextChangedHandler"/>
-                <CheckBox x:Name="ShowDisplayNameCheckBox" Content="Show icon text" Margin="-11,0,0,0" Checked="ShowDisplayNameCheckBox_Checked" Unchecked="ShowDisplayNameCheckBox_Checked"/>
+                <CheckBox x:Name="ShowDisplayNameCheckBox" Content="{x:Static prop:Lang.FrameSettings_ShowIconText}" Margin="-11,0,0,0" Checked="ShowDisplayNameCheckBox_Checked" Unchecked="ShowDisplayNameCheckBox_Checked"/>
                 <StackPanel Orientation="Horizontal">
-                    <Label Content="Icon size:" Height="30" Margin="0,20,0,0"/>
+                    <Label Content="{x:Static prop:Lang.FrameSettings_IconSize}" Height="30" Margin="0,20,0,0"/>
                     <Label x:Name="IconSizeLabel" Content="0%" Height="30" Margin="5,20,0,0" Foreground="{DynamicResource {x:Static SystemColors.MenuHighlightBrushKey}}" FontWeight="Bold"/>
                 </StackPanel>
                 <Slider x:Name="IconSizeSlider" Width="200" TickPlacement="TopLeft" TickFrequency="1" Minimum="1" Maximum="16" ValueChanged="Slider_ValueChanged" IsSnapToTickEnabled="True"/>
             </StackPanel>
-            <Button x:Name="RevertButton" Grid.Column="4" HorizontalAlignment="Right" Content="Revert" Margin="10" Height="30" Click="RevertButton_Click"  VerticalAlignment="Bottom"/>
+            <Button x:Name="RevertButton" Content="{x:Static prop:Lang.FrameSettings_RevertButton}" Grid.Column="4" HorizontalAlignment="Right" Margin="10" Height="30" Click="RevertButton_Click"  VerticalAlignment="Bottom"/>
 
         </Grid>
 

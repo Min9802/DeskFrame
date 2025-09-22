@@ -42,6 +42,7 @@ using static DeskFrame.Util.Interop;
 using IWshRuntimeLibrary;
 using File = System.IO.File;
 using DeskFrame.Core;
+using DeskFrame.Properties;
 namespace DeskFrame
 {
     public partial class DeskFrameWindow : System.Windows.Window
@@ -2560,10 +2561,10 @@ namespace DeskFrame
         {
             ContextMenu contextMenu = new ContextMenu();
 
-            ToggleSwitch toggleHiddenFiles = new ToggleSwitch { Content = "Hidden files" };
+            ToggleSwitch toggleHiddenFiles = new ToggleSwitch { Content = Lang.TitleBarContextMenu_HiddenFiles };
             toggleHiddenFiles.Click += (s, args) => { ToggleHiddenFiles(); LoadFiles(_path); };
 
-            ToggleSwitch toggleFileExtension = new ToggleSwitch { Content = "File extensions" };
+            ToggleSwitch toggleFileExtension = new ToggleSwitch { Content = Lang.TitleBarContextMenu_FileExtensions };
             toggleFileExtension.Click += (_, _) => { ToggleFileExtension(); LoadFiles(_path); };
 
             toggleHiddenFiles.IsChecked = Instance.ShowHiddenFiles;
@@ -2571,7 +2572,7 @@ namespace DeskFrame
 
             MenuItem frameSettings = new MenuItem
             {
-                Header = "Frame Settings",
+                Header = Lang.TitleBarContextMenu_FrameSettings,
                 Height = 34,
                 Icon = new SymbolIcon(SymbolRegular.Settings20)
             };
@@ -2596,7 +2597,7 @@ namespace DeskFrame
 
             MenuItem reloadItems = new MenuItem
             {
-                Header = "Reload",
+                Header = Lang.TitleBarContextMenu_Reload,
                 Height = 34,
                 Icon = new SymbolIcon(SymbolRegular.ArrowSync20)
             };
@@ -2604,7 +2605,7 @@ namespace DeskFrame
 
             MenuItem lockFrame = new MenuItem
             {
-                Header = Instance.IsLocked ? "Unlock frame" : "Lock frame",
+                Header = Instance.IsLocked ? Lang.TitleBarContextMenu_UnlockFrame : Lang.TitleBarContextMenu_LockFrame,
                 Height = 34,
                 Icon = Instance.IsLocked ? new SymbolIcon(SymbolRegular.LockClosed20) : new SymbolIcon(SymbolRegular.LockOpen20)
             };
@@ -2640,7 +2641,7 @@ namespace DeskFrame
 
             MenuItem exitItem = new MenuItem
             {
-                Header = "Remove",
+                Header = Lang.TitleBarContextMenu_Remove,
                 Height = 34,
                 Foreground = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#FFFC6060")),
                 Icon = new SymbolIcon(SymbolRegular.Delete20)
@@ -2651,10 +2652,10 @@ namespace DeskFrame
             {
                 var dialog = new MessageBox
                 {
-                    Title = "Confirm",
-                    Content = "Are you sure you want to remove it?",
-                    PrimaryButtonText = "Yes",
-                    CloseButtonText = "No"
+                    Title = Lang.TitleBarContextMenu_RemoveMessageBox_Title,
+                    Content = Lang.TitleBarContextMenu_RemoveMessageBox_Content,
+                    PrimaryButtonText = Lang.TitleBarContextMenu_RemoveMessageBox_Yes,
+                    CloseButtonText = Lang.TitleBarContextMenu_RemoveMessageBox_No
                 };
 
                 var result = await dialog.ShowDialogAsync();
@@ -2678,13 +2679,13 @@ namespace DeskFrame
                 Height = 34,
                 Icon = new SymbolIcon(SymbolRegular.ArrowSort20)
             };
-            nameMenuItem = new MenuItem { Header = "Name", Height = 34, StaysOpenOnClick = true };
-            dateModifiedMenuItem = new MenuItem { Header = "Date modified", Height = 34, StaysOpenOnClick = true };
-            dateCreatedMenuItem = new MenuItem { Header = "Date created", Height = 34, StaysOpenOnClick = true };
-            fileTypeMenuItem = new MenuItem { Header = "File type", Height = 34, StaysOpenOnClick = true };
-            fileSizeMenuItem = new MenuItem { Header = "File size", Height = 34, StaysOpenOnClick = true };
-            ascendingMenuItem = new MenuItem { Header = "Ascending", Height = 34, StaysOpenOnClick = true };
-            descendingMenuItem = new MenuItem { Header = "Descending", Height = 34, StaysOpenOnClick = true };
+            nameMenuItem = new MenuItem { Header = Lang.TitleBarContextMenu_Sortby_Name, Height = 34, StaysOpenOnClick = true };
+            dateModifiedMenuItem = new MenuItem { Header = Lang.TitleBarContextMenu_Sortby_DateModified, Height = 34, StaysOpenOnClick = true };
+            dateCreatedMenuItem = new MenuItem { Header = Lang.TitleBarContextMenu_Sortby_DateCreated, Height = 34, StaysOpenOnClick = true };
+            fileTypeMenuItem = new MenuItem { Header = Lang.TitleBarContextMenu_Sortby_FileType, Height = 34, StaysOpenOnClick = true };
+            fileSizeMenuItem = new MenuItem { Header = Lang.TitleBarContextMenu_Sortby_FileSize, Height = 34, StaysOpenOnClick = true };
+            ascendingMenuItem = new MenuItem { Header = Lang.TitleBarContextMenu_Sortby_Ascending, Height = 34, StaysOpenOnClick = true };
+            descendingMenuItem = new MenuItem { Header = Lang.TitleBarContextMenu_Sortby_Descending, Height = 34, StaysOpenOnClick = true };
 
 
 
@@ -2752,21 +2753,21 @@ namespace DeskFrame
                 TextWrapping = TextWrapping.Wrap,
             };
 
-            InfoText.Inlines.Add(new Run($"Files: ") { Foreground = Brushes.White });
+            InfoText.Inlines.Add(new Run(Lang.TitleBarContextMenu_Info_Files) { Foreground = Brushes.White });
             InfoText.Inlines.Add(new Run($"{_fileCount}") { Foreground = Brushes.CornflowerBlue });
             InfoText.Inlines.Add(new Run("\n"));
 
-            InfoText.Inlines.Add(new Run($"Folders: ") { Foreground = Brushes.White });
+            InfoText.Inlines.Add(new Run(Lang.TitleBarContextMenu_Info_Folders) { Foreground = Brushes.White });
             InfoText.Inlines.Add(new Run($"{_folderCount}") { Foreground = Brushes.CornflowerBlue });
             InfoText.Inlines.Add(new Run("\n"));
             if (Instance.CheckFolderSize)
             {
-                InfoText.Inlines.Add(new Run($"Folder Size: ") { Foreground = Brushes.White });
+                InfoText.Inlines.Add(new Run(Lang.TitleBarContextMenu_Info_FolderSize) { Foreground = Brushes.White });
                 InfoText.Inlines.Add(new Run($"{_folderSize}") { Foreground = Brushes.CornflowerBlue });
                 InfoText.Inlines.Add(new Run("\n"));
             }
 
-            InfoText.Inlines.Add(new Run($"Last Updated: ") { Foreground = Brushes.White });
+            InfoText.Inlines.Add(new Run(Lang.TitleBarContextMenu_Info_LastUpdated) { Foreground = Brushes.White });
             InfoText.Inlines.Add(new Run($"{_lastUpdated.ToString("hh:mm tt")}") { Foreground = Brushes.CornflowerBlue });
 
             FrameInfoItem.Header = InfoText;
@@ -2774,15 +2775,15 @@ namespace DeskFrame
 
             folderOrderMenuItem = new MenuItem
             {
-                Header = "Folder order",
+                Header = Lang.TitleBarContextMenu_Sortby_FolderOrder,
                 Height = 36,
                 StaysOpenOnClick = true,
                 Icon = new SymbolIcon { Symbol = SymbolRegular.Folder20 }
             };
 
-            folderNoneMenuItem = new MenuItem { Header = "None", Height = 34, StaysOpenOnClick = true };
-            folderFirstMenuItem = new MenuItem { Header = "First", Height = 34, StaysOpenOnClick = true };
-            folderLastMenuItem = new MenuItem { Header = "Last", Height = 34, StaysOpenOnClick = true };
+            folderNoneMenuItem = new MenuItem { Header = Lang.TitleBarContextMenu_Sortby_FolderIder_None, Height = 34, StaysOpenOnClick = true };
+            folderFirstMenuItem = new MenuItem { Header = Lang.TitleBarContextMenu_Sortby_FolderIder_First, Height = 34, StaysOpenOnClick = true };
+            folderLastMenuItem = new MenuItem { Header = Lang.TitleBarContextMenu_Sortby_FolderIder_Last, Height = 34, StaysOpenOnClick = true };
 
             folderNoneMenuItem.Click += (s, args) =>
             {
@@ -2807,7 +2808,7 @@ namespace DeskFrame
 
             MenuItem openInExplorerMenuItem = new MenuItem
             {
-                Header = "Open folder",
+                Header =Lang.TitleBarContextMenu_OpenFolder,
                 Icon = new SymbolIcon { Symbol = SymbolRegular.FolderOpen20 }
             };
             openInExplorerMenuItem.Click += (_, _) => { OpenFolder(); };
@@ -2815,23 +2816,23 @@ namespace DeskFrame
 
             MenuItem changeItemView = new MenuItem
             {
-                Header = "Change view"
+                Header = Lang.TitleBarContextMenu_ChangeView
             };
             if (showFolder.Visibility == Visibility.Visible)
             {
-                changeItemView.Header = "Grid view";
+                changeItemView.Header = Lang.TitleBarContextMenu_GridView;
                 changeItemView.Icon = new SymbolIcon { Symbol = SymbolRegular.Grid20 };
             }
             else
             {
-                changeItemView.Header = "Details view";
+                changeItemView.Header = Lang.TitleBarContextMenu_DetailsView;
                 changeItemView.Icon = new SymbolIcon { Symbol = SymbolRegular.AppsList20 };
             }
             changeItemView.Click += (_, _) =>
             {
                 if (showFolder.Visibility == Visibility.Visible)
                 {
-                    changeItemView.Header = "Grid view";
+                    changeItemView.Header = Lang.TitleBarContextMenu_GridView;
                     changeItemView.Icon = new SymbolIcon { Symbol = SymbolRegular.Grid20 };
                     showFolderInGrid.Visibility = Visibility.Visible;
                     showFolder.Visibility = Visibility.Hidden;
@@ -2842,7 +2843,7 @@ namespace DeskFrame
                     Instance.ShowInGrid = !Instance.ShowInGrid;
                     showFolder.Visibility = Visibility.Visible;
                     showFolderInGrid.Visibility = Visibility.Hidden;
-                    changeItemView.Header = "Details view";
+                    changeItemView.Header = Lang.TitleBarContextMenu_DetailsView;
                     changeItemView.Icon = new SymbolIcon { Symbol = SymbolRegular.AppsList20 };
                 }
             };
