@@ -201,6 +201,18 @@ public class InstanceController
                 _subWindowsPtr.Add(new WindowInteropHelper(subWindow).Handle);
                 InitDetails();
             }
+            foreach (var window in _subWindows)
+            {
+                window.HandleWindowMove(true);
+                if (window.WonRight != null)
+                {
+                    window.WonRight.HandleWindowMove(false);
+                }
+                if (window.WonLeft != null)
+                {
+                    window.WonLeft.HandleWindowMove(false);
+                }
+            }
         }
     }
     public void ChangeVisibility()
@@ -535,7 +547,18 @@ public class InstanceController
                 _subWindowsPtr.Add(new WindowInteropHelper(subWindow).Handle);
                 InitDetails();
             }
-
+            foreach (var window in _subWindows)
+            {
+                window.HandleWindowMove(true);
+                if (window.WonRight != null)
+                {
+                    window.WonRight.HandleWindowMove(false);
+                }
+                if (window.WonLeft != null)
+                {
+                    window.WonLeft.HandleWindowMove(false);
+                }
+            }
             if (Instances.Count == 0)
             {
                 AddInstance();

@@ -96,8 +96,8 @@ namespace DeskFrame
         private ICollectionView _collectionView;
         private CancellationTokenSource _cts = new CancellationTokenSource();
         private CancellationTokenSource loadFilesCancellationToken = new CancellationTokenSource();
-        DeskFrameWindow _wOnLeft = null;
-        DeskFrameWindow _wOnRight = null;
+        public DeskFrameWindow WonRight = null;
+        public DeskFrameWindow WonLeft = null;
         MenuItem nameMenuItem;
         MenuItem dateModifiedMenuItem;
         MenuItem dateCreatedMenuItem;
@@ -543,13 +543,13 @@ namespace DeskFrame
                 _isIngrid = false;
 
                 HandleWindowMove(false);
-                if (_wOnLeft != null)
+                if (WonRight != null)
                 {
-                    _wOnLeft.HandleWindowMove(false);
+                    WonRight.HandleWindowMove(false);
                 }
-                if (_wOnRight != null)
+                if (WonLeft != null)
                 {
-                    _wOnRight.HandleWindowMove(false);
+                    WonLeft.HandleWindowMove(false);
                 }
             }
             if (_isLeftButtonDown &&
@@ -755,7 +755,7 @@ namespace DeskFrame
                 {
                     newWindowLeft = otherRight;
                     newWindowTop = otherTop;
-                    _wOnLeft = otherWindow;
+                    WonRight = otherWindow;
                     onLeft = true;
                     neighborFrameCount++;
                 }
@@ -763,7 +763,7 @@ namespace DeskFrame
                 {
                     newWindowLeft = otherLeft - (windowRight - windowLeft);
                     newWindowTop = otherTop;
-                    _wOnRight = otherWindow;
+                    WonLeft = otherWindow;
                     onRight = true;
                     neighborFrameCount++;
                 }
@@ -772,7 +772,7 @@ namespace DeskFrame
                 {
                     newWindowLeft = otherRight;
                     newWindowBottom = (int)workingArea.Bottom;
-                    _wOnLeft = otherWindow;
+                    WonRight = otherWindow;
                     onLeft = true;
                     neighborFrameCount++;
                 }
@@ -780,7 +780,7 @@ namespace DeskFrame
                 {
                     newWindowLeft = otherLeft - (windowRight - windowLeft);
                     newWindowBottom = (int)workingArea.Bottom;
-                    _wOnRight = otherWindow;
+                    WonLeft = otherWindow;
                     onRight = true;
                     neighborFrameCount++;
                 }
@@ -801,69 +801,69 @@ namespace DeskFrame
             }
             if (neighborFrameCount == 0)
             {
-                if (_wOnLeft != null && !onLeft)
+                if (WonRight != null && !onLeft)
                 {
-                    if (!_wOnLeft._isMinimized)
+                    if (!WonRight._isMinimized)
                     {
-                        _wOnLeft.WindowBorder.CornerRadius = new CornerRadius(
-                            topLeft: _wOnLeft._isOnTop ? 0 : _wOnLeft._wOnLeft == null ? 5 : 0,
-                            topRight: _wOnLeft._isOnTop ? 0 : (_wOnLeft._isOnBottom ? 0 : 5),
-                            bottomRight: _wOnLeft._isOnBottom ? 0 : 5,
-                            bottomLeft: _wOnLeft._isOnBottom ? 0 : 5
+                        WonRight.WindowBorder.CornerRadius = new CornerRadius(
+                            topLeft: WonRight._isOnTop ? 0 : WonRight.WonRight == null ? 5 : 0,
+                            topRight: WonRight._isOnTop ? 0 : (WonRight._isOnBottom ? 0 : 5),
+                            bottomRight: WonRight._isOnBottom ? 0 : 5,
+                            bottomLeft: WonRight._isOnBottom ? 0 : 5
                         );
-                        _wOnLeft.titleBar.CornerRadius = new CornerRadius(
-                            topLeft: _wOnLeft.WindowBorder.CornerRadius.TopLeft,
-                            topRight: _wOnLeft.WindowBorder.CornerRadius.TopRight,
+                        WonRight.titleBar.CornerRadius = new CornerRadius(
+                            topLeft: WonRight.WindowBorder.CornerRadius.TopLeft,
+                            topRight: WonRight.WindowBorder.CornerRadius.TopRight,
                             bottomRight: 0,
                             bottomLeft: 0
                         );
                     }
                     else
                     {
-                        _wOnLeft.WindowBorder.CornerRadius = new CornerRadius(
-                            topLeft: _wOnLeft._isOnTop ? 0 : _wOnLeft._wOnLeft == null ? 5 : 0,
-                            topRight: _wOnLeft._isOnTop ? 0 : (_wOnLeft._isOnBottom ? 0 : 5),
-                            bottomRight: _wOnLeft._isOnBottom ? 0 : 5,
-                            bottomLeft: _wOnLeft._wOnLeft == null ? (_wOnLeft._isOnBottom ? 0 : 5) : 0
+                        WonRight.WindowBorder.CornerRadius = new CornerRadius(
+                            topLeft: WonRight._isOnTop ? 0 : WonRight.WonRight == null ? 5 : 0,
+                            topRight: WonRight._isOnTop ? 0 : (WonRight._isOnBottom ? 0 : 5),
+                            bottomRight: WonRight._isOnBottom ? 0 : 5,
+                            bottomLeft: WonRight.WonRight == null ? (WonRight._isOnBottom ? 0 : 5) : 0
                         );
-                        _wOnLeft.titleBar.CornerRadius = _wOnLeft.WindowBorder.CornerRadius;
+                        WonRight.titleBar.CornerRadius = WonRight.WindowBorder.CornerRadius;
 
                     }
-                    _wOnLeft.WindowBackground.CornerRadius = _wOnLeft.WindowBorder.CornerRadius;
-                    _wOnLeft._wOnRight = null;
-                    _wOnLeft = null;
+                    WonRight.WindowBackground.CornerRadius = WonRight.WindowBorder.CornerRadius;
+                    WonRight.WonLeft = null;
+                    WonRight = null;
                 }
-                if (_wOnRight != null && !onRight)
+                if (WonLeft != null && !onRight)
                 {
-                    if (!_wOnRight._isMinimized)
+                    if (!WonLeft._isMinimized)
                     {
-                        _wOnRight.WindowBorder.CornerRadius = new CornerRadius(
-                            topLeft: _wOnRight._isOnTop ? 0 : (_wOnRight._isOnBottom ? 0 : 5),
-                            topRight: _wOnRight._isOnTop ? 0 : _wOnRight._wOnRight == null ? 5 : 0,
-                            bottomRight: _wOnRight._isOnBottom ? 0 : 5,
-                            bottomLeft: _wOnRight._isOnBottom ? 0 : 5
+                        WonLeft.WindowBorder.CornerRadius = new CornerRadius(
+                            topLeft: WonLeft._isOnTop ? 0 : (WonLeft._isOnBottom ? 0 : 5),
+                            topRight: WonLeft._isOnTop ? 0 : WonLeft.WonLeft == null ? 5 : 0,
+                            bottomRight: WonLeft._isOnBottom ? 0 : 5,
+                            bottomLeft: WonLeft._isOnBottom ? 0 : 5
                         );
-                        _wOnRight.titleBar.CornerRadius = new CornerRadius(
-                            topLeft: _wOnRight.WindowBorder.CornerRadius.TopLeft,
-                            topRight: _wOnRight.WindowBorder.CornerRadius.TopRight,
+                        WonLeft.titleBar.CornerRadius = new CornerRadius(
+                            topLeft: WonLeft.WindowBorder.CornerRadius.TopLeft,
+                            topRight: WonLeft.WindowBorder.CornerRadius.TopRight,
                             bottomRight: 0,
                             bottomLeft: 0
                         );
                     }
                     else
                     {
-                        _wOnRight.WindowBorder.CornerRadius = new CornerRadius(
-                            topLeft: _wOnRight._isOnTop ? 0 : (_wOnRight._isOnBottom ? 0 : 5),
-                            topRight: _wOnRight._isOnTop ? 0 : _wOnRight._wOnRight == null ? 5 : 0,
-                            bottomRight: _wOnRight._wOnRight == null ? (_wOnRight._isOnBottom ? 0 : 5) : 0,
-                            bottomLeft: _wOnRight._isOnBottom ? 0 : 5
+                        WonLeft.WindowBorder.CornerRadius = new CornerRadius(
+                            topLeft: WonLeft._isOnTop ? 0 : (WonLeft._isOnBottom ? 0 : 5),
+                            topRight: WonLeft._isOnTop ? 0 : WonLeft.WonLeft == null ? 5 : 0,
+                            bottomRight: WonLeft.WonLeft == null ? (WonLeft._isOnBottom ? 0 : 5) : 0,
+                            bottomLeft: WonLeft._isOnBottom ? 0 : 5
                         );
-                        _wOnRight.titleBar.CornerRadius = _wOnRight.WindowBorder.CornerRadius;
+                        WonLeft.titleBar.CornerRadius = WonLeft.WindowBorder.CornerRadius;
 
                     }
-                    _wOnRight.WindowBackground.CornerRadius = _wOnRight.WindowBorder.CornerRadius;
-                    _wOnRight._wOnLeft = null;
-                    _wOnRight = null;
+                    WonLeft.WindowBackground.CornerRadius = WonLeft.WindowBorder.CornerRadius;
+                    WonLeft.WonRight = null;
+                    WonLeft = null;
                 }
 
             }
@@ -888,8 +888,8 @@ namespace DeskFrame
                 else
                 {
                     WindowBorder.CornerRadius = new CornerRadius(
-                        topLeft: _isOnTop ? 0 : _wOnLeft == null ? 5 : 0,
-                        topRight: _isOnTop ? 0 : _wOnRight == null ? 5 : 0,
+                        topLeft: _isOnTop ? 0 : WonRight == null ? 5 : 0,
+                        topRight: _isOnTop ? 0 : WonLeft == null ? 5 : 0,
                         bottomRight: 5,
                         bottomLeft: 5
                     );
@@ -907,8 +907,8 @@ namespace DeskFrame
                 if (_isOnBottom)
                 {
                     WindowBorder.CornerRadius = new CornerRadius(
-                        topLeft: _wOnLeft == null ? 5 : 0,
-                        topRight: _wOnRight == null ? 5 : 0,
+                        topLeft: WonRight == null ? 5 : 0,
+                        topRight: WonLeft == null ? 5 : 0,
                         bottomRight: 0,
                         bottomLeft: 0
                    );
@@ -916,10 +916,10 @@ namespace DeskFrame
                 else
                 {
                     WindowBorder.CornerRadius = new CornerRadius(
-                        topLeft: _isOnTop ? 0 : _wOnLeft == null ? 5 : 0,
-                        topRight: _isOnTop ? 0 : _wOnRight == null ? 5 : 0,
-                        bottomRight: _wOnRight == null ? 5 : 0,
-                        bottomLeft: _wOnLeft == null ? 5 : 0
+                        topLeft: _isOnTop ? 0 : WonRight == null ? 5 : 0,
+                        topRight: _isOnTop ? 0 : WonLeft == null ? 5 : 0,
+                        bottomRight: WonLeft == null ? 5 : 0,
+                        bottomLeft: WonRight == null ? 5 : 0
                     );
                 }
                 WindowBackground.CornerRadius = WindowBorder.CornerRadius;
