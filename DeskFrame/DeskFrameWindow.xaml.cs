@@ -2433,8 +2433,11 @@ namespace DeskFrame
 
         private void Window_LocationChanged(object sender, EventArgs e)
         {
-            Instance.PosX = this.Left;
-            Instance.PosY = this.Top;
+            if (_isLeftButtonDown)
+            {
+                Instance.PosX = this.Left;
+                Instance.PosY = this.Top;
+            }
         }
         private void MainWindow_Loaded(object sender, RoutedEventArgs e)
         {
