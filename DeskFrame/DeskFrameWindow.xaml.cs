@@ -164,7 +164,7 @@ namespace DeskFrame
         public async Task<List<FileSystemInfo>> SortFileItemsToList(List<FileSystemInfo> fileItems, int sortBy, int folderOrder)
         {
             var fileItemSizes = new List<(FileSystemInfo item, long size)>();
-            
+
             foreach (var item in fileItems)
             {
                 long size = await GetItemSizeAsync(item);
@@ -423,6 +423,21 @@ namespace DeskFrame
                 HandleRightClick(rootVisual, lParam);
                 handled = true;
             }
+            if (msg == 0x0205) // WM_RBUTTONUP
+            {
+                int x = lParam.ToInt32() & 0xFFFF;
+                int y = (lParam.ToInt32() >> 16) & 0xFFFF;
+                var screenPoint = new System.Windows.Point(x, y);
+                var relativePoint = FileWrapPanel.PointFromScreen(screenPoint);
+                if (VisualTreeHelper.HitTest(FileWrapPanel, relativePoint) == null)
+                {
+                    var curPos = System.Windows.Forms.Cursor.Position;
+                    var shellItem = new Vanara.Windows.Shell.ShellItem(Instance.Folder);
+                    shellItem.ContextMenu.ShowContextMenu(curPos);
+                    handled = true;
+                }
+            }
+
 
             if (msg == 0x0214) // WM_SIZING
             {
