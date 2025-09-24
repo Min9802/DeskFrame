@@ -2693,7 +2693,7 @@ namespace DeskFrame
 
             MenuItem sortByMenuItem = new MenuItem
             {
-                Header = "Sort by",
+                Header = Lang.TitleBarContextMenu_Sortby,
                 Height = 34,
                 Icon = new SymbolIcon(SymbolRegular.ArrowSort20)
             };

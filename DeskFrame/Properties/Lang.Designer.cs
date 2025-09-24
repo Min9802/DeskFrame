@@ -412,7 +412,7 @@ namespace DeskFrame.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Frame settings.
+        ///   Looks up a localized string similar to Title bar text:.
         /// </summary>
         public static string FrameSettings_TitleBarText {
             get {

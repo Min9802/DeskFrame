@@ -184,7 +184,7 @@
     <value>Kolor cienia tekstu (hex):</value>
   </data>
   <data name="FrameSettings.TitleBarText" xml:space="preserve">
-    <value>Ustawienia ramki</value>
+    <value>Tekst paska tytułu:</value>
     <comment>Title of the window</comment>
   </data>
   <data name="FrameSettings.Font" xml:space="preserve">

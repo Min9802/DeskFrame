@@ -184,7 +184,7 @@
     <value>文本阴影颜色 (hex)：</value>
   </data>
   <data name="FrameSettings.TitleBarText" xml:space="preserve">
-    <value>框架设置</value>
+    <value>标题栏文本：</value>
     <comment>窗口标题</comment>
   </data>
   <data name="FrameSettings.Font" xml:space="preserve">
