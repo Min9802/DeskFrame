@@ -8,6 +8,7 @@ using static DeskFrame.Util.Interop;
 using System.Windows.Interop;
 using H.Hooks;
 using MouseEventArgs = H.Hooks.MouseEventArgs;
+using System.Windows.Automation;
 namespace DeskFrame
 {
     public partial class MainWindow : Window
@@ -72,18 +73,28 @@ namespace DeskFrame
             if (e.Keys.ToString() != "MouseLeft") return;
             if ((DateTime.Now - _lastDoubleClickTime).TotalSeconds < 0.3) return;
             _lastDoubleClickTime = DateTime.Now;
-            
+
             POINT pt = new POINT { X = e.Position.X, Y = e.Position.Y };
             IntPtr hwndUnderCursor = WindowFromPoint(pt);
             IntPtr desktopListView = GetDesktopListViewHandle();
 
-            if (hwndUnderCursor == desktopListView)
+            if (hwndUnderCursor == desktopListView && !IsDesktopIconHit(pt))
             {
                 Application.Current.Dispatcher.Invoke(() =>
                 {
                     _controller.ChangeVisibility();
                 });
             }
+        }
+
+        private static bool IsDesktopIconHit(POINT screenPt)
+        {
+            var element = AutomationElement.FromPoint(new System.Windows.Point(screenPt.X, screenPt.Y));
+            if (element.Current.ControlType == ControlType.ListItem)
+            {
+                return true;
+            }
+            return false;
         }
 
         private async void Update()
