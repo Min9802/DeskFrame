@@ -164,7 +164,7 @@ namespace DeskFrame
 
         private async void Update_Button_Click(object sender, RoutedEventArgs e)
         {
-            await Updater.CheckUpdateAsync(url,true);
+            await Updater.CheckUpdateAsync(url, true);
 
         }
         //private void BlurToggle_CheckChanged(object sender, System.Windows.RoutedEventArgs e)
