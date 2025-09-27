@@ -2826,7 +2826,7 @@ namespace DeskFrame
 
             MenuItem openInExplorerMenuItem = new MenuItem
             {
-                Header =Lang.TitleBarContextMenu_OpenFolder,
+                Header = Lang.TitleBarContextMenu_OpenFolder,
                 Icon = new SymbolIcon { Symbol = SymbolRegular.FolderOpen20 }
             };
             openInExplorerMenuItem.Click += (_, _) => { OpenFolder(); };
