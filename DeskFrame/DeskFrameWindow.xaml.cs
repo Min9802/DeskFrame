@@ -992,13 +992,31 @@ namespace DeskFrame
             SetWindowLong(hwnd, GWL_STYLE, style);
 
             // convert coords to parent-relative coords
-            POINT pt = new POINT { X = _oriPosX, Y = _oriPosY };
+            uint dpi = GetDpiForWindow(hwnd);
+            double scale = dpi / 96.0;
+            POINT pt = new POINT
+            {
+                X = (int)(Instance.PosX * scale),
+                Y = (int)(Instance.PosY * scale)
+            };
             ScreenToClient(shellView, ref pt);
 
+            pt.Y = (int)(Instance.PosY * scale);
+            pt.X = (int)(Instance.PosX * scale);
             SetWindowPos(hwnd, IntPtr.Zero,
                          pt.X, pt.Y,
                          0, 0,
                          SWP_NOSIZE | SWP_NOZORDER | SWP_NOACTIVATE | SWP_SHOWWINDOW);
+        }
+
+        public void AdjustPosition()
+        {
+            SetParent(new WindowInteropHelper(this).Handle, IntPtr.Zero);
+            SetAsDesktopChild();
+            if (Instance.Minimized)
+            {
+                this.Height = titleBar.Height;
+            }
         }
         public void SetAsToolWindow()
         {

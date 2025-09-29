@@ -184,34 +184,26 @@ public class InstanceController
     public void CheckFrameWindowsLive()
     {
         int closedCount = 0;
-        if (_subWindows.Count != 0 &&
-            !isInitializingInstances)
+        foreach (var window in _subWindows)
         {
+            if (new WindowInteropHelper(window).Handle == IntPtr.Zero) closedCount++;
+        }
+        if (_subWindows.Count != 0 && !isInitializingInstances)
+        {
+            if (closedCount == _subWindows.Count)
+            {
+                foreach (var window in _subWindows)
+                {
+                    window.Close();
+                }
+                _subWindows.Clear();
+                _subWindowsPtr.Clear();
+                Instances.Clear();
+                InitInstances();
+            }
             foreach (var window in _subWindows)
             {
-                window.Close();
-            }
-            _subWindows.Clear();
-            foreach (var Instance in Instances)
-            {
-                var subWindow = new DeskFrameWindow(Instance);
-                _subWindows.Add(subWindow);
-                subWindow.ChangeBackgroundOpacity(Instance.Opacity);
-                subWindow.Show();
-                _subWindowsPtr.Add(new WindowInteropHelper(subWindow).Handle);
-                InitDetails();
-            }
-            foreach (var window in _subWindows)
-            {
-                window.HandleWindowMove(true);
-                if (window.WonRight != null)
-                {
-                    window.WonRight.HandleWindowMove(false);
-                }
-                if (window.WonLeft != null)
-                {
-                    window.WonLeft.HandleWindowMove(false);
-                }
+                window.AdjustPosition();
             }
         }
     }
