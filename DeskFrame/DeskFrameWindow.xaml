@@ -40,7 +40,7 @@
         <local:OffsetConverter x:Key="OffsetConverter"/>
         <local:IconSizeToHeightWidthConverter x:Key="IconSizeToHeightWidthConverter"/>
         <local:ShowDisplayNameToItemWidthConverter x:Key="ShowDisplayNameToItemWidthConverter"/>
-        
+
         <!-- DataTemplate to display each file item -->
         <DataTemplate x:Key="FileItemTemplate">
             <Border Background="{Binding Background}" Margin="4,0,0,5" CornerRadius="5"
@@ -55,7 +55,7 @@
                            VerticalAlignment="Center" HorizontalAlignment="Center"
                            />
                     <Grid Margin="0,0,0,2" Visibility="{Binding DataContext.Instance.ShowDisplayName, RelativeSource={RelativeSource AncestorType=Window}, Converter={StaticResource BooleanToVisibilityConverter}}">
-                        <TextBlock FontSize="12" Text="{Binding DisplayName}" Padding="0,0,0,0"  Margin="1,-2.5,0,0"
+                        <TextBlock FontSize="12" Text="{Binding DisplayName}" Padding="0,0,0,0" Margin="0,-2.5,0,0"
                            TextWrapping="Wrap" TextAlignment="Center" 
                            TextTrimming="{Binding TextTrimming}" 
                            HorizontalAlignment="Center" MaxHeight="{Binding MaxHeight}" 
@@ -64,9 +64,9 @@
                                 <BlurEffect Radius="2" KernelType="Box"/>
                             </TextBlock.Effect>
                         </TextBlock>
-                        <TextBlock FontSize="12" Text="{Binding DisplayName}" Padding="0,0,0,0"  Margin="1,-2.5,0,0"
-                             TextWrapping="Wrap" TextAlignment="Center" 
-                             TextTrimming="{Binding TextTrimming}" 
+                        <TextBlock FontSize="12" Text="{Binding DisplayName}" Padding="0,0,0,0" Margin="0,-2.5,0,0"
+                           TextWrapping="Wrap" TextAlignment="Center" 
+                           TextTrimming="{Binding TextTrimming}"  
                              HorizontalAlignment="Center" MaxHeight="{Binding MaxHeight}" 
                              Foreground="{Binding DataContext.Instance.ListViewFontShadowColor, RelativeSource={RelativeSource AncestorType=Window}}">
                             <TextBlock.Effect>
