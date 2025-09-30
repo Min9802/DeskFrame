@@ -201,9 +201,12 @@ public class InstanceController
                 Instances.Clear();
                 InitInstances();
             }
-            foreach (var window in _subWindows)
+            if (closedCount != _subWindows.Count)
             {
-                window.AdjustPosition();
+                foreach (var window in _subWindows)
+                {
+                    window.AdjustPosition();
+                }
             }
         }
     }

@@ -1011,7 +1011,7 @@ namespace DeskFrame
 
         public void AdjustPosition()
         {
-            SetParent(new WindowInteropHelper(this).Handle, IntPtr.Zero);
+            SetParent(hwnd, IntPtr.Zero);
             SetAsDesktopChild();
             if (Instance.Minimized)
             {
