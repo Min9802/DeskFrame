@@ -2,8 +2,8 @@
 name: Bug report
 about: Create a report to help us improve
 title: "[BUG] - "
-labels: bug, enhancement
-assignees: PinchToDebug
+labels: bug
+assignees: ''
 
 ---
 
@@ -29,4 +29,4 @@ If applicable, add screenshots or a screenrecording to help explain your problem
  - OS Build [e.g. 22000.1]
 
 **Additional context**
-Add any other context about the problem here.
+Details about your setup here such as number of monitors, scaling settings, whether you're using any other software that changes the look of windows, or how it functions.
