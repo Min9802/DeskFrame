@@ -1001,8 +1001,6 @@ namespace DeskFrame
             };
             ScreenToClient(shellView, ref pt);
 
-            pt.Y = (int)(Instance.PosY * scale);
-            pt.X = (int)(Instance.PosX * scale);
             SetWindowPos(hwnd, IntPtr.Zero,
                          pt.X, pt.Y,
                          0, 0,
