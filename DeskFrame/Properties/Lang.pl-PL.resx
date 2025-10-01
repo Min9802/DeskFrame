@@ -183,7 +183,7 @@
   <data name="FrameSettings.TextShadowColor" xml:space="preserve">
     <value>Kolor cienia tekstu (hex):</value>
   </data>
-  <data name="FrameSettings.TitleBarText" xml:space="preserve">
+  <data name="FrameSettings.TitleBarTextText" xml:space="preserve">
     <value>Tekst paska tytułu:</value>
     <comment>Title of the window</comment>
   </data>
@@ -379,5 +379,8 @@
   </data>
   <data name="showFolderInGrid.DropFolder" xml:space="preserve">
     <value>Upuść folder</value>
+  </data>
+  <data name="FrameSettings.TitleBarText" xml:space="preserve">
+    <value>Ustawienia Frame</value>
   </data>
 </root>

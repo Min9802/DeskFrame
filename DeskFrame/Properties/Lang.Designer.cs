@@ -412,11 +412,20 @@ namespace DeskFrame.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Title bar text:.
+        ///   Looks up a localized string similar to Frame settings.
         /// </summary>
         public static string FrameSettings_TitleBarText {
             get {
                 return ResourceManager.GetString("FrameSettings.TitleBarText", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Title bar text:.
+        /// </summary>
+        public static string FrameSettings_TitleBarTextText {
+            get {
+                return ResourceManager.GetString("FrameSettings.TitleBarTextText", resourceCulture);
             }
         }
         

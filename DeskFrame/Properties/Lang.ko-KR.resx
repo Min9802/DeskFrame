@@ -183,7 +183,7 @@
   <data name="FrameSettings.TextShadowColor" xml:space="preserve">
     <value>텍스트 그림자 색상 (hex):</value>
   </data>
-  <data name="FrameSettings.TitleBarText" xml:space="preserve">
+  <data name="FrameSettings.TitleBarTextText" xml:space="preserve">
     <value>제목 표시줄 텍스트:</value>
     <comment>Title of the window</comment>
   </data>
@@ -379,5 +379,8 @@
   </data>
   <data name="showFolderInGrid.DropFolder" xml:space="preserve">
     <value>폴더를 놓으세요</value>
+  </data>
+  <data name="FrameSettings.TitleBarText" xml:space="preserve">
+    <value>Frame 설정</value>
   </data>
 </root>

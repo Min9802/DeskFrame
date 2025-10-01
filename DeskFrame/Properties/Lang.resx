@@ -183,7 +183,7 @@
   <data name="FrameSettings.TextShadowColor" xml:space="preserve">
     <value>Text shadow color (hex):</value>
   </data>
-  <data name="FrameSettings.TitleBarText" xml:space="preserve">
+  <data name="FrameSettings.TitleBarTextText" xml:space="preserve">
     <value>Title bar text:</value>
     <comment>Title of the window</comment>
   </data>
@@ -379,5 +379,9 @@
   </data>
   <data name="showFolderInGrid.DropFolder" xml:space="preserve">
     <value>Drop a folder</value>
+  </data>
+  <data name="FrameSettings.TitleBarText" xml:space="preserve">
+    <value>Frame settings</value>
+    <comment>Title of the window</comment>
   </data>
 </root>

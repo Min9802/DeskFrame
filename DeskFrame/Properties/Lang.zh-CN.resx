@@ -183,7 +183,7 @@
   <data name="FrameSettings.TextShadowColor" xml:space="preserve">
     <value>文本阴影颜色 (hex)：</value>
   </data>
-  <data name="FrameSettings.TitleBarText" xml:space="preserve">
+  <data name="FrameSettings.TitleBarTextText" xml:space="preserve">
     <value>标题栏文本：</value>
     <comment>窗口标题</comment>
   </data>
@@ -378,5 +378,8 @@
   </data>
   <data name="showFolderInGrid.DropFolder" xml:space="preserve">
     <value>拖放文件夹</value>
+  </data>
+  <data name="FrameSettings.TitleBarText" xml:space="preserve">
+    <value>Frame 设置</value>
   </data>
 </root>

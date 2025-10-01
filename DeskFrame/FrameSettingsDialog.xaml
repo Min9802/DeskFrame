@@ -260,7 +260,7 @@
                 </Grid>
 
 
-                <Label Content="{x:Static prop:Lang.FrameSettings_TitleBarText}" Height="30"/>
+                <Label Content="{x:Static prop:Lang.FrameSettings_TitleBarTextText}" Height="30"/>
                 <ui:TextBox x:Name="TitleTextBox" Margin="0,0,0,20" TextChanged="TextChangedHandler"/>
 
 
