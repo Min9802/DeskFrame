@@ -432,9 +432,16 @@ namespace DeskFrame
                 if (VisualTreeHelper.HitTest(FileWrapPanel, relativePoint) == null)
                 {
                     var curPos = System.Windows.Forms.Cursor.Position;
-                    var shellItem = new Vanara.Windows.Shell.ShellItem(Instance.Folder);
-                    shellItem.ContextMenu.ShowContextMenu(curPos);
-                    handled = true;
+                    try
+                    {
+                        var shellItem = new Vanara.Windows.Shell.ShellItem(Instance.Folder);
+                        shellItem.ContextMenu.ShowContextMenu(curPos);
+                        handled = true;
+                    }
+                    catch
+                    {
+                    }
+
                 }
             }
 
