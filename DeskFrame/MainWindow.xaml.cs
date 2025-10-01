@@ -15,6 +15,7 @@ namespace DeskFrame
     {
         private string url = "https://api.github.com/repos/PinchToDebug/DeskFrame/releases/latest";
         bool startOnLogin;
+        bool reseted = false;
         private uint _taskbarRestartMessage;
         public static InstanceController _controller;
         private LowLevelMouseHook _lowLevelMouseHook;
@@ -224,7 +225,43 @@ namespace DeskFrame
                         _controller.CheckFrameWindowsLive();
                 });
             }
+            if (msg == 0x007E) // WM_DISPLAYCHANGE   
+            {
+                if (!_controller.isInitializingInstances)
+                {
+                    // System.Windows.Forms.MessageBox.Show("ee");
+
+                    _controller.CheckFrameWindowsLive();
+                    Thread.Sleep(200);
+                    DummyWindow();
+                    reseted = true;
+                }
+            }
+            if (msg == 0x001C && reseted) // WM_WININICHANGE  
+            {
+                if (!_controller.isInitializingInstances)
+                {
+
+                    reseted = false;
+                    _controller.CheckFrameWindowsLive();
+                    Thread.Sleep(200);
+                    DummyWindow();
+                }
+            }
             return IntPtr.Zero;
+        }
+        private void DummyWindow()
+        {
+            var window = new DeskFrameWindow(new Instance("empty", false))
+            {
+                MinHeight = 1,
+                MinWidth = 1,
+                Height = 1,
+                Width = 1,
+                Opacity = 0,
+            };
+            window.Show();
+            window.Close();
         }
         protected override void OnClosed(EventArgs e)
         {
