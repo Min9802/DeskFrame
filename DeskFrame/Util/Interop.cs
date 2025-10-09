@@ -267,11 +267,13 @@ namespace DeskFrame.Util
         public enum SHGFI : uint
         {
             Icon = 0x100,
+            LargeIcon = 0x0,
+            UseFileAttributes = 0x10,
             DisplayName = 0x200,
             TypeName = 0x400
         }
 
-
+ 
         [StructLayout(LayoutKind.Sequential)]
         public struct SHELLEXECUTEINFO
         {
