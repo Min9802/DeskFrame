@@ -2238,7 +2238,16 @@ namespace DeskFrame
 
                                     double overlayX = thumbnailX;
                                     double overlayY = thumbnailY + thumbnailHeight - overlay.PixelHeight;
-
+                                    if (Instance.IconSize < 32)
+                                    {
+                                        scale = Instance.IconSize / 32.0;
+                                        TransformedBitmap transformedBitmap = new TransformedBitmap(
+                                            overlay,
+                                            new ScaleTransform(scale, scale)
+                                        );
+                                        overlay = transformedBitmap;
+                                        overlayY = thumbnailY + thumbnailHeight - overlay.PixelHeight;
+                                    }
                                     dc.DrawImage(overlay,
                                         new Rect(
                                         overlayX,
