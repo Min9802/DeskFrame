@@ -303,10 +303,10 @@
     <value>创建日期</value>
   </data>
   <data name="TitleBarContextMenu.Sortby.FileType" xml:space="preserve">
-    <value>文件类型</value>
+    <value>类型</value>
   </data>
   <data name="TitleBarContextMenu.Sortby.FileSize" xml:space="preserve">
-    <value>文件大小</value>
+    <value>大小</value>
   </data>
   <data name="TitleBarContextMenu.Sortby.Ascending" xml:space="preserve">
     <value>升序</value>
@@ -315,13 +315,13 @@
     <value>降序</value>
   </data>
   <data name="TitleBarContextMenu.Sortby.FolderIder.None" xml:space="preserve">
-    <value>无</value>
+    <value>默认</value>
   </data>
   <data name="TitleBarContextMenu.Sortby.FolderIder.First" xml:space="preserve">
     <value>优先</value>
   </data>
   <data name="TitleBarContextMenu.Sortby.FolderIder.Last" xml:space="preserve">
-    <value>最后</value>
+    <value>置后</value>
   </data>
   <data name="TitleBarContextMenu.UnlockFrame" xml:space="preserve">
     <value>解锁框架</value>
