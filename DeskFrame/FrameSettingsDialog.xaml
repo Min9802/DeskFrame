@@ -390,7 +390,7 @@
                     <Label Content="{x:Static prop:Lang.FrameSettings_IconSize}" Height="30" Margin="0,20,0,0"/>
                     <Label x:Name="IconSizeLabel" Content="0%" Height="30" Margin="5,20,0,0" Foreground="{DynamicResource {x:Static SystemColors.MenuHighlightBrushKey}}" FontWeight="Bold"/>
                 </StackPanel>
-                <Slider x:Name="IconSizeSlider" Width="200" TickPlacement="TopLeft" TickFrequency="1" Minimum="1" Maximum="16" ValueChanged="Slider_ValueChanged" IsSnapToTickEnabled="True"/>
+                <Slider x:Name="IconSizeSlider" Width="200" TickPlacement="TopLeft" TickFrequency="1" Minimum="1" Maximum="64" ValueChanged="Slider_ValueChanged" IsSnapToTickEnabled="True"/>
             </StackPanel>
             <Button x:Name="RevertButton" Content="{x:Static prop:Lang.FrameSettings_RevertButton}" Grid.Column="4" HorizontalAlignment="Right" Margin="10" Height="30" Click="RevertButton_Click"  VerticalAlignment="Bottom"/>
 

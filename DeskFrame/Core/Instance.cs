@@ -56,7 +56,7 @@ public class Instance : INotifyPropertyChanged
         {
             if (_iconSize != value)
             {
-                _iconSize = Math.Clamp(value, 16, 64);
+                _iconSize = Math.Clamp(value, 16, 256);
                 OnPropertyChanged(nameof(IconSize), value.ToString());
             }
         }
