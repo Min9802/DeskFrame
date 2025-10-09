@@ -2149,6 +2149,7 @@ namespace DeskFrame
                 }
                 if (Path.GetExtension(path).ToLower() == ".url")
                 {
+                    isShortcut = true;
                     try
                     {
                         Application.Current.Dispatcher.Invoke(() =>
