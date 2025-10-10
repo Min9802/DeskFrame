@@ -34,6 +34,14 @@
             <DoubleAnimation Storyboard.TargetProperty="Height" Duration="0:0:0.2" />
         </Storyboard>
 
+        <Storyboard x:Key="FadeOutStoryboard">
+            <DoubleAnimation Storyboard.TargetName="LoadingProgressRing" Storyboard.TargetProperty="Opacity" From="1" To="0" Duration="0:0:0.8"/>
+        </Storyboard>
+
+        <Storyboard x:Key="FadeInStoryboard">
+            <DoubleAnimation Storyboard.TargetName="LoadingProgressRing" Storyboard.TargetProperty="Opacity" From="0" To="1" Duration="0:0:0.2"/>
+        </Storyboard>
+
         <local:BooleanToBorderThicknessConverter x:Key="BooleanToBorderThicknessConverter"/>
         <local:TitleTextAlignmentToMarginConverter x:Key="TitleTextAlignmentToMarginConverter" />
         <local:BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter" />
@@ -107,6 +115,7 @@
 
 
                         <StackPanel Grid.Column="1" Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Center" Margin="0,0,0,0">
+                            <ui:ProgressRing  x:Name="LoadingProgressRing" Visibility="Visible" IsIndeterminate="True" Height="18" Width="18" Foreground="{Binding ElementName=title, Path=Foreground}"/>
                             <Grid Cursor="Hand" MouseLeftButtonDown="ToggleHiddenFiles_MouseLeftButtonDown" Width="30" Background="#02000000" Name="HiddenFilesIconGrid">
                                 <ui:SymbolIcon x:Name="HiddenFilesIcon" Symbol="Eye48" Foreground="{Binding ElementName=title, Path=Foreground}" Width="20" Height="20" FontSize="20">
                                     <ui:SymbolIcon.RenderTransform>

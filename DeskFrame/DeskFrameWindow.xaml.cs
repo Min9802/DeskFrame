@@ -415,6 +415,10 @@ namespace DeskFrame
                     await Task.Delay(500, token);
                     if (!token.IsCancellationRequested)
                     {
+                        Dispatcher.Invoke(() =>
+                        {
+                            LoadingChevronIconFade(true);
+                        });
                         foreach (var item in FileItems)
                         {
                             item.Thumbnail = await GetThumbnailAsync(item.FullPath!);
@@ -422,6 +426,14 @@ namespace DeskFrame
                         Dispatcher.Invoke(() =>
                         {
                             FileWrapPanel.Items.Refresh();
+                            Task.Run(async () =>
+                            {
+                                await Task.Delay(200, token);
+                                Dispatcher.Invoke(() =>
+                                {
+                                    LoadingChevronIconFade(false);
+                                });
+                            });
                         });
                     }
                 });
@@ -1510,11 +1522,13 @@ namespace DeskFrame
                 {
                     return;
                 }
+                LoadingChevronIconFade(true);
 
                 var fileEntries = await Task.Run(() =>
                 {
                     if (loadFiles_cts.IsCancellationRequested)
                     {
+                        LoadingChevronIconFade(false);
                         return new List<FileSystemInfo>();
                     }
                     var dirInfo = new DirectoryInfo(path);
@@ -1538,6 +1552,7 @@ namespace DeskFrame
 
                 if (loadFiles_cts.IsCancellationRequested)
                 {
+                    LoadingChevronIconFade(false);
                     return;
                 }
                 if (Instance.LastAccesedToFirstRow)
@@ -1558,12 +1573,14 @@ namespace DeskFrame
                 {
                     if (loadFiles_cts.IsCancellationRequested)
                     {
+                        LoadingChevronIconFade(false);
                         return;
                     }
                     for (int i = FileItems.Count - 1; i >= 0; i--)  // Remove item that no longer exist
                     {
                         if (loadFiles_cts.IsCancellationRequested)
                         {
+                            LoadingChevronIconFade(false);
                             return;
                         }
                         if (!fileNames.Contains(Path.GetFileName(FileItems[i].FullPath!)))
@@ -1575,7 +1592,10 @@ namespace DeskFrame
                     foreach (var entry in fileEntries)
                     {
                         if (loadFiles_cts.IsCancellationRequested)
+                        {
+                            LoadingChevronIconFade(false);
                             return;
+                        }
 
                         var existingItem = FileItems.FirstOrDefault(item => item.FullPath == entry.FullName);
 
@@ -1653,13 +1673,30 @@ namespace DeskFrame
                         _fileCount += $" ({hiddenCount} hidden)";
                     }
                     SortItems();
+                    await Task.Run(async () =>
+                    {
+                        await Task.Delay(200);
+                        Dispatcher.Invoke(() =>
+                        {
+                            LoadingChevronIconFade(false);
+                        });
+                    });
                     Debug.WriteLine("LOADEDDDDDDDD");
                 });
             }
             catch (OperationCanceledException)
             {
+                LoadingChevronIconFade(false);
                 Debug.WriteLine("LoadFiles was canceled.");
             }
+        }
+        private void LoadingChevronIconFade(bool showLoading)
+        {
+            Storyboard fadeOut = (Storyboard)this.Resources["FadeOutStoryboard"];
+            Storyboard fadeIn = (Storyboard)this.Resources["FadeInStoryboard"];
+
+            if (showLoading) fadeIn.Begin();
+            else fadeOut.Begin();
         }
         public void SortItems()
         {
