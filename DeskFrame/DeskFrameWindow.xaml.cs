@@ -2121,7 +2121,6 @@ namespace DeskFrame
                     thumbnail = await LoadSvgThumbnailAsync(path);
                     return thumbnail;
                 }
-                Debug.WriteLine(Instance.IconSize);
                 string ext = Path.GetExtension(path).ToLowerInvariant();
                 bool isExecutable = ext == ".exe" || ext == ".dll" || ext == ".bat" || ext == ".cmd";
                 bool isArchive = ext == ".rar" || ext == ".7z" || ext == ".zip" || ext == ".gzip" || ext == ".tar";
