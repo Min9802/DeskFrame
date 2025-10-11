@@ -43,6 +43,7 @@ using IWshRuntimeLibrary;
 using File = System.IO.File;
 using DeskFrame.Core;
 using DeskFrame.Properties;
+using Microsoft.WindowsAPICodePack.Shell;
 namespace DeskFrame
 {
     public partial class DeskFrameWindow : System.Windows.Window
@@ -2103,64 +2104,6 @@ namespace DeskFrame
                 }
             }
         }
-
-
-        public static BitmapSource? GetFileThumbnailOrIcon(string filePath, int size = 32)
-        {
-            if (string.IsNullOrEmpty(filePath))
-            {
-                return null;
-            }
-
-            try
-            {
-                var iid = typeof(IShellItemImageFactory).GUID;
-                SHCreateItemFromParsingName(filePath, IntPtr.Zero, ref iid, out IShellItemImageFactory factory);
-
-                int hr = factory.GetImage(
-                    new System.Drawing.Size { Width = size, Height = size },
-                    1, // SIIGBF_BIGGERSIZEOK
-                    out IntPtr hBitmap);
-
-                if (hr == 0 && hBitmap != IntPtr.Zero)
-                {
-                    var source = Imaging.CreateBitmapSourceFromHBitmap(
-                        hBitmap, IntPtr.Zero, Int32Rect.Empty,
-                        BitmapSizeOptions.FromEmptyOptions());
-                    DeleteObject(hBitmap);
-
-                    if (source != null) return source;
-                    else return null;
-                }
-            }
-            catch { }
-
-            return GetDefaultFileTypeIcon(filePath);
-        }
-
-        public static BitmapSource? GetDefaultFileTypeIcon(string filePath)
-        {
-
-            SHFILEINFO shinfo = new();
-            SHGetFileInfo(filePath,
-                0,
-                ref shinfo,
-                (uint)Marshal.SizeOf(shinfo),
-                (uint)(SHGFI.Icon | SHGFI.UseFileAttributes | SHGFI.LargeIcon));
-
-            if (shinfo.hIcon != IntPtr.Zero)
-            {
-                var source = Imaging.CreateBitmapSourceFromHIcon(
-                    shinfo.hIcon,
-                    Int32Rect.Empty,
-                    BitmapSizeOptions.FromEmptyOptions());
-                DestroyIcon(shinfo.hIcon);
-
-                if (source != null) return source;
-                else return null;
-            }
-            return null;
-        }
         private async Task<BitmapSource?> GetThumbnailAsync(string path)
         {
             return await Task.Run(async () =>
@@ -2176,51 +2119,191 @@ namespace DeskFrame
                 if (Path.GetExtension(path).ToLower() == ".svg")
                 {
                     thumbnail = await LoadSvgThumbnailAsync(path);
+                    return thumbnail;
                 }
-                if (Path.GetExtension(path).ToLower() == ".url")
+                Debug.WriteLine(Instance.IconSize);
+                string ext = Path.GetExtension(path).ToLowerInvariant();
+                bool isExecutable = ext == ".exe" || ext == ".dll" || ext == ".bat" || ext == ".cmd";
+                bool isArchive = ext == ".rar" || ext == ".7z" || ext == ".zip" || ext == ".gzip" || ext == ".tar";
+                bool isLink = ext == ".lnk" || ext == ".url";
+
+                if (isLink)
                 {
-                    isShortcut = true;
                     try
                     {
                         Application.Current.Dispatcher.Invoke(() =>
-                       {
-                           thumbnail = GetFileThumbnailOrIcon(path, (int)(Instance.IconSize));
-                       });
+                        {
+                            var shellFile = ShellFile.FromFilePath(path);
+                            thumbnail =
+                               Instance.IconSize <= 16 ? shellFile.Thumbnail.SmallBitmapSource :
+                               Instance.IconSize <= 32 ? shellFile.Thumbnail.SmallBitmapSource :
+                               Instance.IconSize <= 48 ? shellFile.Thumbnail.MediumBitmapSource :
+                               Instance.IconSize <= 256 ? shellFile.Thumbnail.LargeBitmapSource :
+                               shellFile.Thumbnail.ExtraLargeBitmapSource;
+                            thumbnail.Freeze();
+                        });
+                        if (Instance.ShowShortcutArrow)
+                        {
+                            return Application.Current.Dispatcher.Invoke(() =>
+                            {
+                                IntPtr[] overlayIcons = new IntPtr[1];
+                                int overlayExtracted = ExtractIconEx(
+                                    Environment.SystemDirectory + "\\shell32.dll",
+                                    29,
+                                    overlayIcons,
+                                    null,
+                                    1);
+
+                                if (overlayExtracted > 0 && overlayIcons[0] != IntPtr.Zero)
+                                {
+                                    var overlay = Imaging.CreateBitmapSourceFromHIcon(
+                                                  overlayIcons[0],
+                                                  Int32Rect.Empty,
+                                                  BitmapSizeOptions.FromEmptyOptions());
+                                    DestroyIcon(overlayIcons[0]);
+
+                                    var visual = new DrawingVisual();
+                                    using (var dc = visual.RenderOpen())
+                                    {
+                                        double iconSize = Instance.IconSize;
+
+                                        double scale = iconSize / Math.Max(thumbnail.PixelWidth, thumbnail.PixelHeight);
+                                        double thumbnailWidth = thumbnail.PixelWidth * scale;
+                                        double thumbnailHeight = thumbnail.PixelHeight * scale;
+
+                                        double thumbnailX = (iconSize - thumbnailWidth) / 2.0;
+                                        double thumbnailY = (iconSize - thumbnailHeight) / 2.0;
+
+                                    dc.DrawImage(
+                                        thumbnail,
+                                        new Rect(
+                                            thumbnailX,
+                                            thumbnailY,
+                                            thumbnailWidth,
+                                            thumbnailHeight)
+                                    );
+                                        double overlayScale = iconSize < 32 ? iconSize / 32.0 : 1.0;
+                                        if (overlayScale != 1.0)
+                                        {
+                                            overlay = new TransformedBitmap(overlay, new ScaleTransform(overlayScale, overlayScale));
+                                            overlay.Freeze();
+                                        }
+                                        double overlayX = thumbnailX;
+                                        double overlayY = thumbnailY + thumbnailHeight - overlay.PixelHeight;
+                                        dc.DrawImage(overlay,
+                                            new Rect(
+                                            overlayX,
+                                            overlayY,
+                                            overlay.PixelWidth,
+                                            overlay.PixelHeight)
+                                        );
+                                    }
+
+                                    var rtb = new RenderTargetBitmap(
+                                        Instance.IconSize,
+                                        Instance.IconSize,
+                                        thumbnail.DpiX,
+                                        thumbnail.DpiY,
+                                        PixelFormats.Pbgra32);
+                                    rtb.Render(visual);
+                                    rtb.Freeze();
+                                    return rtb;
+                                }
+                                return thumbnail;
+                            });
+                        }
+                        return thumbnail;
                     }
                     catch (Exception e)
                     {
                         Debug.WriteLine(e);
                     }
                 }
-                if (Path.GetExtension(path).ToLower() == ".lnk")
+                else if (isExecutable || isArchive)
                 {
-                    isShortcut = true;
-                    WshShell shell = new WshShell();
-                    IWshShortcut link = (IWshShortcut)shell.CreateShortcut(path);
-
-                    string targetPath = link.TargetPath;
-                    string iconPath = link.IconLocation;
-                    int iconIndex = 0;
-
-                    if (!string.IsNullOrEmpty(iconPath))
-                    {
-                        string[] parts = iconPath.Split(',');
-                        iconPath = parts[0];
-                        if (parts.Length > 1)
-                            int.TryParse(parts[1], out iconIndex);
-                    }
-
-                    path = !string.IsNullOrEmpty(targetPath) ? targetPath : iconPath;
+                    Interop.IShellItemImageFactory? factory = null;
                     try
                     {
-                        Application.Current.Dispatcher.Invoke(() =>
-                       {
-                           thumbnail = GetFileThumbnailOrIcon(path, (int)(Instance.IconSize));
-                       });
+                        Guid shellItemImageFactoryGuid = new Guid("bcc18b79-ba16-442f-80c4-8a59c30c463b");
+                        int hr = Interop.SHCreateItemFromParsingName(path, IntPtr.Zero, ref shellItemImageFactoryGuid, out factory);
+
+                        if (hr != 0 || factory == null)
+                        {
+                        }
+                        else
+                        {
+                            System.Drawing.Size desiredSize = new System.Drawing.Size(Instance.IconSize, Instance.IconSize);
+                            hr = factory.GetImage(desiredSize, 0, out hBitmap);
+
+                            if (hr == 0 && hBitmap != IntPtr.Zero)
+                            {
+                                return Application.Current.Dispatcher.Invoke(() =>
+                                {
+                                    BitmapSource bitmapSource = Imaging.CreateBitmapSourceFromHBitmap(
+                                        hBitmap, IntPtr.Zero, Int32Rect.Empty, BitmapSizeOptions.FromEmptyOptions());
+                                    Interop.DeleteObject(hBitmap);
+
+                                    return bitmapSource;
+                                });
+                            }
+                        }
                     }
-                    catch (Exception e)
+                    catch (Exception ex)
                     {
-                        Debug.WriteLine(e);
+                        try
+                        {
+                            Debug.WriteLine("Setting default icon for item");
+
+                            return Application.Current.Dispatcher.Invoke(() =>
+                            {
+                                IntPtr[] defaultIconIndex = new IntPtr[1];
+                                int overlayExtracted = Interop.ExtractIconEx(
+                                    Environment.SystemDirectory + "\\shell32.dll",
+                                    0,
+                                    defaultIconIndex,
+                                    null,
+                                    1);
+                                var defaultIcon = Imaging.CreateBitmapSourceFromHIcon(
+                                    defaultIconIndex[0],
+                                    Int32Rect.Empty,
+                                    BitmapSizeOptions.FromEmptyOptions());
+                                return defaultIcon;
+                            });
+
+                        }
+                        catch (Exception e)
+                        {
+                            Debug.WriteLine($"Filed to set defauilt icon: {ex.Message}");
+                        }
+                    }
+                    finally
+                    {
+                        if (factory != null) Marshal.ReleaseComObject(factory);
+                        if (hBitmap != IntPtr.Zero) Interop.DeleteObject(hBitmap);
+                    }
+                }
+                else
+                {
+                    ShellObject? shellObj = null;
+                    shellObj = Directory.Exists(path) ? ShellObject.FromParsingName(path) : ShellFile.FromFilePath(path);
+
+                    if (shellObj != null)
+                    {
+                        try
+                        {
+                            var t = shellObj.Thumbnail;
+                            thumbnail = Instance.IconSize <= 16 ? t.SmallBitmapSource
+                                      : Instance.IconSize <= 32 ? t.SmallBitmapSource
+                                      : Instance.IconSize <= 48 ? t.MediumBitmapSource
+                                      : Instance.IconSize <= 256 ? t.LargeBitmapSource
+                                      : t.ExtraLargeBitmapSource;
+                            if (thumbnail != null)
+                            {
+                                thumbnail.Freeze();
+                                return thumbnail;
+                            }
+                        }
+                        catch { }
                     }
                 }
                 if (thumbnail != null)
@@ -2301,78 +2384,6 @@ namespace DeskFrame
                         });
                     }
                     return thumbnail;
-                }
-                Interop.IShellItemImageFactory? factory = null;
-                int attempts = 0;
-                while (attempts < 4) // Try 3 times if needed
-                {
-                    try
-                    {
-                        Guid shellItemImageFactoryGuid = new Guid("bcc18b79-ba16-442f-80c4-8a59c30c463b");
-                        int hr = Interop.SHCreateItemFromParsingName(path, IntPtr.Zero, ref shellItemImageFactoryGuid, out factory);
-
-                        if (hr != 0 || factory == null)
-                        {
-                            Console.WriteLine($"Failed to create factory (attempt {attempts + 1}). HRESULT: {hr}");
-                        }
-                        else
-                        {
-                            System.Drawing.Size desiredSize = new System.Drawing.Size(Instance.IconSize, Instance.IconSize);
-                            hr = factory.GetImage(desiredSize, 0, out hBitmap);
-
-                            if (hr == 0 && hBitmap != IntPtr.Zero)
-                            {
-                                return Application.Current.Dispatcher.Invoke(() =>
-                                {
-                                    BitmapSource bitmapSource = Imaging.CreateBitmapSourceFromHBitmap(
-                                        hBitmap, IntPtr.Zero, Int32Rect.Empty, BitmapSizeOptions.FromEmptyOptions());
-                                    Interop.DeleteObject(hBitmap);
-
-                                    return bitmapSource;
-                                });
-                            }
-                            else
-                            {
-                                Debug.WriteLine($"Failed to get image (attempt {attempts + 1}). HRESULT: {hr}");
-                            }
-                        }
-                    }
-                    catch (Exception ex)
-                    {
-                        Debug.WriteLine($"Exception occurred (attempt {attempts + 1}): {ex.Message}");
-                        try
-                        {
-                            Debug.WriteLine("Setting default icon for item");
-
-                            return Application.Current.Dispatcher.Invoke(() =>
-                            {
-                                IntPtr[] defaultIconIndex = new IntPtr[1];
-                                int overlayExtracted = Interop.ExtractIconEx(
-                                    Environment.SystemDirectory + "\\shell32.dll",
-                                    0,
-                                    defaultIconIndex,
-                                    null,
-                                    1);
-                                var defaultIcon = Imaging.CreateBitmapSourceFromHIcon(
-                                    defaultIconIndex[0],
-                                    Int32Rect.Empty,
-                                    BitmapSizeOptions.FromEmptyOptions());
-                                return defaultIcon;
-                            });
-
-                        }
-                        catch (Exception e)
-                        {
-                            Debug.WriteLine($"Filed to set defauilt icon: {ex.Message}");
-                        }
-                    }
-                    finally
-                    {
-                        if (factory != null) Marshal.ReleaseComObject(factory);
-                        if (hBitmap != IntPtr.Zero) Interop.DeleteObject(hBitmap);
-                    }
-
-                    attempts++;
                 }
 
                 Debug.WriteLine("Failed to retrieve thumbnail after 3 attempts.");

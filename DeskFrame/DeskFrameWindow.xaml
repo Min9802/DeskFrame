@@ -56,7 +56,9 @@
             MouseEnter="FileItem_MouseEnter" MouseLeave="FileItem_MouseLeave"
             BorderThickness="1" MouseRightButtonDown="FileItem_RightClick">
                 <StackPanel Orientation="Vertical" HorizontalAlignment="Center">
-                    <ui:Image Margin="5" Source="{Binding Thumbnail}" 
+                    <Image Margin="5" Source="{Binding Thumbnail}" 
+                           SnapsToDevicePixels="True"
+                           RenderOptions.BitmapScalingMode="Fant"
                            RenderOptions.EdgeMode="Aliased"
                            UseLayoutRounding="True"
                            Width="{Binding DataContext.Instance.IconSize, RelativeSource={RelativeSource AncestorType=Window}, Converter={StaticResource IconSizeToHeightWidthConverter}}"
