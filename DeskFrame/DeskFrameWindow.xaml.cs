@@ -1213,6 +1213,7 @@ namespace DeskFrame
             }
             else
             {
+                LoadingProgressRing.Visibility = Visibility.Visible;
                 LoadFiles(instance.Folder);
                 title.Text = Instance.TitleText ?? Instance.Name;
 
@@ -1824,6 +1825,7 @@ namespace DeskFrame
                                 DataContext = this;
                                 InitializeFileWatcher();
                                 showFolder.Visibility = Visibility.Visible;
+                                LoadingProgressRing.Visibility = Visibility.Visible;
                                 addFolder.Visibility = Visibility.Hidden;
 
                             }
