@@ -2823,7 +2823,10 @@ namespace DeskFrame
                 Height = 34,
                 Icon = new SymbolIcon(SymbolRegular.ArrowSync20)
             };
-            reloadItems.Click += (s, args) => { LoadFiles(_path); };
+            reloadItems.Click += (s, args) => {
+                FileItems.Clear();
+                LoadFiles(_path);
+            };
 
             MenuItem lockFrame = new MenuItem
             {
