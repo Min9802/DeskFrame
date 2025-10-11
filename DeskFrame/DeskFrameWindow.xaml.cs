@@ -466,7 +466,7 @@ namespace DeskFrame
                     var curPos = System.Windows.Forms.Cursor.Position;
                     try
                     {
-                        var shellItem = new Vanara.Windows.Shell.ShellItem(Instance.Folder);
+                        var shellItem = new Vanara.Windows.Shell.ShellItem(_path);
                         shellItem.ContextMenu.ShowContextMenu(curPos);
                         handled = true;
                     }
@@ -1185,7 +1185,6 @@ namespace DeskFrame
 
             title.FontSize = Instance.TitleFontSize;
             title.TextWrapping = TextWrapping.Wrap;
-
             double titleBarHeight = Math.Max(30, Instance.TitleFontSize * 1.5);
             titleBar.Height = titleBarHeight;
 
@@ -1874,7 +1873,19 @@ namespace DeskFrame
             {
                 try
                 {
-                    Process.Start(new ProcessStartInfo(clickedItem.FullPath!) { UseShellExecute = true });
+                    if (clickedItem.IsFolder)
+                    {
+                        _path = clickedItem.FullPath;
+                        PathToBackButton.Visibility = _path == Instance.Folder
+                            ? Visibility.Collapsed : Visibility.Visible;
+                        InitializeFileWatcher();
+                        FileItems.Clear();
+                        LoadFiles(clickedItem.FullPath);
+                    }
+                    else
+                    {
+                        Process.Start(new ProcessStartInfo(clickedItem.FullPath!) { UseShellExecute = true });
+                    }
                     if (Instance.LastAccesedToFirstRow)
                     {
                         var fileId = GetFileId(clickedFileItem.FullPath!).ToString();
@@ -2840,9 +2851,13 @@ namespace DeskFrame
                 Height = 34,
                 Icon = new SymbolIcon(SymbolRegular.ArrowSync20)
             };
-            reloadItems.Click += (s, args) => {
+            reloadItems.Click += (s, args) =>
+            {
                 FileItems.Clear();
-                LoadFiles(_path);
+                LoadFiles(Instance.Folder);
+                _path = Instance.Folder;
+                InitializeFileWatcher();
+
             };
 
             MenuItem lockFrame = new MenuItem
@@ -3266,6 +3281,19 @@ namespace DeskFrame
             MouseLeaveWindow();
         }
 
+        private void PathToBackButton_Click(object sender, RoutedEventArgs e)
+        {
+            var parentPath = Path.GetDirectoryName(_path) == Instance.Folder 
+                ? Instance.Folder : Path.GetDirectoryName(_path);
+            Debug.WriteLine(parentPath);
+            PathToBackButton.Visibility = parentPath == Instance.Folder
+                ? Visibility.Collapsed : Visibility.Visible;
+
+            FileItems.Clear();
+            LoadFiles(parentPath!);
+            _path = parentPath!;
+            InitializeFileWatcher();
+        }
         private void Window_Closing(object sender, CancelEventArgs e)
         {
             Instance.isWindowClosing = true;
