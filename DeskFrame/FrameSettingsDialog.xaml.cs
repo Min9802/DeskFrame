@@ -342,14 +342,14 @@ namespace DeskFrame
                 if (_originalInstance.Folder != _instance.Folder)
                 {
                     _instance.Folder = _originalInstance.Folder;
-                    _frame._path = _originalInstance.Folder;
+                    _frame._currentFolderPath = _originalInstance.Folder;
                     string name = _instance.Name;
 
-                    _frame.title.Text = Path.GetFileName(_frame._path);
+                    _frame.title.Text = Path.GetFileName(_frame._currentFolderPath);
                     _instance.Name = Path.GetFileName(_originalInstance.Name);
 
                     MainWindow._controller.WriteOverInstanceToKey(_instance, name);
-                    _frame.LoadFiles(_frame._path);
+                    _frame.LoadFiles(_frame._currentFolderPath);
                     DataContext = this;
                     _frame.InitializeFileWatcher();
 
@@ -504,11 +504,11 @@ namespace DeskFrame
             if (folderDialog.ShowDialog() == System.Windows.Forms.DialogResult.OK)
             {
                 _instance.Folder = folderDialog.SelectedPath;
-                _frame._path = _instance.Folder;
+                _frame._currentFolderPath = _instance.Folder;
                 _instance.Name = Path.GetFileName(folderDialog.SelectedPath);
                 MainWindow._controller.WriteOverInstanceToKey(_instance, _lastInstanceName);
                 _lastInstanceName = _instance.Name;
-                _frame.LoadFiles(_frame._path);
+                _frame.LoadFiles(_frame._currentFolderPath);
                 _frame.title.Text = _instance.TitleText;
                 _instance.TitleText = _instance.TitleText;
                 TitleTextBox.Text = _instance.TitleText;

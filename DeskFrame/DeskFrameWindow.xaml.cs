@@ -50,7 +50,7 @@ namespace DeskFrame
     {
         ShellContextMenu scm = new ShellContextMenu();
         public Instance Instance { get; set; }
-        public string _path;
+        public string _currentFolderPath;
         private FileSystemWatcher _fileWatcher = new FileSystemWatcher();
         public ObservableCollection<FileItem> FileItems { get; set; }
 
@@ -466,7 +466,7 @@ namespace DeskFrame
                     var curPos = System.Windows.Forms.Cursor.Position;
                     try
                     {
-                        var shellItem = new Vanara.Windows.Shell.ShellItem(_path);
+                        var shellItem = new Vanara.Windows.Shell.ShellItem(_currentFolderPath);
                         shellItem.ContextMenu.ShowContextMenu(curPos);
                         handled = true;
                     }
@@ -1176,7 +1176,7 @@ namespace DeskFrame
             Instance = instance;
             this.Width = instance.Width;
             this.Opacity = Instance.IdleOpacity;
-            _path = instance.Folder;
+            _currentFolderPath = instance.Folder;
             _isLocked = instance.IsLocked;
             _oriPosX = (int)instance.PosX;
             _oriPosY = (int)instance.PosY;
@@ -1331,21 +1331,21 @@ namespace DeskFrame
         private void ToggleFileExtension_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
         {
             ToggleFileExtension();
-            LoadFiles(_path);
+            LoadFiles(_currentFolderPath);
             UpdateFileExtensionIcon();
         }
 
         private void ToggleHiddenFiles_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
         {
             ToggleHiddenFiles();
-            LoadFiles(_path);
+            LoadFiles(_currentFolderPath);
             UpdateHiddenFilesIcon();
         }
         private void OpenFolder()
         {
             try
             {
-                Process.Start(new ProcessStartInfo(_path) { UseShellExecute = true });
+                Process.Start(new ProcessStartInfo(_currentFolderPath) { UseShellExecute = true });
             }
             catch
             { }
@@ -1441,7 +1441,7 @@ namespace DeskFrame
         public void InitializeFileWatcher()
         {
             _fileWatcher = null;
-            _fileWatcher = new FileSystemWatcher(_path)
+            _fileWatcher = new FileSystemWatcher(_currentFolderPath)
             {
                 NotifyFilter = NotifyFilters.FileName | NotifyFilters.DirectoryName | NotifyFilters.LastWrite,
                 IncludeSubdirectories = false,
@@ -1457,7 +1457,7 @@ namespace DeskFrame
             Dispatcher.Invoke(() =>
             {
                 Debug.WriteLine($"File changed: {e.ChangeType} - {e.FullPath}");
-                LoadFiles(_path);
+                LoadFiles(_currentFolderPath);
             });
         }
         private void OnFileRenamed(object sender, RenamedEventArgs e)
@@ -1798,11 +1798,11 @@ namespace DeskFrame
                 string[] files = (string[])e.Data.GetData(DataFormats.FileDrop);
                 foreach (var file in files)
                 {
-                    string destinationPath = Path.Combine(_path, Path.GetFileName(file));
-                    if (Path.GetDirectoryName(file) == _path &&
+                    string destinationPath = Path.Combine(_currentFolderPath, Path.GetFileName(file));
+                    if (Path.GetDirectoryName(file) == _currentFolderPath &&
                         _dragdropIntoFolder &&
-                        string.IsNullOrEmpty(_path) &&
-                        _path == "empty")
+                        string.IsNullOrEmpty(_currentFolderPath) &&
+                        _currentFolderPath == "empty")
                     {
                         Debug.WriteLine("Dropped into invalid path, returning.");
                         return;
@@ -1813,14 +1813,14 @@ namespace DeskFrame
                         {
 
                             Debug.WriteLine("Folder detected: " + file);
-                            if (_path == "empty")
+                            if (_currentFolderPath == "empty")
                             {
-                                _path = file;
-                                title.Text = Path.GetFileName(_path);
+                                _currentFolderPath = file;
+                                title.Text = Path.GetFileName(_currentFolderPath);
                                 Instance.Folder = file;
-                                Instance.Name = Path.GetFileName(_path);
+                                Instance.Name = Path.GetFileName(_currentFolderPath);
                                 MainWindow._controller.WriteInstanceToKey(Instance);
-                                LoadFiles(_path);
+                                LoadFiles(_currentFolderPath);
                                 DataContext = this;
                                 InitializeFileWatcher();
                                 showFolder.Visibility = Visibility.Visible;
@@ -1875,8 +1875,8 @@ namespace DeskFrame
                 {
                     if (clickedItem.IsFolder)
                     {
-                        _path = clickedItem.FullPath;
-                        PathToBackButton.Visibility = _path == Instance.Folder
+                        _currentFolderPath = clickedItem.FullPath;
+                        PathToBackButton.Visibility = _currentFolderPath == Instance.Folder
                             ? Visibility.Collapsed : Visibility.Visible;
                         InitializeFileWatcher();
                         FileItems.Clear();
@@ -2812,10 +2812,10 @@ namespace DeskFrame
             ContextMenu contextMenu = new ContextMenu();
 
             ToggleSwitch toggleHiddenFiles = new ToggleSwitch { Content = Lang.TitleBarContextMenu_HiddenFiles };
-            toggleHiddenFiles.Click += (s, args) => { ToggleHiddenFiles(); LoadFiles(_path); };
+            toggleHiddenFiles.Click += (s, args) => { ToggleHiddenFiles(); LoadFiles(_currentFolderPath); };
 
             ToggleSwitch toggleFileExtension = new ToggleSwitch { Content = Lang.TitleBarContextMenu_FileExtensions };
-            toggleFileExtension.Click += (_, _) => { ToggleFileExtension(); LoadFiles(_path); };
+            toggleFileExtension.Click += (_, _) => { ToggleFileExtension(); LoadFiles(_currentFolderPath); };
 
             toggleHiddenFiles.IsChecked = Instance.ShowHiddenFiles;
             toggleFileExtension.IsChecked = Instance.ShowFileExtension;
@@ -2841,7 +2841,7 @@ namespace DeskFrame
                     {
                         Minimize_MouseLeftButtonDown(null, null);
                     }
-                    LoadFiles(_path);
+                    LoadFiles(_currentFolderPath);
                 }
             };
 
@@ -2855,7 +2855,7 @@ namespace DeskFrame
             {
                 FileItems.Clear();
                 LoadFiles(Instance.Folder);
-                _path = Instance.Folder;
+                _currentFolderPath = Instance.Folder;
                 InitializeFileWatcher();
 
             };
@@ -3283,15 +3283,15 @@ namespace DeskFrame
 
         private void PathToBackButton_Click(object sender, RoutedEventArgs e)
         {
-            var parentPath = Path.GetDirectoryName(_path) == Instance.Folder 
-                ? Instance.Folder : Path.GetDirectoryName(_path);
+            var parentPath = Path.GetDirectoryName(_currentFolderPath) == Instance.Folder 
+                ? Instance.Folder : Path.GetDirectoryName(_currentFolderPath);
             Debug.WriteLine(parentPath);
             PathToBackButton.Visibility = parentPath == Instance.Folder
                 ? Visibility.Collapsed : Visibility.Visible;
 
             FileItems.Clear();
             LoadFiles(parentPath!);
-            _path = parentPath!;
+            _currentFolderPath = parentPath!;
             InitializeFileWatcher();
         }
         private void Window_Closing(object sender, CancelEventArgs e)
