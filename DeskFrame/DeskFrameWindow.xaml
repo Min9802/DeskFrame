@@ -58,8 +58,7 @@
                 <StackPanel Orientation="Vertical" HorizontalAlignment="Center">
                     <Image Margin="5" Source="{Binding Thumbnail}" 
                            SnapsToDevicePixels="True"
-                           RenderOptions.BitmapScalingMode="Fant"
-                           RenderOptions.EdgeMode="Aliased"
+                           RenderOptions.BitmapScalingMode="NearestNeighbor"
                            UseLayoutRounding="True"
                            Width="{Binding DataContext.Instance.IconSize, RelativeSource={RelativeSource AncestorType=Window}, Converter={StaticResource IconSizeToHeightWidthConverter}}"
                            Height="{Binding DataContext.Instance.IconSize, RelativeSource={RelativeSource AncestorType=Window}, Converter={StaticResource IconSizeToHeightWidthConverter}}"
