@@ -502,7 +502,7 @@ namespace DeskFrame
                     handled = true;
                     return (IntPtr)4;
                 }
-                else if (!_isMinimized && this.ActualHeight != 30 && _canAnimate)
+                else if (!_isMinimized && this.ActualHeight != titleBar.Height && _canAnimate)
                 {
                     Instance.Height = this.ActualHeight;
                 }
@@ -540,7 +540,7 @@ namespace DeskFrame
                     double delta = newHeight - _previousHeight;
                     int newTop = (int)((pt.Y - delta) - windowRect.Bottom <= workingArea.Bottom ?
                         (int)(pt.Y -= (int)delta) :
-                        Instance.Height - workingArea.Bottom - 30);
+                        Instance.Height - workingArea.Bottom - titleBar.Height);
 
                     if (delta > 0) // UP
                     {
@@ -562,12 +562,12 @@ namespace DeskFrame
                                SWP_NOSIZE | SWP_NOACTIVATE | SWP_NOREDRAW
                               );
                     }
-                    if (this.Top + 30 > workingArea.Bottom)
+                    if (this.Top + titleBar.Height > workingArea.Bottom)
                     {
                         // this.Top = workingArea.Bottom - 30;
                         _didFixIsOnBottom = true;
                         Interop.SetWindowPos(hwnd, IntPtr.Zero, pt.X,
-                              workingArea.Bottom - 30,
+                              (int)(workingArea.Bottom - titleBar.Height),
                               0, 0,
                              SWP_NOSIZE | SWP_NOACTIVATE | SWP_NOREDRAW
                             );
@@ -1192,7 +1192,7 @@ namespace DeskFrame
             scrollViewer.Margin = new Thickness(0, scrollViewerMargin, 0, 0);
 
             titleBar.Cursor = _isLocked ? System.Windows.Input.Cursors.Arrow : System.Windows.Input.Cursors.SizeAll;
-            if ((int)instance.Height <= 30) _isMinimized = true;
+            if ((int)instance.Height <= titleBar.Height) _isMinimized = true;
             if (instance.Minimized)
             {
                 _isMinimized = instance.Minimized;
@@ -1407,7 +1407,7 @@ namespace DeskFrame
             animation.Completed += (s, e) =>
             {
                 _canAnimate = true;
-                if (targetHeight == 30)
+                if (targetHeight == titleBar.Height)
                 {
                     scrollViewer.ScrollToTop();
                 }
@@ -1957,7 +1957,7 @@ namespace DeskFrame
         {
             if (_isMinimized)
             {
-                AnimateWindowHeight(30, Instance.AnimationSpeed);
+                AnimateWindowHeight(titleBar.Height, Instance.AnimationSpeed);
             }
             AnimateWindowOpacity(Instance.IdleOpacity, Instance.AnimationSpeed);
             _dragdropIntoFolder = false;
