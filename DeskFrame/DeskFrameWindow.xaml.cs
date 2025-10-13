@@ -365,7 +365,6 @@ namespace DeskFrame
             {
                 double itemWidth = wrapPanel.ItemWidth;
                 ItemPerRow = (int)((this.Width) / itemWidth);
-                _previousHeight = ItemPerRow;
             }
             if (items == null || items.Count == 0 || lastAccessedFiles == null || lastAccessedFiles.Count == 0 || topN <= 0)
                 return;
@@ -1898,7 +1897,6 @@ namespace DeskFrame
                         {
                             double itemWidth = wrapPanel.ItemWidth;
                             ItemPerRow = (int)((this.Width) / itemWidth);
-                            _previousHeight = ItemPerRow;
                         }
                         FirstRowByLastAccessed(FileItems, Instance.LastAccessedFiles, ItemPerRow);
                     }
@@ -2126,7 +2124,7 @@ namespace DeskFrame
                 ShellThumbnail shellThumbnail = shellObject.Thumbnail;
                 shellThumbnail.CurrentSize = new System.Windows.Size(size, size);
                 BitmapSource thumbnail = shellThumbnail.BitmapSource;
-                thumbnail.Freeze();  
+                thumbnail.Freeze();
                 return thumbnail;
             }
             catch
@@ -3144,7 +3142,7 @@ namespace DeskFrame
 
         private void PathToBackButton_Click(object sender, RoutedEventArgs e)
         {
-            var parentPath = Path.GetDirectoryName(_currentFolderPath) == Instance.Folder 
+            var parentPath = Path.GetDirectoryName(_currentFolderPath) == Instance.Folder
                 ? Instance.Folder : Path.GetDirectoryName(_currentFolderPath);
             Debug.WriteLine(parentPath);
             PathToBackButton.Visibility = parentPath == Instance.Folder
