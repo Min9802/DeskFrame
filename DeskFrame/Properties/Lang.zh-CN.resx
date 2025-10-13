@@ -382,4 +382,7 @@
   <data name="FrameSettings.TitleBarText" xml:space="preserve">
     <value>Frame 设置</value>
   </data>
+  <data name="FrameSettings.FolderOpenInsideFrame" xml:space="preserve">
+    <value>在窗口内打开文件夹</value>
+  </data>
 </root>

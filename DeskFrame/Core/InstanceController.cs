@@ -43,6 +43,7 @@ public class InstanceController
                 key.SetValue("ShowInGrid", instance.ShowInGrid!);
                 key.SetValue("AutoExpandonCursor", instance.AutoExpandonCursor);
                 key.SetValue("ShowShortcutArrow", instance.ShowShortcutArrow);
+                key.SetValue("FolderOpenInsideFrame", instance.FolderOpenInsideFrame);
                 key.SetValue("CheckFolderSize", instance.CheckFolderSize);
                 key.SetValue("TitleBarColor", instance.TitleBarColor!);
                 key.SetValue("TitleTextColor", instance.TitleTextColor!);
@@ -114,6 +115,7 @@ public class InstanceController
                 key.SetValue("ShowInGrid", instance.ShowInGrid);
                 key.SetValue("AutoExpandonCursor", instance.AutoExpandonCursor);
                 key.SetValue("ShowShortcutArrow", instance.ShowShortcutArrow);
+                key.SetValue("FolderOpenInsideFrame", instance.FolderOpenInsideFrame);
                 key.SetValue("CheckFolderSize", instance.CheckFolderSize);
                 if (instance.TitleBarColor != null) key.SetValue("TitleBarColor", instance.TitleBarColor);
                 if (instance.TitleTextColor != null) key.SetValue("TitleTextColor", instance.TitleTextColor);
@@ -386,6 +388,10 @@ public class InstanceController
                                             case "ShowShortcutArrow":
                                                 temp.ShowShortcutArrow = bool.Parse(value.ToString()!);
                                                 Debug.WriteLine($"ShowShortcutArrow added\t{temp.ShowShortcutArrow}");
+                                                break; 
+                                            case "FolderOpenInsideFrame":
+                                                temp.FolderOpenInsideFrame = bool.Parse(value.ToString()!);
+                                                Debug.WriteLine($"FolderOpenInsideFrame added\t{temp.FolderOpenInsideFrame}");
                                                 break;
                                             case "CheckFolderSize":
                                                 temp.CheckFolderSize = bool.Parse(value.ToString()!);

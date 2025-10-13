@@ -31,6 +31,7 @@ public class Instance : INotifyPropertyChanged
     private bool _showInGrid = true;
     private bool _autoExpandonCursor = false;
     private bool _showShortcutArrow = true;
+    private bool _folderOpenInsideFrame = true;
     private string _titleBarColor = "#0C000000";
     private string _titleTextColor = "#FFFFFF";
     private string _borderColor = "#FFFFFF";
@@ -329,6 +330,17 @@ public class Instance : INotifyPropertyChanged
             {
                 _showShortcutArrow = value;
                 OnPropertyChanged(nameof(ShowShortcutArrow), value.ToString());
+            }
+        }
+    } public bool FolderOpenInsideFrame
+    {
+        get => _folderOpenInsideFrame;
+        set
+        {
+            if (_folderOpenInsideFrame != value)
+            {
+                _folderOpenInsideFrame = value;
+                OnPropertyChanged(nameof(FolderOpenInsideFrame), value.ToString());
             }
         }
     }

@@ -383,4 +383,7 @@
   <data name="FrameSettings.TitleBarText" xml:space="preserve">
     <value>Configuración de Frame</value>
   </data>
+  <data name="FrameSettings.FolderOpenInsideFrame" xml:space="preserve">
+    <value>Abrir carpeta dentro de la ventana</value>
+  </data>
 </root>

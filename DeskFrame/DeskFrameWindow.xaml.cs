@@ -1872,7 +1872,7 @@ namespace DeskFrame
             {
                 try
                 {
-                    if (clickedItem.IsFolder)
+                    if (Instance.FolderOpenInsideFrame && clickedItem.IsFolder)
                     {
                         _currentFolderPath = clickedItem.FullPath;
                         PathToBackButton.Visibility = _currentFolderPath == Instance.Folder

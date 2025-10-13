@@ -384,4 +384,7 @@
     <value>Frame settings</value>
     <comment>Title of the window</comment>
   </data>
+  <data name="FrameSettings.FolderOpenInsideFrame" xml:space="preserve">
+    <value>Open folder inside window</value>
+  </data>
 </root>

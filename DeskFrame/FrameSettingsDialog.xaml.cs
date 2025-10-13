@@ -99,6 +99,7 @@ namespace DeskFrame
             ShowDisplayNameCheckBox.IsChecked = _instance.ShowDisplayName;
             AutoExpandonCursorCheckBox.IsChecked = _instance.AutoExpandonCursor;
             ShowShortcutArrowCheckBox.IsChecked = _instance.ShowShortcutArrow;
+            FolderOpenInsideFrameCheckBox.IsChecked = _instance.FolderOpenInsideFrame;
             CheckFolderSizeCheckBox.IsChecked = _instance.CheckFolderSize;
             ShowLastAccessedToFirstRowCheckBox.IsChecked = _instance.LastAccesedToFirstRow;
 
@@ -336,6 +337,7 @@ namespace DeskFrame
                 _instance.AnimationSpeed = _originalInstance.AnimationSpeed;
                 _instance.AutoExpandonCursor = _originalInstance.AutoExpandonCursor;
                 _instance.ShowShortcutArrow = _originalInstance.ShowShortcutArrow;
+                _instance.FolderOpenInsideFrame = _originalInstance.FolderOpenInsideFrame;
                 _instance.CheckFolderSize = _originalInstance.CheckFolderSize;
                 _instance.LastAccesedToFirstRow = _originalInstance.LastAccesedToFirstRow;
 
@@ -384,6 +386,7 @@ namespace DeskFrame
 
                 AutoExpandonCursorCheckBox.IsChecked = _instance.AutoExpandonCursor;
                 ShowShortcutArrowCheckBox.IsChecked = _instance.ShowShortcutArrow;
+                FolderOpenInsideFrameCheckBox.IsChecked = _instance.FolderOpenInsideFrame;
                 CheckFolderSizeCheckBox.IsChecked = _instance.CheckFolderSize;
                 ShowLastAccessedToFirstRowCheckBox.IsChecked = _instance.LastAccesedToFirstRow;
 
@@ -471,10 +474,17 @@ namespace DeskFrame
         {
             _instance.ShowShortcutArrow = true;
         }
-
         private void ShowShortcutArrowCheckBox_Unchecked(object sender, RoutedEventArgs e)
         {
             _instance.ShowShortcutArrow = false;
+        }
+        private void FolderOpenInsideFrameCheckBox_Checked(object sender, RoutedEventArgs e)
+        {
+            _instance.FolderOpenInsideFrame = true;
+        }
+        private void FolderOpenInsideFrameCheckBox_Unchecked(object sender, RoutedEventArgs e)
+        {
+            _instance.FolderOpenInsideFrame = false;
         }
         private void CheckFolderSizeCheckBox_Checkked(object sender, RoutedEventArgs e)
         {
@@ -514,6 +524,7 @@ namespace DeskFrame
                 TitleTextBox.Text = _instance.TitleText;
                 DataContext = this;
                 _frame.InitializeFileWatcher();
+                _frame.PathToBackButton.Visibility = Visibility.Collapsed;
             }
         }
 
@@ -595,6 +606,7 @@ namespace DeskFrame
                     TitleTextAlignmentComboBox.SelectedIndex = (int)instance.TitleTextAlignment;
                     AutoExpandonCursorCheckBox.IsChecked = instance.AutoExpandonCursor;
                     ShowShortcutArrowCheckBox.IsChecked = instance.ShowShortcutArrow;
+                    FolderOpenInsideFrameCheckBox.IsChecked = instance.FolderOpenInsideFrame;
                     CheckFolderSizeCheckBox.IsChecked = instance.CheckFolderSize;
                     ShowLastAccessedToFirstRowCheckBox.IsChecked = instance.LastAccesedToFirstRow;
 

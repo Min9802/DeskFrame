@@ -241,6 +241,15 @@ namespace DeskFrame.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Open folder inside window.
+        /// </summary>
+        public static string FrameSettings_FolderOpenInsideFrame {
+            get {
+                return ResourceManager.GetString("FrameSettings.FolderOpenInsideFrame", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Font:.
         /// </summary>
         public static string FrameSettings_Font {
