@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project Sdk="WixToolset.Sdk/4.0.6">
+
+  <PropertyGroup>
+    <OutputName>DeskFrameSetup</OutputName>
+    <OutputPath>bin\</OutputPath>
+    <IntermediateOutputPath>obj\</IntermediateOutputPath>
+    <SuppressIces>ICE03;ICE57;ICE64;ICE38;ICE82</SuppressIces>
+  </PropertyGroup>
+
+  <!-- WiX SDK auto-includes all *.wxs files — no explicit <Compile Include> needed -->
+
+  <ItemGroup>
+    <PackageReference Include="WixToolset.UI.wixext" Version="4.0.6" />
+    <PackageReference Include="WixToolset.Util.wixext" Version="4.0.6" />
+  </ItemGroup>
+
+</Project>

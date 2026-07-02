@@ -360,4 +360,13 @@ MigrationBackup/
 .ionide/
 
 # Fody - auto-generated XML schema
-FodyWeavers.xsd
+
+# WiX Toolset
+.wix/
+*.wixpdb
+
+# Installer - auto-generated files (do NOT commit)
+Installer/publish/
+Installer/bin/
+Installer/obj/
+Installer/HarvestedFiles.wxs

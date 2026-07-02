@@ -1,4 +1,4 @@
-﻿using DeskFrame.Core;
+using DeskFrame.Core;
 using DeskFrame.Properties;
 using DeskFrame.Shaders;
 using DeskFrame.Util;
@@ -99,6 +99,9 @@ namespace DeskFrame
         private bool _canChangeItemPosition = false;
         private bool _bringForwardForMove = false;
         private bool _isDragging = false;
+        private FileItem? _pendingDragItem = null;
+        private Border? _pendingDragBorder = null;
+        private System.Windows.Point _dragStartPoint;
         private bool _mouseIsOver;
         private bool _contextMenuIsOpen = false;
         private bool _fixIsOnBottomInit = true;
@@ -2591,6 +2594,18 @@ namespace DeskFrame
             Instance.CustomOrderFiles = newList;
         }
 
+        private static void DropLog(string msg)
+        {
+            try
+            {
+                string logDir = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "DeskFrame");
+                if (!Directory.Exists(logDir)) Directory.CreateDirectory(logDir);
+                string logFile = Path.Combine(logDir, "dragdrop_debug.log");
+                File.AppendAllText(logFile, $"[{DateTime.Now:HH:mm:ss.fff}] {msg}{Environment.NewLine}");
+            }
+            catch { }
+        }
+
         private void Window_Drop(object sender, DragEventArgs e)
         {
             _dragdropIntoFolder = false;
@@ -2600,6 +2615,127 @@ namespace DeskFrame
                 Thread.Sleep(300);
                 _canAutoClose = true;
             });
+
+            // === DIAGNOSTIC LOGGING ===
+            try
+            {
+                DropLog("========== WINDOW_DROP FIRED ==========");
+                var allFormats = e.Data.GetFormats();
+                DropLog($"Available formats ({allFormats?.Length ?? 0}): {string.Join(", ", allFormats ?? Array.Empty<string>())}");
+                foreach (var fmt in allFormats ?? Array.Empty<string>())
+                {
+                    try
+                    {
+                        bool present = e.Data.GetDataPresent(fmt);
+                        DropLog($"  Format '{fmt}': present={present}");
+                        if (present)
+                        {
+                            var fmtData = e.Data.GetData(fmt);
+                            DropLog($"    DataType: {fmtData?.GetType()?.FullName ?? "null"}");
+                            if (fmtData is string s) DropLog($"    Value: {s}");
+                            else if (fmtData is string[] sa) DropLog($"    Values: {string.Join("; ", sa)}");
+                            else if (fmtData is System.IO.MemoryStream ms2) DropLog($"    MemoryStream length: {ms2.Length}");
+                        }
+                    }
+                    catch (Exception fmtEx) { DropLog($"  Format '{fmt}': ERROR {fmtEx.Message}"); }
+                }
+            }
+            catch (Exception logEx) { DropLog($"Logging error: {logEx.Message}"); }
+
+            // --- SYSTEM VIRTUAL SHELL ICONS DROP HANDLING (This PC, Recycle Bin, Control Panel, Network) ---
+            bool virtualItemsHandled = false;
+            try
+            {
+                DropLog("--- Calling GetVirtualShellItems ---");
+                var virtualItems = GetVirtualShellItems(e.Data);
+                DropLog($"GetVirtualShellItems returned {virtualItems?.Count ?? 0} items");
+                if (virtualItems != null && virtualItems.Count > 0)
+                {
+                    virtualItemsHandled = true;
+                    string targetFolder = !string.IsNullOrEmpty(_currentFolderPath) && _currentFolderPath != "empty" ? _currentFolderPath : Instance.Folder;
+                    DropLog($"Target folder before init: '{targetFolder}'");
+                    if (string.IsNullOrEmpty(targetFolder) || targetFolder == "empty")
+                    {
+                        targetFolder = Path.Combine(
+                            Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),
+                            "DeskFrame",
+                            Guid.NewGuid().ToString()
+                        );
+                        _currentFolderPath = targetFolder;
+                        Directory.CreateDirectory(targetFolder);
+                        Instance.Folder = targetFolder;
+                        Instance.IsShortcutsOnly = true;
+                        Instance.ShowShortcutArrow = false;
+                        title.Text = "File frame";
+                        Instance.TitleText = "File frame";
+                        Instance.Name = Path.GetFileName(Instance.Folder);
+                        MainWindow._controller.WriteInstanceToKey(Instance);
+                        DataContext = this;
+                        InitializeFileWatchers();
+                        showFolder.Visibility = Visibility.Visible;
+                        LoadingProgressRing.Visibility = Visibility.Visible;
+                        addFolder.Visibility = Visibility.Hidden;
+                        DropLog($"Initialized new folder: '{targetFolder}'");
+                    }
+
+                    foreach (var vItem in virtualItems)
+                    {
+                        DropLog($"  VItem: Display='{vItem.DisplayName}', Parsing='{vItem.ParsingPath}', IsFS={vItem.IsFileSystem}, FSPath='{vItem.FileSystemPath}', Icon='{vItem.IconLocation}'");
+                        // Process ALL virtual items (both filesystem and non-filesystem)
+                        if (!string.IsNullOrEmpty(vItem.ParsingPath) || !string.IsNullOrEmpty(vItem.FileSystemPath))
+                        {
+                            string cleanName = string.IsNullOrWhiteSpace(vItem.DisplayName) ? "System Icon" : vItem.DisplayName;
+                            foreach (char c in Path.GetInvalidFileNameChars())
+                            {
+                                cleanName = cleanName.Replace(c, '_');
+                            }
+
+                            string shortcutPath = Path.Combine(targetFolder, $"{cleanName}.lnk");
+                            int counter = 1;
+                            while (File.Exists(shortcutPath))
+                            {
+                                shortcutPath = Path.Combine(targetFolder, $"{cleanName} ({counter++}).lnk");
+                            }
+
+                            WshShell shell = new WshShell();
+                            IWshShortcut shortcut = (IWshShortcut)shell.CreateShortcut(shortcutPath);
+
+                            if (vItem.IsFileSystem && !string.IsNullOrEmpty(vItem.FileSystemPath))
+                            {
+                                // Filesystem item (e.g. user profile folder) - point directly
+                                shortcut.TargetPath = vItem.FileSystemPath;
+                                DropLog($"  Creating FS shortcut -> '{vItem.FileSystemPath}'");
+                            }
+                            else
+                            {
+                                // Virtual shell item - use explorer.exe shell:::{CLSID}
+                                shortcut.TargetPath = @"C:\Windows\explorer.exe";
+                                shortcut.Arguments = vItem.ParsingPath;
+                                DropLog($"  Creating virtual shortcut -> explorer.exe {vItem.ParsingPath}");
+                            }
+
+                            if (!string.IsNullOrEmpty(vItem.IconLocation))
+                            {
+                                shortcut.IconLocation = vItem.IconLocation;
+                            }
+                            else
+                            {
+                                shortcut.IconLocation = @"C:\Windows\System32\shell32.dll,0";
+                            }
+                            shortcut.Save();
+                            DropLog($"  Shortcut saved: '{shortcutPath}' exists={File.Exists(shortcutPath)}");
+                        }
+                    }
+                    LoadFiles(_currentFolderPath);
+                    DropLog("Virtual items processed and LoadFiles called");
+                }
+            }
+            catch (Exception ex)
+            {
+                DropLog($"ERROR in virtual shell item handling: {ex}");
+                Debug.WriteLine("Error handling virtual shell item drop: " + ex.Message);
+            }
+
             if (e.Data.GetDataPresent(DataFormats.FileDrop))
             {
                 if (_canChangeItemPosition)
@@ -2607,46 +2743,54 @@ namespace DeskFrame
                     MoveItemToPosition();
                     return;
                 }
+
+                // Ensure target folder exists before processing dropped items
+                if (string.IsNullOrEmpty(_currentFolderPath) || _currentFolderPath == "empty" || !Directory.Exists(_currentFolderPath))
+                {
+                    Instance.Folder = Path.Combine(
+                        Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),
+                        "DeskFrame",
+                        Guid.NewGuid().ToString()
+                    );
+                    _currentFolderPath = Instance.Folder;
+                    Directory.CreateDirectory(Instance.Folder);
+                    Instance.IsShortcutsOnly = true;
+                    Instance.ShowShortcutArrow = false;
+                    title.Text = "File frame";
+                    Instance.TitleText = "File frame";
+                    Instance.Name = Path.GetFileName(Instance.Folder);
+                    MainWindow._controller.WriteInstanceToKey(Instance);
+                    DataContext = this;
+                    InitializeFileWatchers();
+                    showFolder.Visibility = Visibility.Visible;
+                    LoadingProgressRing.Visibility = Visibility.Visible;
+                    addFolder.Visibility = Visibility.Hidden;
+                }
+
                 string[] files = (string[])e.Data.GetData(DataFormats.FileDrop);
                 foreach (var file in files)
                 {
-                    string destinationPath = Path.Combine(_currentFolderPath, Path.GetFileName(file));
-                    if (Path.GetDirectoryName(file) == _currentFolderPath &&
-                        _dragdropIntoFolder &&
-                        string.IsNullOrEmpty(_currentFolderPath) &&
-                        _currentFolderPath == "empty")
-                    {
-                        Debug.WriteLine("Dropped into invalid path, returning.");
-                        return;
-                    }
                     try
                     {
+                        // Self-drop guard: skip files already in the current folder (from clicking icons inside frame)
+                        string fileDir = Path.GetDirectoryName(file) ?? string.Empty;
+                        if (!string.IsNullOrEmpty(_currentFolderPath) &&
+                            string.Equals(fileDir, _currentFolderPath, StringComparison.OrdinalIgnoreCase))
+                        {
+                            DropLog($"Self-drop skipped: '{file}' already in current folder");
+                            continue;
+                        }
+
+                        string ext = Path.GetExtension(file).ToLower();
+                        bool isShortcutFile = ext == ".lnk" || ext == ".url";
+
                         if (Directory.Exists(file))
                         {
-
                             Debug.WriteLine("Folder detected: " + file);
-                            if (_currentFolderPath == "empty")
-                            {
-                                _currentFolderPath = file;
-                                title.Text = Path.GetFileName(_currentFolderPath);
-                                Instance.Folder = file;
-                                Instance.Name = Path.GetFileName(_currentFolderPath);
-                                MainWindow._controller.WriteInstanceToKey(Instance);
-                                LoadFiles(_currentFolderPath);
-                                DataContext = this;
-                                InitializeFileWatchers();
-                                showFolder.Visibility = Visibility.Visible;
-                                LoadingProgressRing.Visibility = Visibility.Visible;
-                                addFolder.Visibility = Visibility.Hidden;
-
-                            }
-
                             if (!Instance.IsShortcutsOnly)
                             {
-                                Directory.Move(file,
-                                  !string.IsNullOrEmpty(_dropIntoFolderPath)
-                                      ? Path.Combine(_dropIntoFolderPath, Path.GetFileName(destinationPath))
-                                      : destinationPath);
+                                string destinationPath = Path.Combine(_currentFolderPath, Path.GetFileName(file));
+                                Directory.Move(file, destinationPath);
                             }
                             else
                             {
@@ -2656,71 +2800,289 @@ namespace DeskFrame
                         else
                         {
                             Debug.WriteLine("File detected: " + file);
-                            if (!Instance.IsShortcutsOnly)
+                            if (Instance.IsShortcutsOnly || isShortcutFile)
                             {
-                                File.Move(file,
-                                    !string.IsNullOrEmpty(_dropIntoFolderPath)
-                                        ? Path.Combine(_dropIntoFolderPath, Path.GetFileName(destinationPath))
-                                        : destinationPath);
+                                CreateShortcut(file, _currentFolderPath);
                             }
                             else
                             {
-                                CreateShortcut(file, _currentFolderPath);
-
+                                string destinationPath = Path.Combine(_currentFolderPath, Path.GetFileName(file));
+                                try
+                                {
+                                    File.Copy(file, destinationPath, true);
+                                }
+                                catch
+                                {
+                                    File.Move(file, destinationPath);
+                                }
                             }
-
                         }
                     }
                     catch (Exception ex)
                     {
-                        Debug.WriteLine("Error moving file: " + ex.Message);
-                        if (!Path.Exists(Instance.Folder) && Instance.Folder != "empty")
-                        {
-                            PathToBackButton.Visibility = Visibility.Collapsed;
-                            missingFolderGrid.Visibility = Visibility.Visible;
-                            FileItems.Clear();
-                        }
-                        if (addFolder.Visibility == Visibility.Visible)
-                        {
-
-                            Instance.Folder = Path.Combine(
-                                Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),
-                                "DeskFrame",
-                                Guid.NewGuid().ToString()
-                            );
-                            _currentFolderPath = Instance.Folder;
-                            Directory.CreateDirectory(Instance.Folder);
-                            Instance.IsShortcutsOnly = true;
-                            Instance.ShowShortcutArrow = false;
-                            CreateShortcut(file, _currentFolderPath);
-
-                            title.Text = "File frame";
-                            Instance.TitleText = "File frame";
-                            Instance.Name = Path.GetFileName(Instance.Folder);
-                            MainWindow._controller.WriteInstanceToKey(Instance);
-                            LoadFiles(_currentFolderPath);
-                            DataContext = this;
-                            InitializeFileWatchers();
-                            showFolder.Visibility = Visibility.Visible;
-                            LoadingProgressRing.Visibility = Visibility.Visible;
-                            addFolder.Visibility = Visibility.Hidden;
-
-                        }
+                        Debug.WriteLine("Error processing dropped file: " + ex.Message);
                     }
                 }
+
+                LoadFiles(_currentFolderPath);
             }
         }
 
 
+        private static bool GetShortcutDetails(string shortcutPath, out string targetPath, out string arguments, out string workingDirectory)
+        {
+            targetPath = string.Empty;
+            arguments = string.Empty;
+            workingDirectory = string.Empty;
+
+            if (string.IsNullOrEmpty(shortcutPath) || !File.Exists(shortcutPath)) return false;
+            if (!Path.GetExtension(shortcutPath).Equals(".lnk", StringComparison.OrdinalIgnoreCase)) return false;
+
+            try
+            {
+                WshShell shell = new WshShell();
+                IWshShortcut shortcut = (IWshShortcut)shell.CreateShortcut(shortcutPath);
+                targetPath = shortcut.TargetPath?.Trim() ?? string.Empty;
+                arguments = shortcut.Arguments?.Trim() ?? string.Empty;
+                workingDirectory = shortcut.WorkingDirectory?.Trim() ?? string.Empty;
+                return true;
+            }
+            catch
+            {
+                return false;
+            }
+        }
+
+        private static string ExtractProfileOrDifferentiatorName(string arguments, string workingDirectory)
+        {
+            if (!string.IsNullOrWhiteSpace(arguments))
+            {
+                var match = System.Text.RegularExpressions.Regex.Match(arguments, @"--profile-directory=[""]?([^""\s]+)[""]?", System.Text.RegularExpressions.RegexOptions.IgnoreCase);
+                if (match.Success)
+                {
+                    string profile = match.Groups[1].Value.Trim();
+                    if (!string.IsNullOrEmpty(profile)) return profile;
+                }
+
+                match = System.Text.RegularExpressions.Regex.Match(arguments, @"--launch-product=([^\s]+)", System.Text.RegularExpressions.RegexOptions.IgnoreCase);
+                if (match.Success)
+                {
+                    string product = match.Groups[1].Value.Trim().Replace('_', ' ');
+                    if (!string.IsNullOrEmpty(product))
+                    {
+                        return System.Globalization.CultureInfo.CurrentCulture.TextInfo.ToTitleCase(product);
+                    }
+                }
+
+                match = System.Text.RegularExpressions.Regex.Match(arguments, @"--user-data-dir=[""]?([^""\r\n]+)[""]?", System.Text.RegularExpressions.RegexOptions.IgnoreCase);
+                if (match.Success)
+                {
+                    string userData = match.Groups[1].Value.Trim();
+                    string folderName = Path.GetFileName(userData.TrimEnd('\\', '/'));
+                    if (!string.IsNullOrEmpty(folderName)) return folderName;
+                }
+
+                match = System.Text.RegularExpressions.Regex.Match(arguments, @"(?:-profile|-p)\s+[""]?([^""\s]+)[""]?", System.Text.RegularExpressions.RegexOptions.IgnoreCase);
+                if (match.Success)
+                {
+                    string pName = match.Groups[1].Value.Trim();
+                    if (!string.IsNullOrEmpty(pName)) return pName;
+                }
+            }
+
+            if (!string.IsNullOrWhiteSpace(workingDirectory))
+            {
+                try
+                {
+                    string folderName = Path.GetFileName(workingDirectory.TrimEnd('\\', '/'));
+                    if (!string.IsNullOrEmpty(folderName)) return folderName;
+                }
+                catch { }
+            }
+
+            return null;
+        }
+
+        private static bool IsSystemShellPath(string path, out string clsid, out string friendlyName)
+        {
+            clsid = null;
+            friendlyName = null;
+            if (string.IsNullOrEmpty(path)) return false;
+
+            string p = path.ToUpperInvariant();
+
+            if (p.Contains("20D04FE0-3AEA-1069-A2D8-08002B30309D"))
+            {
+                clsid = "::{20D04FE0-3AEA-1069-A2D8-08002B30309D}";
+                friendlyName = "This PC";
+                return true;
+            }
+            if (p.Contains("645FF040-5081-101B-9F08-002B101979E5"))
+            {
+                clsid = "::{645FF040-5081-101B-9F08-002B101979E5}";
+                friendlyName = "Recycle Bin";
+                return true;
+            }
+            if (p.Contains("26EE0668-A00A-44D7-9371-BEB064C98683") || p.Contains("21EC2020-3AEA-1069-A2DD-08002B30309D"))
+            {
+                clsid = "::{26EE0668-A00A-44D7-9371-BEB064C98683}";
+                friendlyName = "Control Panel";
+                return true;
+            }
+            if (p.Contains("F02C5576-C192-4B59-9B36-D55077973D44"))
+            {
+                clsid = "::{F02C5576-C192-4B59-9B36-D55077973D44}";
+                friendlyName = "Network";
+                return true;
+            }
+            if (p.Contains("59031A47-3F72-44A7-89C5-5595FE6B30EE"))
+            {
+                clsid = "::{59031A47-3F72-44A7-89C5-5595FE6B30EE}";
+                friendlyName = "User Files";
+                return true;
+            }
+            if (p.StartsWith("SHELL:::") || p.StartsWith("::{"))
+            {
+                clsid = path;
+                friendlyName = "System Icon";
+                return true;
+            }
+
+            return false;
+        }
+
+        private static bool CreateSystemShortcutInFolder(string clsid, string friendlyName, string folder)
+        {
+            if (string.IsNullOrEmpty(folder)) return false;
+            if (!Directory.Exists(folder)) Directory.CreateDirectory(folder);
+
+            string cleanName = string.IsNullOrWhiteSpace(friendlyName) ? "System Icon" : friendlyName;
+            foreach (char c in Path.GetInvalidFileNameChars())
+            {
+                cleanName = cleanName.Replace(c, '_');
+            }
+
+            string shortcutPath = Path.Combine(folder, $"{cleanName}.lnk");
+            int counter = 1;
+            while (File.Exists(shortcutPath))
+            {
+                shortcutPath = Path.Combine(folder, $"{cleanName} ({counter++}).lnk");
+            }
+
+            try
+            {
+                WshShell shell = new WshShell();
+                IWshShortcut shortcut = (IWshShortcut)shell.CreateShortcut(shortcutPath);
+                shortcut.TargetPath = @"C:\Windows\explorer.exe";
+
+                if (!clsid.StartsWith("shell:::", StringComparison.OrdinalIgnoreCase))
+                {
+                    shortcut.Arguments = "shell:::" + clsid.TrimStart(':');
+                }
+                else
+                {
+                    shortcut.Arguments = clsid;
+                }
+
+                string iconLocation = GetDeskFrameSystemIconForParsingPath(clsid);
+                if (!string.IsNullOrEmpty(iconLocation))
+                {
+                    shortcut.IconLocation = iconLocation;
+                }
+                else
+                {
+                    shortcut.IconLocation = @"C:\Windows\System32\shell32.dll,0";
+                }
+                shortcut.Save();
+                return true;
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine("Error creating system shortcut: " + ex.Message);
+                return false;
+            }
+        }
+
         void CreateShortcut(string filePath, string shortcutFolder = null)
         {
-            if (Path.GetExtension(filePath) == ".url")
+            string folder = !string.IsNullOrEmpty(shortcutFolder) ? shortcutFolder : Path.GetDirectoryName(filePath);
+            if (string.IsNullOrEmpty(folder)) return;
+
+            // Check if filePath is a system shell CLSID or virtual path
+            if (IsSystemShellPath(filePath, out string clsid, out string friendlyName))
             {
-                File.Copy(filePath, Path.Combine(shortcutFolder, Path.GetFileName(filePath)));
+                CreateSystemShortcutInFolder(clsid, friendlyName, folder);
                 return;
             }
-            string folder = !string.IsNullOrEmpty(shortcutFolder) ? shortcutFolder : Path.GetDirectoryName(filePath);
+
+            string ext = Path.GetExtension(filePath).ToLower();
+
+            // Handle .url Web Shortcuts
+            if (ext == ".url")
+            {
+                string destPath = Path.Combine(folder, Path.GetFileName(filePath));
+                int counter = 1;
+                while (File.Exists(destPath))
+                {
+                    string nameNoExt = Path.GetFileNameWithoutExtension(filePath);
+                    destPath = Path.Combine(folder, $"{nameNoExt} ({counter++}).url");
+                }
+                File.Copy(filePath, destPath, true);
+                return;
+            }
+
+            // Handle .lnk Shortcut Files
+            if (ext == ".lnk")
+            {
+                GetShortcutDetails(filePath, out string dropTarget, out string dropArgs, out string dropWorkDir);
+
+                // Check if .lnk target or arguments point to system shell CLSID
+                if (IsSystemShellPath(dropTarget, out string subClsid, out string subName) || IsSystemShellPath(dropArgs, out subClsid, out subName))
+                {
+                    CreateSystemShortcutInFolder(subClsid, subName, folder);
+                    return;
+                }
+
+                string baseName = Path.GetFileNameWithoutExtension(filePath);
+                string destShortcutPath = Path.Combine(folder, baseName + ".lnk");
+                int counter = 1;
+
+                while (File.Exists(destShortcutPath))
+                {
+                    GetShortcutDetails(destShortcutPath, out string existingTarget, out string existingArgs, out string existingWorkDir);
+
+                    bool isExactDuplicate = string.Equals(dropTarget, existingTarget, StringComparison.OrdinalIgnoreCase) &&
+                                            string.Equals(dropArgs, existingArgs, StringComparison.OrdinalIgnoreCase) &&
+                                            string.Equals(dropWorkDir, existingWorkDir, StringComparison.OrdinalIgnoreCase);
+
+                    if (isExactDuplicate)
+                    {
+                        break;
+                    }
+
+                    string profileTag = ExtractProfileOrDifferentiatorName(dropArgs, dropWorkDir);
+                    if (!string.IsNullOrEmpty(profileTag) && counter == 1)
+                    {
+                        destShortcutPath = Path.Combine(folder, $"{baseName} - {profileTag}.lnk");
+                    }
+                    else
+                    {
+                        destShortcutPath = Path.Combine(folder, $"{baseName} ({counter++}).lnk");
+                    }
+                }
+
+                File.Copy(filePath, destShortcutPath, true);
+                return;
+            }
+
+            // Handle Raw Files / Folders (Create new .lnk)
             string shortcutPath = Path.Combine(folder, Path.GetFileNameWithoutExtension(filePath) + ".lnk");
+            int fileCounter = 1;
+            while (File.Exists(shortcutPath))
+            {
+                string nameNoExt = Path.GetFileNameWithoutExtension(filePath);
+                shortcutPath = Path.Combine(folder, $"{nameNoExt} ({fileCounter++}).lnk");
+            }
 
             WshShell shell = new WshShell();
             IWshShortcut shortcut = (IWshShortcut)shell.CreateShortcut(shortcutPath);
@@ -2820,9 +3182,11 @@ namespace DeskFrame
                     {
                         _draggedItem = fileItem;
                     }
-                    _isDragging = true;
-                    DataObject data = new DataObject(DataFormats.FileDrop, new string[] { fileItem.FullPath! });
-                    DragDrop.DoDragDrop(dragBorder, data, DragDropEffects.Copy | DragDropEffects.Move);
+
+                    // Store drag start info — actual DoDragDrop is triggered in PreviewMouseMove after threshold
+                    _pendingDragItem = fileItem;
+                    _pendingDragBorder = dragBorder;
+                    _dragStartPoint = e.GetPosition(this);
                 }
             }
             if (clickedFileItem != null && (Keyboard.IsKeyDown(Key.LeftCtrl) || Keyboard.IsKeyDown(Key.RightCtrl)))
@@ -2996,8 +3360,32 @@ namespace DeskFrame
             AnimateWindowOpacity(Instance.IdleOpacity, Instance.AnimationSpeed);
             _dragdropIntoFolder = false;
         }
+        private void Window_DragOver(object sender, DragEventArgs e)
+        {
+            if (e.Data.GetDataPresent("Shell IDList Array") ||
+                e.Data.GetDataPresent(DataFormats.FileDrop) ||
+                e.Data.GetDataPresent(DataFormats.Text) ||
+                e.Data.GetDataPresent(DataFormats.UnicodeText) ||
+                e.Data.GetDataPresent("FileGroupDescriptorW") ||
+                e.Data.GetDataPresent("FileGroupDescriptor"))
+            {
+                e.Effects = DragDropEffects.Copy | DragDropEffects.Link;
+                e.Handled = true;
+            }
+        }
+
         private void Window_DragEnter(object sender, DragEventArgs e)
         {
+            if (e.Data.GetDataPresent("Shell IDList Array") ||
+                e.Data.GetDataPresent(DataFormats.FileDrop) ||
+                e.Data.GetDataPresent(DataFormats.Text) ||
+                e.Data.GetDataPresent(DataFormats.UnicodeText) ||
+                e.Data.GetDataPresent("FileGroupDescriptorW") ||
+                e.Data.GetDataPresent("FileGroupDescriptor"))
+            {
+                e.Effects = DragDropEffects.Copy | DragDropEffects.Link;
+            }
+
             if (!_mouseIsOver && IsCursorWithinWindowBounds())
             {
                 AnimateActiveColor(Instance.AnimationSpeed);
@@ -3626,6 +4014,37 @@ namespace DeskFrame
 
         private void Window_MouseMove(object sender, MouseEventArgs e)
         {
+            // Drag threshold: only start drag after mouse moves far enough from the click point
+            if (_pendingDragItem != null && _pendingDragBorder != null)
+            {
+                if (e.LeftButton == MouseButtonState.Pressed)
+                {
+                    System.Windows.Point currentPos = e.GetPosition(this);
+                    double deltaX = Math.Abs(currentPos.X - _dragStartPoint.X);
+                    double deltaY = Math.Abs(currentPos.Y - _dragStartPoint.Y);
+
+                    if (deltaX > SystemParameters.MinimumHorizontalDragDistance ||
+                        deltaY > SystemParameters.MinimumVerticalDragDistance)
+                    {
+                        // Threshold exceeded — start the actual drag
+                        var dragItem = _pendingDragItem;
+                        var dragBorder = _pendingDragBorder;
+                        _pendingDragItem = null;
+                        _pendingDragBorder = null;
+                        _isDragging = true;
+
+                        DataObject data = new DataObject(DataFormats.FileDrop, new string[] { dragItem.FullPath! });
+                        DragDrop.DoDragDrop(dragBorder, data, DragDropEffects.Copy | DragDropEffects.Move);
+                    }
+                }
+                else
+                {
+                    // Mouse button released without moving — cancel pending drag (it was just a click)
+                    _pendingDragItem = null;
+                    _pendingDragBorder = null;
+                }
+            }
+
             var cursorPos = System.Windows.Forms.Cursor.Position;
             var windowPos = this.PointToScreen(new System.Windows.Point(0, 0));
             var windowWidth = this.ActualWidth;
@@ -4544,5 +4963,198 @@ namespace DeskFrame
         {
             Instance.isWindowClosing = true;
         }
+
+        #region Virtual Shell Item Helpers (This PC, Recycle Bin, Control Panel, etc.)
+        public class DeskFrameShellVirtualItem
+        {
+            public string DisplayName { get; set; }
+            public string ParsingPath { get; set; }
+            public string IconLocation { get; set; }
+            public bool IsFileSystem { get; set; }
+            public string FileSystemPath { get; set; }
+        }
+
+        [System.Runtime.InteropServices.DllImport("shell32.dll", CharSet = System.Runtime.InteropServices.CharSet.Unicode, PreserveSig = true)]
+        private static extern int SHCreateItemFromIDList(IntPtr pidl, [System.Runtime.InteropServices.In] ref Guid riid, [System.Runtime.InteropServices.Out, System.Runtime.InteropServices.MarshalAs(System.Runtime.InteropServices.UnmanagedType.Interface)] out IShellItem ppv);
+
+        [System.Runtime.InteropServices.DllImport("shell32.dll", PreserveSig = true)]
+        private static extern IntPtr ILCombine(IntPtr pidl1, IntPtr pidl2);
+
+        [System.Runtime.InteropServices.DllImport("shell32.dll", PreserveSig = false)]
+        private static extern void ILFree(IntPtr pidl);
+
+        [System.Runtime.InteropServices.ComImport]
+        [System.Runtime.InteropServices.InterfaceType(System.Runtime.InteropServices.ComInterfaceType.InterfaceIsIUnknown)]
+        [System.Runtime.InteropServices.Guid("43826d1e-e718-42ee-bc55-a1e261c37bfe")]
+        private interface IShellItem
+        {
+            void BindToHandler(IntPtr pbc, ref Guid bhid, ref Guid riid, out IntPtr ppv);
+            void GetParent(out IShellItem ppsi);
+            void GetDisplayName(SIGDN sigdnName, [System.Runtime.InteropServices.MarshalAs(System.Runtime.InteropServices.UnmanagedType.LPWStr)] out string ppszName);
+            void GetAttributes(uint sfgaoMask, out uint psfgaoAttribs);
+            void Compare(IShellItem psi, uint hint, out int piOrder);
+        }
+
+        private enum SIGDN : uint
+        {
+            SIGDN_NORMALDISPLAY = 0x00000000,
+            SIGDN_PARENTRELATIVEPARSING = 0x80018001,
+            SIGDN_DESKTOPABSOLUTEPARSING = 0x80028000,
+            SIGDN_PARENTRELATIVEEDITING = 0x80031001,
+            SIGDN_DESKTOPABSOLUTEEDITING = 0x8004c000,
+            SIGDN_FILESYSPATH = 0x80058000,
+            SIGDN_URL = 0x80068000,
+            SIGDN_PARENTRELATIVEFORADDRESSBAR = 0x8007c001,
+            SIGDN_PARENTRELATIVE = 0x80080001
+        }
+
+        private static List<DeskFrameShellVirtualItem> GetVirtualShellItems(System.Windows.IDataObject dataObject)
+        {
+            var results = new List<DeskFrameShellVirtualItem>();
+            if (dataObject == null) { DropLog("GetVirtualShellItems: dataObject is null"); return results; }
+
+            try
+            {
+                bool hasShellIdList = dataObject.GetDataPresent("Shell IDList Array");
+                DropLog($"GetVirtualShellItems: Shell IDList Array present = {hasShellIdList}");
+
+                if (hasShellIdList)
+                {
+                    object data = dataObject.GetData("Shell IDList Array");
+                    DropLog($"GetVirtualShellItems: GetData returned type = {data?.GetType()?.FullName ?? "null"}");
+
+                    if (data is System.IO.MemoryStream ms)
+                    {
+                        byte[] bytes = ms.ToArray();
+                        DropLog($"GetVirtualShellItems: MemoryStream length = {bytes.Length}");
+                        System.Runtime.InteropServices.GCHandle handle = System.Runtime.InteropServices.GCHandle.Alloc(bytes, System.Runtime.InteropServices.GCHandleType.Pinned);
+                        try
+                        {
+                            IntPtr ptr = handle.AddrOfPinnedObject();
+                            uint cidl = (uint)System.Runtime.InteropServices.Marshal.ReadInt32(ptr, 0);
+                            int parentOffset = System.Runtime.InteropServices.Marshal.ReadInt32(ptr, 4);
+                            IntPtr parentPidl = IntPtr.Add(ptr, parentOffset);
+                            DropLog($"GetVirtualShellItems: cidl={cidl}, parentOffset={parentOffset}");
+
+                            Guid shellItemGuid = new Guid("43826d1e-e718-42ee-bc55-a1e261c37bfe");
+
+                            for (int i = 0; i < cidl; i++)
+                            {
+                                int itemOffset = System.Runtime.InteropServices.Marshal.ReadInt32(ptr, 8 + (i * 4));
+                                IntPtr relativePidl = IntPtr.Add(ptr, itemOffset);
+                                IntPtr fullPidl = ILCombine(parentPidl, relativePidl);
+                                DropLog($"GetVirtualShellItems: item[{i}] offset={itemOffset}, fullPidl={(fullPidl != IntPtr.Zero ? "valid" : "ZERO")}");
+
+                                if (fullPidl != IntPtr.Zero)
+                                {
+                                    try
+                                    {
+                                        int hr = SHCreateItemFromIDList(fullPidl, ref shellItemGuid, out IShellItem shellItem);
+                                        DropLog($"GetVirtualShellItems: SHCreateItemFromIDList hr=0x{hr:X8}, shellItem={(shellItem != null ? "valid" : "null")}");
+
+                                        if (hr == 0 && shellItem != null)
+                                        {
+                                            var item = new DeskFrameShellVirtualItem();
+
+                                            try
+                                            {
+                                                shellItem.GetDisplayName(SIGDN.SIGDN_NORMALDISPLAY, out string normName);
+                                                item.DisplayName = normName;
+                                                DropLog($"  DisplayName: '{normName}'");
+                                            }
+                                            catch (Exception dnEx) { DropLog($"  DisplayName ERROR: {dnEx.Message}"); }
+
+                                            try
+                                            {
+                                                shellItem.GetDisplayName(SIGDN.SIGDN_FILESYSPATH, out string fsPath);
+                                                DropLog($"  FILESYSPATH: '{fsPath}'");
+                                                if (!string.IsNullOrEmpty(fsPath) && (System.IO.File.Exists(fsPath) || System.IO.Directory.Exists(fsPath)))
+                                                {
+                                                    item.IsFileSystem = true;
+                                                    item.FileSystemPath = fsPath;
+                                                }
+                                            }
+                                            catch (Exception fsEx) { DropLog($"  FILESYSPATH ERROR (expected for virtual): {fsEx.Message}"); }
+
+                                            try
+                                            {
+                                                shellItem.GetDisplayName(SIGDN.SIGDN_DESKTOPABSOLUTEPARSING, out string parsingPath);
+                                                DropLog($"  DESKTOPABSOLUTEPARSING raw: '{parsingPath}'");
+                                                if (!string.IsNullOrEmpty(parsingPath))
+                                                {
+                                                    if (!parsingPath.StartsWith("shell:::", StringComparison.OrdinalIgnoreCase))
+                                                    {
+                                                        item.ParsingPath = "shell:::" + parsingPath.TrimStart(':');
+                                                    }
+                                                    else
+                                                    {
+                                                        item.ParsingPath = parsingPath;
+                                                    }
+                                                    DropLog($"  ParsingPath final: '{item.ParsingPath}'");
+                                                }
+                                            }
+                                            catch (Exception ppEx) { DropLog($"  DESKTOPABSOLUTEPARSING ERROR: {ppEx.Message}"); }
+
+                                            item.IconLocation = GetDeskFrameSystemIconForParsingPath(item.ParsingPath);
+                                            DropLog($"  IconLocation: '{item.IconLocation}', IsFileSystem={item.IsFileSystem}");
+
+                                            if (item.IsFileSystem || !string.IsNullOrEmpty(item.ParsingPath))
+                                            {
+                                                results.Add(item);
+                                                DropLog($"  -> ADDED to results");
+                                            }
+                                            else
+                                            {
+                                                DropLog($"  -> SKIPPED (no ParsingPath and not filesystem)");
+                                            }
+                                        }
+                                    }
+                                    finally
+                                    {
+                                        ILFree(fullPidl);
+                                    }
+                                }
+                            }
+                        }
+                        finally
+                        {
+                            handle.Free();
+                        }
+                    }
+                    else
+                    {
+                        DropLog($"GetVirtualShellItems: data is NOT MemoryStream, type={data?.GetType()?.FullName ?? "null"}");
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                DropLog($"GetVirtualShellItems EXCEPTION: {ex}");
+                Debug.WriteLine("Error parsing Shell IDList Array: " + ex.Message);
+            }
+
+            DropLog($"GetVirtualShellItems: returning {results.Count} items");
+            return results;
+        }
+
+        private static string GetDeskFrameSystemIconForParsingPath(string parsingPath)
+        {
+            if (string.IsNullOrEmpty(parsingPath)) return null;
+            string p = parsingPath.ToUpperInvariant();
+
+            if (p.Contains("20D04FE0-3AEA-1069-A2D8-08002B30309D")) // This PC / Computer
+                return @"C:\Windows\System32\imageres.dll,-109";
+            if (p.Contains("645FF040-5081-101B-9F08-002B101979E5")) // Recycle Bin
+                return @"C:\Windows\System32\shell32.dll,31";
+            if (p.Contains("26EE0668-A00A-44D7-9371-BEB064C98683") || p.Contains("21EC2020-3AEA-1069-A2DD-08002B30309D")) // Control Panel
+                return @"C:\Windows\System32\shell32.dll,21";
+            if (p.Contains("F02C5576-C192-4B59-9B36-D55077973D44")) // Network
+                return @"C:\Windows\System32\shell32.dll,17";
+            if (p.Contains("59031A47-3F72-44A7-89C5-5595FE6B30EE")) // User Profile Folder
+                return @"C:\Windows\System32\imageres.dll,-123";
+
+            return @"C:\Windows\explorer.exe,0";
+        }
+        #endregion
     }
 }

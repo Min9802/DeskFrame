@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Wix xmlns="http://wixtoolset.org/schemas/v4/wxs"
+     xmlns:ui="http://wixtoolset.org/schemas/v4/wxs/ui">
+
+  <Package Name="DeskFrame"
+           Manufacturer="Min9802"
+           Version="1.44.0"
+           UpgradeCode="7A3F2E19-5C84-4B2D-9D8F-1A6C3E07B452"
+           Language="1033"
+           InstallerVersion="500">
+
+    <MajorUpgrade DowngradeErrorMessage="A newer version of DeskFrame is already installed." />
+    <Media Id="1" Cabinet="DeskFrame.cab" EmbedCab="yes" CompressionLevel="high" />
+
+    <ui:WixUI Id="WixUI_InstallDir" />
+    <WixVariable Id="WixUILicenseRtf" Value="License.rtf" />
+    <Property Id="WIXUI_INSTALLDIR" Value="INSTALLFOLDER" />
+
+    <!-- Directory structure -->
+    <StandardDirectory Id="ProgramFiles6432Folder">
+      <Directory Id="INSTALLFOLDER" Name="DeskFrame" />
+    </StandardDirectory>
+
+    <StandardDirectory Id="ProgramMenuFolder">
+      <Directory Id="ApplicationProgramsFolder" Name="DeskFrame">
+        <Component Id="ApplicationShortcut" Guid="A1B2C3D4-E5F6-7890-ABCD-EF1234567890">
+          <Shortcut Id="AppStartMenuShortcut"
+                    Name="DeskFrame"
+                    Description="Desktop frames and shortcuts manager"
+                    Target="[INSTALLFOLDER]DeskFrame.exe"
+                    WorkingDirectory="INSTALLFOLDER"
+                    Icon="DeskFrameIcon.exe" />
+          <Shortcut Id="UninstallShortcut"
+                    Name="Uninstall DeskFrame"
+                    Target="[System64Folder]msiexec.exe"
+                    Arguments="/x [ProductCode]" />
+          <RemoveFolder Id="CleanupStartMenu" On="uninstall" />
+          <RegistryValue Root="HKCU" Key="Software\DeskFrame\StartMenu"
+                         Type="integer" Value="1" KeyPath="yes" />
+        </Component>
+      </Directory>
+    </StandardDirectory>
+
+    <StandardDirectory Id="DesktopFolder">
+      <Component Id="DesktopShortcut" Guid="B2C3D4E5-F6A7-8901-BCDE-F12345678901">
+        <Shortcut Id="AppDesktopShortcut"
+                  Name="DeskFrame"
+                  Description="Desktop frames and shortcuts manager"
+                  Target="[INSTALLFOLDER]DeskFrame.exe"
+                  WorkingDirectory="INSTALLFOLDER"
+                  Icon="DeskFrameIcon.exe" />
+        <RegistryValue Root="HKCU" Key="Software\DeskFrame\Desktop"
+                       Type="integer" Value="1" KeyPath="yes" />
+      </Component>
+    </StandardDirectory>
+
+    <!-- Features -->
+    <Feature Id="ProductFeature" Title="DeskFrame" Level="1">
+      <ComponentGroupRef Id="DeskFrameFiles" />
+      <ComponentRef Id="ApplicationShortcut" />
+      <ComponentRef Id="DesktopShortcut" />
+    </Feature>
+
+    <Icon Id="DeskFrameIcon.exe" SourceFile="publish\DeskFrame.exe" />
+
+  </Package>
+
+</Wix>
