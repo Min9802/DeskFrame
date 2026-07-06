@@ -1,0 +1,439 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="metadata">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" />
+              </xsd:sequence>
+              <xsd:attribute name="name" use="required" type="xsd:string" />
+              <xsd:attribute name="type" type="xsd:string" />
+              <xsd:attribute name="mimetype" type="xsd:string" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="assembly">
+            <xsd:complexType>
+              <xsd:attribute name="alias" type="xsd:string" />
+              <xsd:attribute name="name" type="xsd:string" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
+              <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
+              <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="resheader">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="FrameSettings.AutoExpandonCursor" xml:space="preserve">
+    <value>Mở rộng khi di chuột qua</value>
+  </data>
+  <data name="FrameSettings.CheckFolderSize" xml:space="preserve">
+    <value>Hiển thị kích thước thư mục trong menu</value>
+  </data>
+  <data name="FrameSettings.ShowLastAccessedItem" xml:space="preserve">
+    <value>Hiển thị các mục truy cập gần đây lên trước</value>
+  </data>
+  <data name="FrameSettings.ShowShortcutArrow" xml:space="preserve">
+    <value>Hiển thị mũi tên shortcut</value>
+  </data>
+  <data name="FrameSettings.IdleOpacityLabel" xml:space="preserve">
+    <value>Độ mờ khi không hoạt động:</value>
+  </data>
+  <data name="FrameSettings.AnimationSpeed" xml:space="preserve">
+    <value>Tốc độ hoạt động:</value>
+  </data>
+  <data name="FrameSettings.ShowOnVirtualDesktopLabel" xml:space="preserve">
+    <value>Hiển thị trên màn hình ảo:</value>
+  </data>
+  <data name="FrameSettings.ShowFileExtensionIcon" xml:space="preserve">
+    <value>Đuôi file</value>
+  </data>
+  <data name="FrameSettings.ShowHiddenFilesIcon" xml:space="preserve">
+    <value>File ẩn</value>
+  </data>
+  <data name="FrameSettings.ShowOnVirtualDesktopPlaceHolder" xml:space="preserve">
+    <value>Tất cả (hoặc ví dụ 1,2,3)</value>
+  </data>
+  <data name="FrameSettings.TitleBarIcons" xml:space="preserve">
+    <value>Biểu tượng thanh tiêu đề:</value>
+  </data>
+  <data name="FrameSettings.BorderColor" xml:space="preserve">
+    <value>Màu viền (hex):</value>
+  </data>
+  <data name="FrameSettings.CategoryMiscellaneous" xml:space="preserve">
+    <value>Khác</value>
+  </data>
+  <data name="FrameSettings.CategoryTitleBar" xml:space="preserve">
+    <value>Thanh tiêu đề</value>
+  </data>
+  <data name="FrameSettings.CategoryFileItems" xml:space="preserve">
+    <value>Các tệp tin</value>
+  </data>
+  <data name="FrameSettings.BackgroundColor" xml:space="preserve">
+    <value>Màu nền (hex): </value>
+  </data>
+  <data name="FrameSettings.TextColor" xml:space="preserve">
+    <value>Màu chữ (hex):</value>
+  </data>
+  <data name="FrameSettings.TextShadowColor" xml:space="preserve">
+    <value>Màu bóng chữ (hex):</value>
+  </data>
+  <data name="FrameSettings.TitleBarTextText" xml:space="preserve">
+    <value>Chữ trên thanh tiêu đề:</value>
+  </data>
+  <data name="FrameSettings.Font" xml:space="preserve">
+    <value>Phông chữ:</value>
+  </data>
+  <data name="FrameSettings.TextSize" xml:space="preserve">
+    <value>Cỡ chữ:</value>
+  </data>
+  <data name="FrameSettings.TextAlignment" xml:space="preserve">
+    <value>Căn lề chữ:</value>
+  </data>
+  <data name="FrameSettings.ShowFilesRegex" xml:space="preserve">
+    <value>Hiện file khớp regex:</value>
+  </data>
+  <data name="FrameSettings.HideFilesRegex" xml:space="preserve">
+    <value>Ẩn file khớp regex:</value>
+  </data>
+  <data name="FrameSettings.Searchdot" xml:space="preserve">
+    <value>Tìm kiếm...</value>
+  </data>
+  <data name="FrameSettings.IconSize" xml:space="preserve">
+    <value>Cỡ biểu tượng:</value>
+  </data>
+  <data name="FrameSettings.ShowIconText" xml:space="preserve">
+    <value>Hiện chữ biểu tượng</value>
+  </data>
+  <data name="FrameSettings.RevertButton" xml:space="preserve">
+    <value>Hoàn tác</value>
+  </data>
+  <data name="FrameSettings.ChangeStyle" xml:space="preserve">
+    <value>Thay đổi kiểu</value>
+  </data>
+  <data name="FrameSettings.ChangeFolder" xml:space="preserve">
+    <value>Change folder</value>
+  </data>
+  <data name="DeskFrameFrameSettings.TitleBarText" xml:space="preserve">
+    <value>Cài đặt DeskFrame</value>
+  </data>
+  <data name="DeskFrameFrameSettings.DefaultFrameStyle" xml:space="preserve">
+    <value>Kiểu khung mặc định</value>
+  </data>
+  <data name="DeskFrameFrameSettings.ResetDefaultStyle" xml:space="preserve">
+    <value>Đặt lại kiểu mặc định</value>
+  </data>
+  <data name="DeskFrameFrameSettings.AutoUpdate" xml:space="preserve">
+    <value>Tự động cập nhật. Kiểm tra khi khởi động và mỗi 6 giờ</value>
+  </data>
+  <data name="DeskFrameFrameSettings.DoubleClickHide" xml:space="preserve">
+    <value>Nhấp đúp chuột lên màn hình để ẩn/hiện mọi khung</value>
+  </data>
+  <data name="DeskFrameFrameSettings.MadewithSpace" xml:space="preserve">
+    <value>Được tạo bằng </value>
+  </data>
+  <data name="DeskFrameFrameSettings.ExportSettings" xml:space="preserve">
+    <value>Xuất cài đặt</value>
+  </data>
+  <data name="TitleBarContextMenu.Sortby" xml:space="preserve">
+    <value>Sắp xếp theo</value>
+  </data>
+  <data name="TitleBarContextMenu.LockFrame" xml:space="preserve">
+    <value>Khóa khung</value>
+  </data>
+  <data name="TitleBarContextMenu.Reload" xml:space="preserve">
+    <value>Tải lại</value>
+  </data>
+  <data name="TitleBarContextMenu.OpenFolder" xml:space="preserve">
+    <value>Mở thư mục</value>
+  </data>
+  <data name="TitleBarContextMenu.GridView" xml:space="preserve">
+    <value>Dạng lưới</value>
+  </data>
+  <data name="TitleBarContextMenu.HiddenFiles" xml:space="preserve">
+    <value>File ẩn</value>
+  </data>
+  <data name="TitleBarContextMenu.FileExtensions" xml:space="preserve">
+    <value>Đuôi file</value>
+  </data>
+  <data name="TitleBarContextMenu.FrameSettings" xml:space="preserve">
+    <value>Cài đặt khung</value>
+  </data>
+  <data name="TitleBarContextMenu.Info.Files" xml:space="preserve">
+    <value>Tệp tin: </value>
+  </data>
+  <data name="TitleBarContextMenu.Info.Folders" xml:space="preserve">
+    <value>Thư mục: </value>
+  </data>
+  <data name="TitleBarContextMenu.Info.HiddenFiles" xml:space="preserve">
+    <value>(ẩn)</value>
+  </data>
+  <data name="TitleBarContextMenu.Info.LastUpdated" xml:space="preserve">
+    <value>Cập nhật cuối: </value>
+  </data>
+  <data name="TitleBarContextMenu.Remove" xml:space="preserve">
+    <value>Xóa bỏ</value>
+  </data>
+  <data name="TitleBarContextMenu.Sortby.FolderOrder" xml:space="preserve">
+    <value>Thứ tự thư mục</value>
+  </data>
+  <data name="TitleBarContextMenu.Sortby.Name" xml:space="preserve">
+    <value>Tên</value>
+  </data>
+  <data name="TitleBarContextMenu.Sortby.DateModified" xml:space="preserve">
+    <value>Ngày chỉnh sửa</value>
+  </data>
+  <data name="TitleBarContextMenu.Sortby.DateCreated" xml:space="preserve">
+    <value>Ngày tạo</value>
+  </data>
+  <data name="TitleBarContextMenu.Sortby.FileType" xml:space="preserve">
+    <value>Loại tệp</value>
+  </data>
+  <data name="TitleBarContextMenu.Sortby.FileSize" xml:space="preserve">
+    <value>Kích thước tệp</value>
+  </data>
+  <data name="TitleBarContextMenu.Sortby.Ascending" xml:space="preserve">
+    <value>Tăng dần</value>
+  </data>
+  <data name="TitleBarContextMenu.Sortby.Descending" xml:space="preserve">
+    <value>Giảm dần</value>
+  </data>
+  <data name="TitleBarContextMenu.Sortby.FolderIder.None" xml:space="preserve">
+    <value>Không</value>
+  </data>
+  <data name="TitleBarContextMenu.Sortby.FolderIder.First" xml:space="preserve">
+    <value>Đầu tiên</value>
+  </data>
+  <data name="TitleBarContextMenu.Sortby.FolderIder.Last" xml:space="preserve">
+    <value>Cuối cùng</value>
+  </data>
+  <data name="TitleBarContextMenu.UnlockFrame" xml:space="preserve">
+    <value>Mở khóa khung</value>
+  </data>
+  <data name="TitleBarContextMenu.RemoveMessageBox.Title" xml:space="preserve">
+    <value>Xác nhận</value>
+  </data>
+  <data name="TitleBarContextMenu.RemoveMessageBox.Content" xml:space="preserve">
+    <value>Bạn có chắc chắn muốn xóa bỏ không?</value>
+  </data>
+  <data name="TitleBarContextMenu.RemoveMessageBox.Yes" xml:space="preserve">
+    <value>Có</value>
+  </data>
+  <data name="TitleBarContextMenu.RemoveMessageBox.No" xml:space="preserve">
+    <value>Không</value>
+  </data>
+  <data name="TitleBarContextMenu.Info.FolderSize" xml:space="preserve">
+    <value>Kích thước thư mục: </value>
+  </data>
+  <data name="TitleBarContextMenu.ChangeView" xml:space="preserve">
+    <value>Đổi chế độ xem</value>
+  </data>
+  <data name="TitleBarContextMenu.DetailsView" xml:space="preserve">
+    <value>Xem chi tiết</value>
+  </data>
+  <data name="TrayContextMenu.CheckUpdateButton" xml:space="preserve">
+    <value>Kiểm tra cập nhật</value>
+  </data>
+  <data name="TrayContextMenu.VisitGithub" xml:space="preserve">
+    <value>Ghé thăm Github</value>
+  </data>
+  <data name="TrayContextMenu.StartOnLogin" xml:space="preserve">
+    <value>Khởi động cùng hệ thống</value>
+  </data>
+  <data name="TrayContextMenu.Settings" xml:space="preserve">
+    <value>Cài đặt</value>
+  </data>
+  <data name="TrayContextMenu.AddFrame" xml:space="preserve">
+    <value>Thêm khung</value>
+  </data>
+  <data name="TrayContextMenu.Exit" xml:space="preserve">
+    <value>Thoát</value>
+  </data>
+  <data name="FrameGridView.DateModified" xml:space="preserve">
+    <value>Ngày chỉnh sửa</value>
+  </data>
+  <data name="FrameGridView.Name" xml:space="preserve">
+    <value>Tên</value>
+  </data>
+  <data name="FrameGridView.Size" xml:space="preserve">
+    <value>Kích thước</value>
+  </data>
+  <data name="showFolderInGrid.DropFolder" xml:space="preserve">
+    <value>Thả thư mục vào đây</value>
+  </data>
+  <data name="FrameSettings.TitleBarText" xml:space="preserve">
+    <value>Cài đặt khung</value>
+  </data>
+  <data name="FrameSettings.FolderOpenInsideFrame" xml:space="preserve">
+    <value>Mở thư mục bên trong cửa sổ</value>
+  </data>
+  <data name="FrameTypeFlyout.Description" xml:space="preserve">
+    <value>Thư mục hoặc tệp đầu tiên bạn thả vào sẽ quyết định loại khung. Có hai loại:</value>
+  </data>
+  <data name="FrameTypeFlyout.Description.FileTypeDescription" xml:space="preserve">
+    <value>Tạo lối tắt từ bất kỳ đâu để truy cập tệp và thư mục. Khi bạn kéo một tệp hoặc thư mục khác vào, lối tắt của mục đó sẽ được tạo.</value>
+  </data>
+  <data name="FrameTypeFlyout.Description.FolderTypeDescription" xml:space="preserve">
+    <value>Hiển thị nội dung của một thư mục. Khi bạn kéo một tệp hoặc thư mục khác vào, mục đó sẽ được di chuyển vào trong thư mục này.</value>
+  </data>
+  <data name="FrameTypeFlyout.Folder" xml:space="preserve">
+    <value>Thư mục:</value>
+  </data>
+  <data name="FrameTypeFlyout.File" xml:space="preserve">
+    <value>Tệp tin:</value>
+  </data>
+  <data name="FrameSettings.CategoryWindow" xml:space="preserve">
+    <value>Cửa sổ</value>
+  </data>
+  <data name="FrameSettings.SnapWidthToIconWidth" xml:space="preserve">
+    <value>Thay đổi chiều rộng cho vừa kích thước biểu tượng</value>
+  </data>
+  <data name="FrameSettings.SnapWidthToIconWidth_PlusScrollbarWidth" xml:space="preserve">
+    <value>Dành khoảng trống cho thanh cuộn</value>
+  </data>
+  <data name="FrameSettings.PositionX" xml:space="preserve">
+    <value>Tọa độ X:</value>
+  </data>
+  <data name="FrameSettings.PositionY" xml:space="preserve">
+    <value>Tọa độ Y: </value>
+  </data>
+  <data name="DeskFrame.AlreadyRunning" xml:space="preserve">
+    <value>DeskFrame hiện đang chạy</value>
+  </data>
+  <data name="FrameSettings.ActiveColor" xml:space="preserve">
+    <value>Màu khi hoạt động (hex)</value>
+  </data>
+  <data name="Deskframe.Update.DialogContent" xml:space="preserve">
+    <value>Cập nhật yêu cầu quyền quản trị viên</value>
+  </data>
+  <data name="FrameSettings.HideTitleBarIconsWhenInactive" xml:space="preserve">
+    <value>Ẩn biểu tượng khi cửa sổ không hoạt động</value>
+  </data>
+  <data name="DeskFrameFrameSettings.Drag" xml:space="preserve">
+    <value>KÉO</value>
+  </data>
+  <data name="DeskFrameFrameSettings.SnapDescription" xml:space="preserve">
+    <value>[Khung] Hút các khung với khoảng cách 10 pixel</value>
+  </data>
+  <data name="DeskFrameFrameSettings.Scroll" xml:space="preserve">
+    <value>CUỘN</value>
+  </data>
+  <data name="DeskFrameFrameSettings.ChangeIconSizeDescription" xml:space="preserve">
+    <value>Thay đổi kích thước biểu tượng</value>
+  </data>
+  <data name="FrameSettings.GrayscaleEnable" xml:space="preserve">
+    <value>Bật thang màu xám</value>
+  </data>
+  <data name="FrameSettings.GrayScaleEnabledInactiveOnly" xml:space="preserve">
+    <value>Chỉ chuyển xám khi khung không hoạt động</value>
+  </data>
+  <data name="FrameSettings.GrayScaleMaxLevel" xml:space="preserve">
+    <value>Mức độ xám:</value>
+  </data>
+  <data name="TitleBarContextMenu.CustomItemOrder" xml:space="preserve">
+    <value>Tự chỉnh</value>
+  </data>
+  <data name="TitleBarContextMenu.CustomItemOrder.DeleteOrder" xml:space="preserve">
+    <value>Xóa</value>
+  </data>
+  <data name="TitleBarContextMenu_CustomItemOrder_ToggleSwitch_Enable" xml:space="preserve">
+    <value>Đã bật</value>
+  </data>
+  <data name="TitleBarContextMenu_CustomItemOrder_ToggleSwitch_Disable" xml:space="preserve">
+    <value>Đã tắt</value>
+  </data>
+  <data name="DeskFrameFrameSettings.RenameFilesDescription" xml:space="preserve">
+    <value>Đổi tên tệp, nhấn ENTER để xác nhận</value>
+  </data>
+  <data name="DeskFrameFrameSettings_ReorderDescription" xml:space="preserve">
+    <value>[Tệp] Thay đổi thứ tự tệp tin</value>
+  </data>
+  <data name="DeskFrameFrameSettings_SearchDescription" xml:space="preserve">
+    <value>Để tìm kiếm, hãy di chuột lên khung bạn muốn tìm và bắt đầu gõ</value>
+  </data>
+  <data name="Deskframe.DropaFileOrFolder" xml:space="preserve">
+    <value>Thả file hoặc thư mục</value>
+  </data>
+  <data name="DeskFrameFrameSettings.ReloadAllFramesButton" xml:space="preserve">
+    <value>Tải lại mọi khung</value>
+  </data>
+  <data name="DeskFrameFrameSettings.ManageFrameButton" xml:space="preserve">
+    <value>Quản lý khung</value>
+  </data>
+  <data name="DeskFrameFrameSettings.DragWinToolTip.MainFeatures" xml:space="preserve">
+    <value>Tính năng chính:</value>
+  </data>
+  <data name="DeskFrameFrameSettings.DragWinToolTip.Feature1" xml:space="preserve">
+    <value>• Di chuyển bất kỳ cửa sổ nào bằng cách kéo chuột phải</value>
+  </data>
+  <data name="DeskFrameFrameSettings.DragWinToolTip.Feature2" xml:space="preserve">
+    <value>• Thay đổi kích thước từ các góc và cạnh của cửa sổ</value>
+  </data>
+  <data name="DeskFrameFrameSettings.DragWinToolTip.Feature3" xml:space="preserve">
+    <value>• Cuộn giữa các màn hình ảo bằng cử chỉ</value>
+  </data>
+  <data name="DeskFrameFrameSettings.DragWinToolTip.Feature4" xml:space="preserve">
+    <value>• Thay đổi độ mờ của cửa sổ (Alt + cuộn chuột)</value>
+  </data>
+  <data name="DeskFrameFrameSettings.DragWinToolTip.Feature5" xml:space="preserve">
+    <value>• Cuộn qua các cửa sổ bằng con lăn chuột</value>
+  </data>
+  <data name="DeskFrameFrameSettings.DragWinToolTip.DoubleClickToGithub" xml:space="preserve">
+    <value>Nhấp đúp chuột để ghé thăm trang GitHub</value>
+  </data>
+  <data name="FrameSettings.FrameHeight" xml:space="preserve">
+    <value>Chiều cao:</value>
+  </data>
+  <data name="FrameSettings.FrameWidth" xml:space="preserve">
+    <value>Chiều rộng:</value>
+  </data>
+  <data name="DeskFrameFrameSettings.ScrollDownDescription" xml:space="preserve">
+    <value>[CUỘN XUỐNG] trên thanh tiêu đề: đẩy cửa sổ về phía sau</value>
+  </data>
+  <data name="DeskFrameFrameSettings.ScrollUpDescription" xml:space="preserve">
+    <value>[CUỘN LÊN] trên thanh tiêu đề: đưa cửa sổ lên phía trước</value>
+  </data>
+  <data name="DeskFrameFrameSettings_EQSToolTip_Feature1" xml:space="preserve">
+    <value>Thay thế Windows Search bằng Everything Search</value>
+  </data>
+  <data name="DeskFrameFrameSettings_EQSToolTip_Feature2" xml:space="preserve">
+    <value>Xem trước hình ảnh và video</value>
+  </data>
+  <data name="DeskFrameFrameSettings_EQSToolTip_Feature3" xml:space="preserve">
+    <value>Máy tính trong thanh tìm kiếm</value>
+  </data>
+</root>

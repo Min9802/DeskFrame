@@ -1,4 +1,4 @@
-﻿using System.ComponentModel;
+using System.ComponentModel;
 using System.Diagnostics;
 using System.Security.Policy;
 using System.Windows;
@@ -206,6 +206,12 @@ namespace DeskFrame
         private void Settings_Button_Click(object sender, RoutedEventArgs e)
         {
             new SettingsWindow(_controller, this).Show();
+        }
+        private void ReloadAllFrames_Click(object sender, RoutedEventArgs e)
+        {
+            TrayIcon.Register();
+            if (!_controller.isInitializingInstances)
+                _controller.CheckFrameWindowsLive(true);
         }
         private void Window_Loaded(object sender, RoutedEventArgs e)
         {

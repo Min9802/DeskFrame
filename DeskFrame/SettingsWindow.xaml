@@ -1,4 +1,4 @@
-﻿<ui:FluentWindow x:Class="DeskFrame.SettingsWindow"
+<ui:FluentWindow x:Class="DeskFrame.SettingsWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
@@ -43,6 +43,21 @@
 
                 <ui:ToggleSwitch x:Name="AutoUpdateToggleSwitch" Content="{x:Static prop:Lang.DeskFrameFrameSettings_AutoUpdate}" Margin="10,20,0,0" Click="AutoUpdateToggleSwitch_Click"/>
                 <ui:ToggleSwitch x:Name="DoubleClickToHideSwitch" Content="{x:Static prop:Lang.DeskFrameFrameSettings_DoubleClickHide}" Margin="10,20,0,0" Click="DoubleClickToHideSwitch_Click"/>
+
+                <StackPanel Orientation="Horizontal" Margin="10,20,0,0">
+                    <TextBlock Text="Language / Ngôn ngữ:" Foreground="LightGray" VerticalAlignment="Center" Margin="0,0,10,0" FontSize="13"/>
+                    <ComboBox x:Name="LanguageComboBox" Width="180" SelectionChanged="LanguageComboBox_SelectionChanged">
+                        <ComboBoxItem Content="Auto" Tag="Auto"/>
+                        <ComboBoxItem Content="English" Tag="en"/>
+                        <ComboBoxItem Content="简体中文 (Chinese)" Tag="zh-CN"/>
+                        <ComboBoxItem Content="Español (Spanish)" Tag="es-ES"/>
+                        <ComboBoxItem Content="Italiano (Italian)" Tag="it-IT"/>
+                        <ComboBoxItem Content="한국어 (Korean)" Tag="ko-KR"/>
+                        <ComboBoxItem Content="Polski (Polish)" Tag="pl-PL"/>
+                        <ComboBoxItem Content="Čeština (Czech)" Tag="cs-CZ"/>
+                        <ComboBoxItem Content="Tiếng Việt (Vietnamese)" Tag="vi-VN"/>
+                    </ComboBox>
+                </StackPanel>
 
                 <Separator HorizontalAlignment="Center" Margin="20,10,20,10" Width="461"/>
 

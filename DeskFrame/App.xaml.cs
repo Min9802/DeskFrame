@@ -1,4 +1,4 @@
-﻿using DeskFrame.Properties;
+using DeskFrame.Properties;
 using Microsoft.Toolkit.Uwp.Notifications;
 using Microsoft.Win32;
 using System.Diagnostics;
@@ -17,6 +17,24 @@ namespace DeskFrame
         public RegistryHelper reg = new RegistryHelper("DeskFrame");
         protected override void OnStartup(StartupEventArgs e)
         {
+            if (reg.KeyExistsRoot("Language"))
+            {
+                string lang = reg.ReadKeyValueRoot("Language")?.ToString();
+                if (!string.IsNullOrEmpty(lang) && lang != "Auto")
+                {
+                    try
+                    {
+                        var culture = new System.Globalization.CultureInfo(lang);
+                        System.Threading.Thread.CurrentThread.CurrentCulture = culture;
+                        System.Threading.Thread.CurrentThread.CurrentUICulture = culture;
+                    }
+                    catch (System.Exception ex)
+                    {
+                        Debug.WriteLine("Error setting culture: " + ex.Message);
+                    }
+                }
+            }
+
 #if !DEBUG
             if (Process.GetProcessesByName(Process.GetCurrentProcess().ProcessName).Length > 1)
             {

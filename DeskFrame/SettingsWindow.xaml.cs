@@ -1,4 +1,4 @@
-﻿using Microsoft.Win32;
+using Microsoft.Win32;
 using System.Diagnostics;
 using System.Windows;
 using System.Windows.Controls;
@@ -16,6 +16,7 @@ namespace DeskFrame
         Instance _instance;
         MainWindow _window;
         ContextMenu ManageFrameContextMenu;
+        private bool _isInitializing = true;
         public SettingsWindow(InstanceController controller, MainWindow window)
         {
             InitializeComponent();
@@ -34,6 +35,21 @@ namespace DeskFrame
             // if (_controller.reg.KeyExistsRoot("blurBackground")) blurToggle.IsChecked = (bool)_controller.reg.ReadKeyValueRoot("blurBackground");
             if (_controller.reg.KeyExistsRoot("AutoUpdate")) AutoUpdateToggleSwitch.IsChecked = (bool)_controller.reg.ReadKeyValueRoot("AutoUpdate");
             if (_controller.reg.KeyExistsRoot("DoubleClickToHide")) DoubleClickToHideSwitch.IsChecked = (bool)_controller.reg.ReadKeyValueRoot("DoubleClickToHide");
+
+            string savedLang = "Auto";
+            if (_controller.reg.KeyExistsRoot("Language"))
+            {
+                savedLang = _controller.reg.ReadKeyValueRoot("Language")?.ToString() ?? "Auto";
+            }
+            foreach (ComboBoxItem item in LanguageComboBox.Items)
+            {
+                if (item.Tag?.ToString() == savedLang)
+                {
+                    LanguageComboBox.SelectedItem = item;
+                    break;
+                }
+            }
+            _isInitializing = false;
         }
 
         private void blurToggle_CheckChanged(object sender, System.Windows.RoutedEventArgs e)
@@ -162,7 +178,7 @@ namespace DeskFrame
         }
         private void ResetDefaultFrameStyleButton_Click(object sender, RoutedEventArgs e)
         {
-            string[] keep = { "AutoUpdate", "blurBackground", "startOnLogin" };
+            string[] keep = { "AutoUpdate", "blurBackground", "startOnLogin", "Language" };
             RegistryKey key = Registry.CurrentUser.OpenSubKey("Software\\DeskFrame", writable: true)!;
             foreach (var name in key.GetValueNames())
             {
@@ -178,6 +194,24 @@ namespace DeskFrame
                 }
             }
             key.Close();
+        }
+
+        private void LanguageComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            if (_isInitializing) return;
+            if (LanguageComboBox.SelectedItem is ComboBoxItem selectedItem)
+            {
+                string lang = selectedItem.Tag?.ToString() ?? "Auto";
+                _controller.reg.WriteToRegistryRoot("Language", lang);
+
+                var dialog = new Wpf.Ui.Controls.MessageBox
+                {
+                    Title = "Language Settings / Cài đặt ngôn ngữ",
+                    Content = "Please restart the application to apply the language change.\n(Vui lòng khởi động lại ứng dụng để áp dụng thay đổi ngôn ngữ.)",
+                    CloseButtonText = "OK"
+                };
+                _ = dialog.ShowDialogAsync();
+            }
         }
 
         private void FluentWindow_Closing(object sender, System.ComponentModel.CancelEventArgs e)
