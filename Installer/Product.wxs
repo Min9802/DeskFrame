@@ -4,12 +4,12 @@
 
   <Package Name="DeskFrame"
            Manufacturer="Min9802"
-           Version="1.44.0"
+           Version="1.44.1"
            UpgradeCode="7A3F2E19-5C84-4B2D-9D8F-1A6C3E07B452"
            Language="1033"
            InstallerVersion="500">
 
-    <MajorUpgrade DowngradeErrorMessage="A newer version of DeskFrame is already installed." />
+    <MajorUpgrade DowngradeErrorMessage="A newer version of DeskFrame is already installed." AllowSameVersionUpgrades="yes" />
     <Media Id="1" Cabinet="DeskFrame.cab" EmbedCab="yes" CompressionLevel="high" />
 
     <ui:WixUI Id="WixUI_InstallDir" />

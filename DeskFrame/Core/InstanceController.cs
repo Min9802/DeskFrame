@@ -1,4 +1,4 @@
-﻿using DeskFrame;
+using DeskFrame;
 using Microsoft.Win32;
 using System.Diagnostics;
 using System.IO;
@@ -228,6 +228,32 @@ public class InstanceController
         }
         if (forceFullReload || (_subWindows.Count != 0 && !isInitializingInstances))
         {
+            if (forceFullReload)
+            {
+                int registryInstanceCount = 0;
+                try
+                {
+                    using (RegistryKey instancesKey = Registry.CurrentUser.OpenSubKey(@$"SOFTWARE\{appName}\Instances"))
+                    {
+                        if (instancesKey != null)
+                        {
+                            registryInstanceCount = instancesKey.GetSubKeyNames().Length;
+                        }
+                    }
+                }
+                catch { }
+
+                if (registryInstanceCount == _subWindows.Count && registryInstanceCount > 0)
+                {
+                    // Tải lại files mượt mà không cần hủy/tạo lại window
+                    foreach (var window in _subWindows)
+                    {
+                        window.LoadFiles(window._currentFolderPath);
+                    }
+                    return;
+                }
+            }
+
             if (forceFullReload || closedCount == _subWindows.Count)
             {
                 foreach (var window in _subWindows)

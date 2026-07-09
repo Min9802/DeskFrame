@@ -65,7 +65,63 @@ namespace DeskFrame
         public string _currentFolderPath;
         private FileSystemWatcher _fileWatcher = new FileSystemWatcher();
         private FileSystemWatcher _parentWatcher = new FileSystemWatcher();
-        public ObservableCollection<FileItem> FileItems { get; set; }
+        public BulkObservableCollection<FileItem> FileItems { get; set; }
+
+        private DispatcherTimer? _debounceTimer;
+
+        // Static Thumbnail STA Worker Thread & Cache
+        private static readonly System.Collections.Concurrent.ConcurrentDictionary<(string Path, int Size, DateTime LastWrite), BitmapSource?> _thumbnailCache =
+            new System.Collections.Concurrent.ConcurrentDictionary<(string Path, int Size, DateTime LastWrite), BitmapSource?>();
+
+        private static readonly System.Collections.Concurrent.BlockingCollection<ThumbnailRequest> _thumbnailQueue =
+            new System.Collections.Concurrent.BlockingCollection<ThumbnailRequest>();
+
+        private static readonly Thread _thumbnailWorkerThread;
+
+        private class ThumbnailRequest
+        {
+            public string Path { get; set; } = string.Empty;
+            public int Size { get; set; }
+            public bool IsShortcut { get; set; }
+            public bool ShowShortcutArrow { get; set; }
+            public double WindowsScalingFactor { get; set; }
+            public TaskCompletionSource<BitmapSource?> Tcs { get; set; } = new TaskCompletionSource<BitmapSource?>();
+        }
+
+        static DeskFrameWindow()
+        {
+            _thumbnailWorkerThread = new Thread(ProcessThumbnailQueue)
+            {
+                IsBackground = true,
+                Name = "STA Thumbnail Worker"
+            };
+            _thumbnailWorkerThread.SetApartmentState(ApartmentState.STA);
+            _thumbnailWorkerThread.Start();
+        }
+
+        private static void ProcessThumbnailQueue()
+        {
+            foreach (var request in _thumbnailQueue.GetConsumingEnumerable())
+            {
+                try
+                {
+                    BitmapSource? thumbnail = null;
+                    if (request.IsShortcut)
+                    {
+                        thumbnail = GetThumbnailWithOverlay(request.Path, request.Size, request.ShowShortcutArrow, request.WindowsScalingFactor);
+                    }
+                    else
+                    {
+                        thumbnail = GetThumbnailInternal(request.Path, request.Size);
+                    }
+                    request.Tcs.SetResult(thumbnail);
+                }
+                catch (Exception ex)
+                {
+                    request.Tcs.SetException(ex);
+                }
+            }
+        }
 
         public bool VirtualDesktopSupported;
         IntPtr hwnd;
@@ -1595,7 +1651,7 @@ namespace DeskFrame
             titleStackPanel.MouseLeave += (s, e) => AnimateSymbolIcon(frameTypeSymbol, 0, 0, 0);
 
             _checkForChages = true;
-            FileItems = new ObservableCollection<FileItem>();
+            FileItems = new BulkObservableCollection<FileItem>();
             string appDataPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "DeskFrame"
             );
 
@@ -2145,7 +2201,24 @@ namespace DeskFrame
                     missingFolderGrid.Visibility = Visibility.Hidden;
                 }
                 Debug.WriteLine($"File changed: {e.ChangeType} - {e.FullPath}");
-                LoadFiles(_currentFolderPath);
+
+                if (_debounceTimer == null)
+                {
+                    _debounceTimer = new DispatcherTimer
+                    {
+                        Interval = TimeSpan.FromMilliseconds(250)
+                    };
+                    _debounceTimer.Tick += (s, args) =>
+                    {
+                        _debounceTimer.Stop();
+                        LoadFiles(_currentFolderPath);
+                    };
+                }
+                else
+                {
+                    _debounceTimer.Stop();
+                }
+                _debounceTimer.Start();
             });
         }
         private void OnFileRenamed(object sender, RenamedEventArgs e)
@@ -2305,99 +2378,107 @@ namespace DeskFrame
                         LoadingProgressRingFade(false);
                         return;
                     }
-                    for (int i = FileItems.Count - 1; i >= 0; i--)  // Remove item that no longer exist
+                    FileItems.BeginUpdate();
+                    try
                     {
-                        if (loadFiles_cts.IsCancellationRequested)
+                        for (int i = FileItems.Count - 1; i >= 0; i--)  // Remove item that no longer exist
                         {
-                            LoadingProgressRingFade(false);
-                            return;
-                        }
-                        if (!fileNames.Contains(Path.GetFileName(FileItems[i].FullPath!)))
-                        {
-                            FileItems.RemoveAt(i);
-                        }
-                    }
-
-                    foreach (var entry in fileEntries)
-                    {
-                        if (loadFiles_cts.IsCancellationRequested)
-                        {
-                            LoadingProgressRingFade(false);
-                            return;
+                            if (loadFiles_cts.IsCancellationRequested)
+                            {
+                                LoadingProgressRingFade(false);
+                                return;
+                            }
+                            if (!fileNames.Contains(Path.GetFileName(FileItems[i].FullPath!)))
+                            {
+                                FileItems.RemoveAt(i);
+                            }
                         }
 
-                        var existingItem = FileItems.FirstOrDefault(item => item.FullPath == entry.FullName);
-
-                        long size = 0;
-                        if (entry is FileInfo fileInfo)
-                            size = fileInfo.Length;
-                        else if (entry is DirectoryInfo directoryInfo && Instance.CheckFolderSize)
-                            size = await Task.Run(() => GetDirectorySize(directoryInfo, loadFiles_cts));
-                        size = size > int.MaxValue ? int.MaxValue : size;
-
-                        string displaySize = entry is FileInfo ? await BytesToStringAsync(size)
-                                                               : Instance.CheckFolderSize ? await BytesToStringAsync(size)
-                                                                                          : "";
-                        var thumbnail = await GetThumbnailAsync(entry.FullName);
-                        bool isFile = entry is FileInfo;
-                        string actualExt = isFile ? Path.GetExtension(entry.Name) : string.Empty;
-                        if (existingItem == null)
+                        foreach (var entry in fileEntries)
                         {
-                            if (!string.IsNullOrEmpty(Instance.FileFilterHideRegex) &&
-                                new Regex(Instance.FileFilterHideRegex).IsMatch(entry.Name))
+                            if (loadFiles_cts.IsCancellationRequested)
+                            {
+                                LoadingProgressRingFade(false);
+                                return;
+                            }
+
+                            var existingItem = FileItems.FirstOrDefault(item => item.FullPath == entry.FullName);
+
+                            long size = 0;
+                            if (entry is FileInfo fileInfo)
+                                size = fileInfo.Length;
+                            else if (entry is DirectoryInfo directoryInfo && Instance.CheckFolderSize)
+                                size = await Task.Run(() => GetDirectorySize(directoryInfo, loadFiles_cts));
+                            size = size > int.MaxValue ? int.MaxValue : size;
+
+                            string displaySize = entry is FileInfo ? await BytesToStringAsync(size)
+                                                                   : Instance.CheckFolderSize ? await BytesToStringAsync(size)
+                                                                                              : "";
+                            var thumbnail = await GetThumbnailAsync(entry.FullName);
+                            bool isFile = entry is FileInfo;
+                            string actualExt = isFile ? Path.GetExtension(entry.Name) : string.Empty;
+                            if (existingItem == null)
+                            {
+                                if (!string.IsNullOrEmpty(Instance.FileFilterHideRegex) &&
+                                    new Regex(Instance.FileFilterHideRegex).IsMatch(entry.Name))
+                                {
+                                    continue;
+                                }
+
+                                FileItems.Add(new FileItem
+                                {
+                                    Name = Instance.ShowFileExtension || string.IsNullOrEmpty(actualExt)
+                                        ? entry.Name
+                                        : entry.Name.Substring(0, entry.Name.Length - actualExt.Length),
+                                    FullPath = entry.FullName,
+                                    IsFolder = !isFile,
+                                    DateModified = entry.LastWriteTime,
+                                    DateCreated = entry.CreationTime,
+                                    FileType = isFile ? actualExt : string.Empty,
+                                    ItemSize = (int)size,
+                                    DisplaySize = displaySize,
+                                    Thumbnail = thumbnail
+                                });
+                            }
+                            else
+                            {
+                                existingItem.Name = Instance.ShowFileExtension || string.IsNullOrEmpty(actualExt)
+                                        ? entry.Name
+                                        : entry.Name.Substring(0, entry.Name.Length - actualExt.Length);
+                                existingItem.FullPath = entry.FullName;
+                                existingItem.IsFolder = string.IsNullOrEmpty(Path.GetExtension(entry.FullName));
+                                existingItem.DateModified = entry.LastWriteTime;
+                                existingItem.DateCreated = entry.CreationTime;
+                                existingItem.FileType = entry is FileInfo ? entry.Extension : string.Empty;
+                                existingItem.ItemSize = (int)size;
+                                existingItem.DisplaySize = displaySize;
+                                existingItem.Thumbnail = thumbnail;
+                            }
+                        }
+                        var sortedList = FileItems.ToList();
+
+                        FileItems.Clear();
+                        foreach (var fileItem in sortedList)
+                        {
+                            if (Instance.FileFilterHideRegex != null && Instance.FileFilterHideRegex != ""
+                              && new Regex(Instance.FileFilterHideRegex).IsMatch(fileItem.Name))
                             {
                                 continue;
                             }
-
-                            FileItems.Add(new FileItem
-                            {
-                                Name = Instance.ShowFileExtension || string.IsNullOrEmpty(actualExt)
-                                    ? entry.Name
-                                    : entry.Name.Substring(0, entry.Name.Length - actualExt.Length),
-                                FullPath = entry.FullName,
-                                IsFolder = !isFile,
-                                DateModified = entry.LastWriteTime,
-                                DateCreated = entry.CreationTime,
-                                FileType = isFile ? actualExt : string.Empty,
-                                ItemSize = (int)size,
-                                DisplaySize = displaySize,
-                                Thumbnail = thumbnail
-                            });
+                            FileItems.Add(fileItem);
                         }
-                        else
+                        if (Instance.EnableCustomItemsOrder)
                         {
-                            existingItem.Name = Instance.ShowFileExtension || string.IsNullOrEmpty(actualExt)
-                                    ? entry.Name
-                                    : entry.Name.Substring(0, entry.Name.Length - actualExt.Length);
-                            existingItem.FullPath = entry.FullName;
-                            existingItem.IsFolder = string.IsNullOrEmpty(Path.GetExtension(entry.FullName));
-                            existingItem.DateModified = entry.LastWriteTime;
-                            existingItem.DateCreated = entry.CreationTime;
-                            existingItem.FileType = entry is FileInfo ? entry.Extension : string.Empty;
-                            existingItem.ItemSize = (int)size;
-                            existingItem.DisplaySize = displaySize;
-                            existingItem.Thumbnail = thumbnail;
+                            SortCustomOrderOc(FileItems, Instance.CustomOrderFiles);
                         }
-                    }
-                    var sortedList = FileItems.ToList();
-
-                    FileItems.Clear();
-                    foreach (var fileItem in sortedList)
-                    {
-                        if (Instance.FileFilterHideRegex != null && Instance.FileFilterHideRegex != ""
-                          && new Regex(Instance.FileFilterHideRegex).IsMatch(fileItem.Name))
+                        if (Instance.LastAccesedToFirstRow)
                         {
-                            continue;
+                            FirstRowByLastAccessed(FileItems, Instance.LastAccessedFiles, ItemPerRow);
                         }
-                        FileItems.Add(fileItem);
                     }
-                    if (Instance.EnableCustomItemsOrder)
+                    finally
                     {
-                        SortCustomOrderOc(FileItems, Instance.CustomOrderFiles);
-                    }
-                    if (Instance.LastAccesedToFirstRow)
-                    {
-                        FirstRowByLastAccessed(FileItems, Instance.LastAccessedFiles, ItemPerRow);
+                        FileItems.EndUpdate();
                     }
                     _lastUpdated = DateTime.Now;
                     int hiddenCount = Int32.Parse(_fileCount) - (FileItems.Count - _folderCount);
@@ -3591,14 +3672,21 @@ namespace DeskFrame
 
         public BitmapSource? GetThumbnail(string filePath, int size)
         {
+            return GetThumbnailInternal(filePath, size);
+        }
+
+        public static BitmapSource? GetThumbnailInternal(string filePath, int size)
+        {
             try
             {
-                ShellObject shellObject = ShellObject.FromParsingName(filePath);
-                ShellThumbnail shellThumbnail = shellObject.Thumbnail;
-                shellThumbnail.CurrentSize = new System.Windows.Size(size, size);
-                BitmapSource thumbnail = shellThumbnail.BitmapSource;
-                thumbnail.Freeze();
-                return thumbnail;
+                using (ShellObject shellObject = ShellObject.FromParsingName(filePath))
+                {
+                    ShellThumbnail shellThumbnail = shellObject.Thumbnail;
+                    shellThumbnail.CurrentSize = new System.Windows.Size(size, size);
+                    BitmapSource thumbnail = shellThumbnail.BitmapSource;
+                    thumbnail.Freeze();
+                    return thumbnail;
+                }
             }
             catch
             {
@@ -3606,205 +3694,197 @@ namespace DeskFrame
             }
         }
 
+        private static BitmapSource? GetThumbnailWithOverlay(string path, int iconSize, bool showShortcutArrow, double windowsScalingFactor)
+        {
+            var thumbnail = GetThumbnailInternal(path, iconSize);
+            if (thumbnail == null) return null;
+
+            if (showShortcutArrow)
+            {
+                try
+                {
+                    IntPtr[] overlayIcons = new IntPtr[1];
+                    int overlayExtracted = ExtractIconEx(
+                        Environment.SystemDirectory + "\\shell32.dll",
+                        29,
+                        overlayIcons,
+                        null,
+                        1);
+
+                    if (overlayExtracted > 0 && overlayIcons[0] != IntPtr.Zero)
+                    {
+                        var overlay = Imaging.CreateBitmapSourceFromHIcon(
+                                      overlayIcons[0],
+                                      Int32Rect.Empty,
+                                      BitmapSizeOptions.FromEmptyOptions());
+                        overlay.Freeze();
+                        DestroyIcon(overlayIcons[0]);
+
+                        var visual = new DrawingVisual();
+                        using (var dc = visual.RenderOpen())
+                        {
+                            double scale = iconSize / Math.Max(thumbnail.PixelWidth, thumbnail.PixelHeight);
+                            double thumbnailWidth = thumbnail.PixelWidth * scale;
+                            double thumbnailHeight = thumbnail.PixelHeight * scale;
+
+                            double thumbnailX = (iconSize - thumbnailWidth) / 2.0;
+                            double thumbnailY = (iconSize - thumbnailHeight) / 2.0;
+
+                            dc.DrawImage(
+                                thumbnail,
+                                new Rect(
+                                    thumbnailX,
+                                    thumbnailY,
+                                    thumbnailWidth,
+                                    thumbnailHeight)
+                            );
+                            double overlayScale = (iconSize < 32 ? iconSize / 32.0 : 1.0);
+                            if (windowsScalingFactor != 1.0)
+                            {
+                                overlayScale *= (1 / windowsScalingFactor);
+                            }
+                            if (overlayScale != 1.0)
+                            {
+                                overlay = new TransformedBitmap(overlay, new ScaleTransform(overlayScale, overlayScale));
+                                overlay.Freeze();
+                            }
+                            double overlayX = thumbnailX;
+                            double overlayY = thumbnailY + thumbnailHeight - overlay.PixelHeight;
+                            dc.DrawImage(overlay,
+                                new Rect(
+                                overlayX,
+                                overlayY,
+                                overlay.PixelWidth,
+                                overlay.PixelHeight)
+                            );
+                        }
+
+                        var rtb = new RenderTargetBitmap(
+                            iconSize,
+                            iconSize,
+                            thumbnail.DpiX,
+                            thumbnail.DpiY,
+                            PixelFormats.Pbgra32);
+                        rtb.Render(visual);
+                        rtb.Freeze();
+                        return rtb;
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Debug.WriteLine("Failed to extract or render shortcut overlay: " + ex.Message);
+                }
+            }
+
+            return thumbnail;
+        }
+
         private async Task<BitmapSource?> GetThumbnailAsync(string path)
         {
-            return await Task.Run(async () =>
+            if (string.IsNullOrWhiteSpace(path)) return null;
+
+            // Lấy thời điểm sửa đổi của file làm cache key
+            DateTime lastWrite;
+            try
             {
-                if (string.IsNullOrWhiteSpace(path) || (!File.Exists(path) && !Directory.Exists(path)))
+                lastWrite = File.Exists(path) ? File.GetLastWriteTime(path) : Directory.Exists(path) ? Directory.GetLastWriteTime(path) : DateTime.MinValue;
+            }
+            catch
+            {
+                lastWrite = DateTime.MinValue;
+            }
+
+            int iconSize = (int)(Instance.IconSize * _windowsScalingFactor);
+            var cacheKey = (Path: path.ToLowerInvariant(), Size: iconSize, LastWrite: lastWrite);
+
+            // Kiểm tra cache
+            if (_thumbnailCache.TryGetValue(cacheKey, out var cachedThumbnail))
+            {
+                return cachedThumbnail;
+            }
+
+            // Xử lý nạp thumbnail mới
+            BitmapSource? thumbnail = null;
+            if (Path.GetExtension(path).ToLower() == ".svg")
+            {
+                try
                 {
-                    Console.WriteLine("Invalid path: " + path);
-                    return null;
+                    thumbnail = await LoadSvgThumbnailAsync(path, iconSize);
                 }
-                IntPtr hBitmap = IntPtr.Zero;
-                BitmapSource? thumbnail = null;
-                int iconSize = (int)(Instance.IconSize * _windowsScalingFactor);
-                if (Path.GetExtension(path).ToLower() == ".svg")
+                catch (Exception e)
                 {
-                    try
-                    {
-                        thumbnail = await LoadSvgThumbnailAsync(path, iconSize);
-                    }
-                    catch (Exception e)
-                    {
-                        Debug.WriteLine(e);
-                    }
-                    return thumbnail;
+                    Debug.WriteLine(e);
                 }
+            }
+            else
+            {
                 string ext = Path.GetExtension(path).ToLowerInvariant();
                 bool isLink = ext == ".lnk" || ext == ".url";
 
-                if (isLink)
+                var request = new ThumbnailRequest
                 {
-                    try
-                    {
-                        Application.Current.Dispatcher.Invoke(() =>
-                        {
-                            thumbnail = GetThumbnail(path, iconSize);
-                        });
-                        if (Instance.ShowShortcutArrow)
-                        {
-                            return Application.Current.Dispatcher.Invoke(() =>
-                            {
-                                IntPtr[] overlayIcons = new IntPtr[1];
-                                int overlayExtracted = ExtractIconEx(
-                                    Environment.SystemDirectory + "\\shell32.dll",
-                                    29,
-                                    overlayIcons,
-                                    null,
-                                    1);
+                    Path = path,
+                    Size = iconSize,
+                    IsShortcut = isLink,
+                    ShowShortcutArrow = Instance.ShowShortcutArrow,
+                    WindowsScalingFactor = _windowsScalingFactor
+                };
 
-                                if (overlayExtracted > 0 && overlayIcons[0] != IntPtr.Zero)
-                                {
-                                    var overlay = Imaging.CreateBitmapSourceFromHIcon(
-                                                  overlayIcons[0],
-                                                  Int32Rect.Empty,
-                                                  BitmapSizeOptions.FromEmptyOptions());
-                                    DestroyIcon(overlayIcons[0]);
-
-                                    var visual = new DrawingVisual();
-                                    using (var dc = visual.RenderOpen())
-                                    {
-                                        Debug.WriteLine("iconsize: " + iconSize);
-                                        double scale = iconSize / Math.Max(thumbnail.PixelWidth, thumbnail.PixelHeight);
-                                        double thumbnailWidth = thumbnail.PixelWidth * scale;
-                                        double thumbnailHeight = thumbnail.PixelHeight * scale;
-
-                                        double thumbnailX = (iconSize - thumbnailWidth) / 2.0;
-                                        double thumbnailY = (iconSize - thumbnailHeight) / 2.0;
-
-                                        dc.DrawImage(
-                                            thumbnail,
-                                            new Rect(
-                                                thumbnailX,
-                                                thumbnailY,
-                                                thumbnailWidth,
-                                                thumbnailHeight)
-                                        );
-                                        double overlayScale = (iconSize < 32 ? iconSize / 32.0 : 1.0);
-                                        if (_windowsScalingFactor != 1.0)
-                                        {
-                                            overlayScale *= (1 / _windowsScalingFactor);
-                                        }
-                                        if (overlayScale != 1.0)
-                                        {
-                                            overlay = new TransformedBitmap(overlay, new ScaleTransform(overlayScale, overlayScale));
-                                            overlay.Freeze();
-                                        }
-                                        double overlayX = thumbnailX;
-                                        double overlayY = thumbnailY + thumbnailHeight - overlay.PixelHeight;
-                                        dc.DrawImage(overlay,
-                                            new Rect(
-                                            overlayX,
-                                            overlayY,
-                                            overlay.PixelWidth,
-                                            overlay.PixelHeight)
-                                        );
-                                    }
-
-                                    var rtb = new RenderTargetBitmap(
-                                        iconSize,
-                                        iconSize,
-                                        thumbnail.DpiX,
-                                        thumbnail.DpiY,
-                                        PixelFormats.Pbgra32);
-                                    rtb.Render(visual);
-                                    rtb.Freeze();
-                                    return rtb;
-                                }
-                                return thumbnail;
-                            });
-                        }
-                        return thumbnail;
-                    }
-                    catch (Exception e)
-                    {
-                        Debug.WriteLine(e);
-                    }
-                }
-                else
+                _thumbnailQueue.Add(request);
+                try
                 {
-                    try
-                    {
-                        int attempt = 0;
-                        while (attempt < 3 && thumbnail == null)
-                        {
-                            ShellObject? shellObj = null;
-                            shellObj = Directory.Exists(path) ? ShellObject.FromParsingName(path) : ShellFile.FromFilePath(path);
-                            if (shellObj != null)
-                            {
-                                try
-                                {
-                                    Application.Current.Dispatcher.Invoke(() =>
-                                    {
-                                        thumbnail = GetThumbnail(path, iconSize);
-                                    });
-                                    if (thumbnail != null)
-                                    {
-                                        return thumbnail;
-                                    }
-                                }
-                                catch (Exception ex)
-                                {
-                                    Debug.WriteLine("Failed to fetch thumbnail:" + ex.Message);
-                                }
-                                finally
-                                {
-                                    shellObj?.Dispose();
-                                }
-                            }
-                            attempt++;
-                        }
-                    }
-                    catch (Exception e)
-                    {
-                        Debug.WriteLine(e);
-                    }
+                    thumbnail = await request.Tcs.Task;
                 }
-                if (thumbnail != null)
+                catch (Exception e)
                 {
-                    return thumbnail;
+                    Debug.WriteLine("Error fetching thumbnail from STA thread: " + e.Message);
                 }
+            }
 
-                Debug.WriteLine("Failed to retrieve thumbnail after 3 attempts.");
-                return null;
-            });
+            // Ghi vào cache nếu lấy thành công
+            if (thumbnail != null)
+            {
+                _thumbnailCache[cacheKey] = thumbnail;
+            }
+
+            return thumbnail;
         }
 
 
 
         private async Task<BitmapSource?> LoadSvgThumbnailAsync(string path, int iconSize)
         {
-            try
+            return await Task.Run(() =>
             {
-                var svgDocument = Svg.SvgDocument.Open(path);
-
-                using (var bitmap = svgDocument.Draw(iconSize, iconSize))
+                try
                 {
-                    using (var ms = new MemoryStream())
-                    {
-                        bitmap.Save(ms, System.Drawing.Imaging.ImageFormat.Png);
-                        ms.Seek(0, SeekOrigin.Begin);
+                    var svgDocument = Svg.SvgDocument.Open(path);
 
-                        BitmapImage bitmapImage = null;
-                        Application.Current.Dispatcher.Invoke(() =>
+                    using (var bitmap = svgDocument.Draw(iconSize, iconSize))
+                    {
+                        using (var ms = new MemoryStream())
                         {
-                            bitmapImage = new BitmapImage();
+                            bitmap.Save(ms, System.Drawing.Imaging.ImageFormat.Png);
+                            ms.Seek(0, SeekOrigin.Begin);
+
+                            var bitmapImage = new BitmapImage();
                             bitmapImage.BeginInit();
                             bitmapImage.StreamSource = ms;
                             bitmapImage.DecodePixelWidth = 64;
                             bitmapImage.DecodePixelHeight = 64;
                             bitmapImage.CacheOption = BitmapCacheOption.OnLoad;
                             bitmapImage.EndInit();
-                        });
-                        return bitmapImage;
+                            bitmapImage.Freeze();
+                            return (BitmapSource)bitmapImage;
+                        }
                     }
                 }
-            }
-            catch (Exception ex)
-            {
-                Debug.WriteLine($"Failed to load SVG thumbnail: {ex.Message}");
-                return null;
-            }
+                catch (Exception ex)
+                {
+                    Debug.WriteLine($"Failed to load SVG thumbnail: {ex.Message}");
+                    return null;
+                }
+            });
         }
         public async Task<BitmapSource?> LoadUrlIconAsync(string path)
         {

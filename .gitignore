@@ -370,3 +370,7 @@ Installer/publish/
 Installer/bin/
 Installer/obj/
 Installer/HarvestedFiles.wxs
+
+# Custom build and instructions (do NOT commit)
+Build.md
+build.ps1
