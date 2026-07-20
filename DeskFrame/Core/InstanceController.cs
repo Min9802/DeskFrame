@@ -249,6 +249,7 @@ public class InstanceController
                     foreach (var window in _subWindows)
                     {
                         window.LoadFiles(window._currentFolderPath);
+                        window.AdjustPosition();
                     }
                     return;
                 }
