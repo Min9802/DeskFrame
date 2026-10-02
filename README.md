@@ -6,9 +6,9 @@
   
 </div>
 <p align="center">
-  <a href="https://github.com/Min9802/DeskFrame/releases/latest"><img src="https://img.shields.io/github/downloads/Min9802/DeskFrame/total?color=blue" alt="Downloads"></a>
-  <a href="https://github.com/Min9802/DeskFrame/releases/latest"><img src="https://img.shields.io/github/v/release/Min9802/DeskFrame" alt="Version"></a>
-  <a href="https://github.com/Min9802/DeskFrame/issues"><img src="https://img.shields.io/github/issues/Min9802/DeskFrame" alt="Issues"></a>
+  <a href="https://github.com/Min9802/DeskFrame/releases/latest"><img src="https://img.shields.io/github/v/release/Min9802/DeskFrame?logo=github" alt="Version"></a>
+  <a href="https://github.com/Min9802/DeskFrame/releases/latest"><img src="https://img.shields.io/github/downloads/Min9802/DeskFrame/total?color=blue&logo=github" alt="Downloads"></a>
+  <a href="https://github.com/Min9802/DeskFrame/issues"><img src="https://img.shields.io/github/issues/Min9802/DeskFrame?logo=github" alt="Issues"></a>
 </p>
 
 <p align="center">
