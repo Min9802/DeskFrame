@@ -13,6 +13,7 @@
     <tray:NotifyIcon Grid.Row="0" FocusOnLeftClick="True"  
                   
                    Name="TrayIcon" MenuOnRightClick="True"
+                   LeftDoubleClick="TrayIcon_LeftDoubleClick"
                    TooltipText="DeskFrame" >
         <tray:NotifyIcon.Menu>
             <ContextMenu MinWidth="65">

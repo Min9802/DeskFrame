@@ -203,9 +203,33 @@ namespace DeskFrame
             Application.Current.Shutdown();
         }
 
+        private SettingsWindow? _settingsWindow;
+
+        private void OpenSettings()
+        {
+            if (_settingsWindow != null && _settingsWindow.IsLoaded)
+            {
+                if (_settingsWindow.WindowState == WindowState.Minimized)
+                    _settingsWindow.WindowState = WindowState.Normal;
+                _settingsWindow.Activate();
+                _settingsWindow.Focus();
+                return;
+            }
+
+            _settingsWindow = new SettingsWindow(_controller, this);
+            _settingsWindow.Closed += (_, _) => _settingsWindow = null;
+            _settingsWindow.Show();
+            _settingsWindow.Activate();
+        }
+
         private void Settings_Button_Click(object sender, RoutedEventArgs e)
         {
-            new SettingsWindow(_controller, this).Show();
+            OpenSettings();
+        }
+
+        private void TrayIcon_LeftDoubleClick(object sender, RoutedEventArgs e)
+        {
+            OpenSettings();
         }
         private void ReloadAllFrames_Click(object sender, RoutedEventArgs e)
         {
