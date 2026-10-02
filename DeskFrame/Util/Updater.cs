@@ -1,4 +1,4 @@
-﻿using System.Diagnostics;
+using System.Diagnostics;
 using System.IO;
 using System.Text.Json;
 using System.Reflection;
@@ -14,6 +14,7 @@ namespace DeskFrame
     {
         private static string _url = "";
         private static string _downloadUrl = "";
+        private static string _assetFileName = "";
         private static string tag_name = "";
         private static int updateCount = 0;
         public static async Task CheckUpdateAsync(string url, bool showToastIfNoUpdate)
@@ -35,8 +36,54 @@ namespace DeskFrame
                         string description = root.GetProperty("body").GetString()!;
                         string published_at = root.GetProperty("published_at").GetString()!;
                         string name = root.GetProperty("name").GetString()!;
-                        string downloadUrl = root.GetProperty("assets")[0].GetProperty("browser_download_url").GetString()!;
+
+                        // Ưu tiên tìm tệp cài đặt .msi, sau đó đến .exe
+                        string downloadUrl = "";
+                        string assetFileName = "";
+
+                        if (root.TryGetProperty("assets", out JsonElement assetsElement) &&
+                            assetsElement.ValueKind == JsonValueKind.Array &&
+                            assetsElement.GetArrayLength() > 0)
+                        {
+                            // Ưu tiên 1: Tệp cài đặt .msi (Windows Installer)
+                            foreach (var asset in assetsElement.EnumerateArray())
+                            {
+                                string aName = asset.GetProperty("name").GetString() ?? "";
+                                if (aName.EndsWith(".msi", StringComparison.OrdinalIgnoreCase))
+                                {
+                                    downloadUrl = asset.GetProperty("browser_download_url").GetString()!;
+                                    assetFileName = aName;
+                                    break;
+                                }
+                            }
+
+                            // Ưu tiên 2: Tệp thực thi .exe
+                            if (string.IsNullOrEmpty(downloadUrl))
+                            {
+                                foreach (var asset in assetsElement.EnumerateArray())
+                                {
+                                    string aName = asset.GetProperty("name").GetString() ?? "";
+                                    if (aName.EndsWith(".exe", StringComparison.OrdinalIgnoreCase))
+                                    {
+                                        downloadUrl = asset.GetProperty("browser_download_url").GetString()!;
+                                        assetFileName = aName;
+                                        break;
+                                    }
+                                }
+                            }
+
+                            // Fallback: Tệp đầu tiên nếu không khớp đuôi trên
+                            if (string.IsNullOrEmpty(downloadUrl))
+                            {
+                                var firstAsset = assetsElement[0];
+                                downloadUrl = firstAsset.GetProperty("browser_download_url").GetString()!;
+                                assetFileName = firstAsset.GetProperty("name").GetString() ?? "DeskFrame_Update";
+                            }
+                        }
+
                         _downloadUrl = downloadUrl;
+                        _assetFileName = assetFileName;
+
                         string emoji = (name.ToLower().Contains("fix"), name.ToLower().Contains("feature")) switch
                         {
                             (true, true) => "🚀",
@@ -45,7 +92,7 @@ namespace DeskFrame
                             _ => "🚀"
                         };
 
-                        if (!latestVersion.Contains(currentVersion))
+                        if (IsNewerVersion(latestVersion, currentVersion))
                         {
                             var toastBuilder = new ToastContentBuilder()
                                  .AddText($"{emoji} New release! {name}", AdaptiveTextStyle.Header)
@@ -83,8 +130,33 @@ namespace DeskFrame
                 Debug.WriteLine($"Update error: {e.Message}");
             }
         }
+
+        private static bool IsNewerVersion(string latestTag, string currentVerStr)
+        {
+            if (string.IsNullOrWhiteSpace(latestTag) || string.IsNullOrWhiteSpace(currentVerStr))
+                return false;
+
+            string cleanLatest = latestTag.Trim().TrimStart('v', 'V');
+            int dashIdx = cleanLatest.IndexOf('-');
+            if (dashIdx > 0) cleanLatest = cleanLatest.Substring(0, dashIdx);
+
+            string cleanCurrent = currentVerStr.Trim().TrimStart('v', 'V');
+            dashIdx = cleanCurrent.IndexOf('-');
+            if (dashIdx > 0) cleanCurrent = cleanCurrent.Substring(0, dashIdx);
+
+            if (Version.TryParse(cleanLatest, out Version? latestVer) && Version.TryParse(cleanCurrent, out Version? currentVer))
+            {
+                return latestVer > currentVer;
+            }
+
+            return !string.Equals(cleanLatest, cleanCurrent, StringComparison.OrdinalIgnoreCase);
+        }
+
         public static async Task InstallUpdate()
         {
+            if (string.IsNullOrEmpty(_downloadUrl))
+                return;
+
             string tag = "update";
             string group = "downloads";
 
@@ -113,7 +185,14 @@ namespace DeskFrame
                 var totalBytes = response.Content.Headers.ContentLength ?? -1L;
                 var canReportProgress = totalBytes != -1;
 
-                string tempFilePath = Path.Combine(Path.GetTempPath(), $"{Assembly.GetExecutingAssembly().GetName().Name}.exe");
+                string extension = Path.GetExtension(_assetFileName);
+                if (string.IsNullOrEmpty(extension))
+                {
+                    extension = _downloadUrl.EndsWith(".msi", StringComparison.OrdinalIgnoreCase) ? ".msi" : ".exe";
+                }
+
+                string safeTagName = tag_name.Replace('/', '_').Replace('\\', '_');
+                string tempFilePath = Path.Combine(Path.GetTempPath(), $"DeskFrame_Update_{safeTagName}{extension}");
 
                 using (var inputStream = await response.Content.ReadAsStreamAsync())
                 using (var outputStream = new FileStream(tempFilePath, FileMode.Create, FileAccess.Write, FileShare.None))
@@ -153,7 +232,7 @@ namespace DeskFrame
                     }
                 }
                 ToastNotificationManagerCompat.CreateToastNotifier().Hide(notif);
-                RestartApplication(tempFilePath);
+                ApplyUpdate(tempFilePath, extension);
             }
         }
         private static bool HasPermissionToWrite(string currentExecutablePath)
@@ -192,7 +271,7 @@ namespace DeskFrame
             if (needAdmin)
             {
                 tempCmd = Path.Combine(Path.GetTempPath(), "deskframe_update.cmd");
-                File.WriteAllText(Path.Combine(Path.GetTempPath(), "deskframe_update.cmd"), command, Encoding.UTF8);
+                File.WriteAllText(tempCmd, command, Encoding.UTF8);
             }
             ProcessStartInfo psi = new ProcessStartInfo
             {
@@ -201,42 +280,76 @@ namespace DeskFrame
                 UseShellExecute = needAdmin,
                 CreateNoWindow = true,
                 WindowStyle = ProcessWindowStyle.Hidden,
-                Verb = "runas"
+                Verb = needAdmin ? "runas" : ""
             };
             Process.Start(psi);
-
         }
 
-        private static void RestartApplication(string tempPath)
+        private static void ApplyUpdate(string tempPath, string extension)
         {
             string currentExecutablePath = Process.GetCurrentProcess().MainModule!.FileName;
-            string command = $"timeout /t 2 && move /y \"{tempPath}\" \"{currentExecutablePath}\" & \"{currentExecutablePath}\" && exit ";
+            bool isMsi = extension.Equals(".msi", StringComparison.OrdinalIgnoreCase);
 
-            if (HasPermissionToWrite(currentExecutablePath))
+            if (isMsi)
             {
-                ExecuteCommand(command, false);
+                string updateScript = Path.Combine(Path.GetTempPath(), "deskframe_msi_update.cmd");
+                string scriptContent =
+                    "@echo off\r\n" +
+                    "timeout /t 2 /nobreak >nul\r\n" +
+                    $"msiexec.exe /i \"{tempPath}\" /passive\r\n" +
+                    "timeout /t 1 /nobreak >nul\r\n" +
+                    $"start \"\" \"{currentExecutablePath}\"\r\n" +
+                    "exit\r\n";
+
+                File.WriteAllText(updateScript, scriptContent, Encoding.UTF8);
+
+                ProcessStartInfo psi = new ProcessStartInfo
+                {
+                    FileName = updateScript,
+                    UseShellExecute = true,
+                    CreateNoWindow = true,
+                    WindowStyle = ProcessWindowStyle.Hidden,
+                    Verb = "runas"
+                };
+
+                try
+                {
+                    Process.Start(psi);
+                    Environment.Exit(0);
+                }
+                catch (Exception ex)
+                {
+                    Debug.WriteLine($"User canceled elevation or error launching MSI updater: {ex.Message}");
+                    Process.Start(new ProcessStartInfo(tempPath) { UseShellExecute = true });
+                }
             }
             else
             {
-                var dialog = new Wpf.Ui.Controls.MessageBox
-                {
-                    Title = "DeskFrame",
-                    Content = Lang.Deskframe_Update_DialogContent,
-                    PrimaryButtonText = "OK"
-                };
+                string command = $"timeout /t 2 && move /y \"{tempPath}\" \"{currentExecutablePath}\" & \"{currentExecutablePath}\" && exit ";
 
-                var result = dialog.ShowDialogAsync();
-
-                if (result.Result == Wpf.Ui.Controls.MessageBoxResult.Primary)
+                if (HasPermissionToWrite(currentExecutablePath))
                 {
-                    ExecuteCommand(command, true);
+                    ExecuteCommand(command, false);
+                    Environment.Exit(0);
                 }
                 else
                 {
-                    return;
+                    var dialog = new Wpf.Ui.Controls.MessageBox
+                    {
+                        Title = "DeskFrame",
+                        Content = Lang.Deskframe_Update_DialogContent,
+                        PrimaryButtonText = "OK"
+                    };
+
+                    var result = dialog.ShowDialogAsync();
+
+                    if (result.Result == Wpf.Ui.Controls.MessageBoxResult.Primary)
+                    {
+                        ExecuteCommand(command, true);
+                        Environment.Exit(0);
+                    }
                 }
             }
-            Environment.Exit(0);
         }
     }
 }
