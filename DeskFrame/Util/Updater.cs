@@ -7,6 +7,7 @@ using Windows.UI.Notifications;
 using System.Net.Http;
 using System.Globalization;
 using System.Text;
+using System.Windows;
 using DeskFrame.Properties;
 namespace DeskFrame
 {
@@ -94,25 +95,66 @@ namespace DeskFrame
 
                         if (IsNewerVersion(latestVersion, currentVersion))
                         {
-                            var toastBuilder = new ToastContentBuilder()
-                                 .AddText($"{emoji} New release! {name}", AdaptiveTextStyle.Header)
-                                 .AddText(description, AdaptiveTextStyle.Body)
-                                 .AddButton(new ToastButton()
-                                     .SetContent("Install")
-                                     .AddArgument("action", "install_update")
-                                     .SetBackgroundActivation())
-                                 .AddButton(new ToastButton()
-                                     .SetContent("Close")
-                                     .AddArgument("action", "close")
-                                     .SetBackgroundActivation());
-                            toastBuilder.Show();
+                            try
+                            {
+                                var toastBuilder = new ToastContentBuilder()
+                                     .AddText($"{emoji} New release! {name}", AdaptiveTextStyle.Header)
+                                     .AddText(description, AdaptiveTextStyle.Body)
+                                     .AddButton(new ToastButton()
+                                         .SetContent("Install")
+                                         .AddArgument("action", "install_update")
+                                         .SetBackgroundActivation())
+                                     .AddButton(new ToastButton()
+                                         .SetContent("Close")
+                                         .AddArgument("action", "close")
+                                         .SetBackgroundActivation());
+                                toastBuilder.Show();
+                            }
+                            catch (Exception ex)
+                            {
+                                Debug.WriteLine($"Toast error: {ex.Message}");
+                            }
+
+                            // Nếu là kiểm tra thủ công (người dùng bấm nút): hiển thị thêm hộp thoại trực tiếp
+                            if (showToastIfNoUpdate)
+                            {
+                                System.Windows.Application.Current.Dispatcher.Invoke(async () =>
+                                {
+                                    var result = System.Windows.MessageBox.Show(
+                                        $"Tìm thấy phiên bản mới: {name} (Bản hiện tại: v{currentVersion})\n\n{description}\n\nBạn có muốn tải và cài đặt bản cập nhật này ngay không?",
+                                        "DeskFrame - Cập nhật",
+                                        MessageBoxButton.YesNo,
+                                        MessageBoxImage.Information);
+
+                                    if (result == MessageBoxResult.Yes)
+                                    {
+                                        await InstallUpdate();
+                                    }
+                                });
+                            }
                         }
                         else if (showToastIfNoUpdate)
                         {
-                            var toastBuilder = new ToastContentBuilder()
-                               .AddText("You are up to date!", AdaptiveTextStyle.Header)
-                               .AddText("There is no available update.", AdaptiveTextStyle.Body);
-                            toastBuilder.Show();
+                            try
+                            {
+                                var toastBuilder = new ToastContentBuilder()
+                                   .AddText("You are up to date!", AdaptiveTextStyle.Header)
+                                   .AddText("There is no available update.", AdaptiveTextStyle.Body);
+                                toastBuilder.Show();
+                            }
+                            catch (Exception ex)
+                            {
+                                Debug.WriteLine($"Toast error: {ex.Message}");
+                            }
+
+                            System.Windows.Application.Current.Dispatcher.Invoke(() =>
+                            {
+                                System.Windows.MessageBox.Show(
+                                    $"Bạn đang sử dụng phiên bản mới nhất (v{currentVersion}).",
+                                    "DeskFrame",
+                                    MessageBoxButton.OK,
+                                    MessageBoxImage.Information);
+                            });
                         }
                     }
                 }
@@ -120,12 +162,25 @@ namespace DeskFrame
             }
             catch (Exception e)
             {
-                if (updateCount != 0)
+                try
                 {
                     var toastBuilder = new ToastContentBuilder()
                                .AddText("Failed to update.", AdaptiveTextStyle.Header)
                                .AddText(e.Message, AdaptiveTextStyle.Body);
                     toastBuilder.Show();
+                }
+                catch { }
+
+                if (showToastIfNoUpdate)
+                {
+                    System.Windows.Application.Current.Dispatcher.Invoke(() =>
+                    {
+                        System.Windows.MessageBox.Show(
+                            $"Không thể kiểm tra cập nhật:\n{e.Message}",
+                            "DeskFrame - Lỗi",
+                            MessageBoxButton.OK,
+                            MessageBoxImage.Warning);
+                    });
                 }
                 Debug.WriteLine($"Update error: {e.Message}");
             }
