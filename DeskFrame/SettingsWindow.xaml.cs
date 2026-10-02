@@ -231,7 +231,7 @@ namespace DeskFrame
         {
             try
             {
-                ProcessStartInfo sInfo = new ProcessStartInfo($"https://ko-fi.com/J3J61PAH6H") { UseShellExecute = true };
+                ProcessStartInfo sInfo = new ProcessStartInfo($"https://cloud.min-services.com/uploads/image%2F0EAD7975-2E58-4A52-BC76-6AAD89AE733B.png") { UseShellExecute = true };
                 _ = Process.Start(sInfo);
             }
             catch

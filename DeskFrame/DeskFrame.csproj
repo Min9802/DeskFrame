@@ -7,8 +7,8 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <UseWPF>true</UseWPF>
     <UseWindowsForms>True</UseWindowsForms>
-    <AssemblyVersion>1.44.2</AssemblyVersion>
-    <FileVersion>1.44.2</FileVersion>
+    <AssemblyVersion>1.44.3</AssemblyVersion>
+    <FileVersion>1.44.3</FileVersion>
     <PackageIcon>ico.png</PackageIcon>
     <ApplicationIcon>Icon\ico.ico</ApplicationIcon>
     <Platforms>AnyCPU;x64</Platforms>
@@ -21,6 +21,7 @@
     <None Remove="Icon\DragWin.ico" />
     <None Remove="Icon\EverythingQuickSearch.ico" />
     <None Remove="Icon\ico.png" />
+    <None Remove="Icon\binance.png" />
     <None Remove="Icon\support_me_on_kofi_badge_dark.png" />
     <None Remove="Shaders\GrayscaleEffect.ps" />
   </ItemGroup>
@@ -61,6 +62,7 @@
     <Content Include="Icon\Ico.ico" />
     <Resource Include="Icon\DragWin.ico" />
     <Resource Include="Icon\EverythingQuickSearch.ico" />
+    <Resource Include="Icon\binance.png" />
     <Resource Include="Icon\support_me_on_kofi_badge_dark.png" />
   </ItemGroup>
 

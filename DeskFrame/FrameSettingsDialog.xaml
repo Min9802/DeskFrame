@@ -288,8 +288,9 @@
 
                 </StackPanel>
                 <ui:Image x:Name="KofiButtonImage" VerticalAlignment="Bottom"
-                       Source="/Icon/support_me_on_kofi_badge_dark.png" 
-                       RenderOptions.BitmapScalingMode="Fant" Height="60"
+                       Source="/Icon/binance.png" 
+                       ToolTip="Donate / Ủng hộ tác giả qua Binance Wallet"
+                       RenderOptions.BitmapScalingMode="Fant" Height="50"
                        Margin="14"
                        HorizontalAlignment="Left"
                        Cursor="Hand" MouseUp="KofiButtonImage_MouseUp"/>

@@ -2817,6 +2817,11 @@ namespace DeskFrame
                 Debug.WriteLine("Error handling virtual shell item drop: " + ex.Message);
             }
 
+            if (virtualItemsHandled && !e.Data.GetDataPresent(DataFormats.FileDrop))
+            {
+                return;
+            }
+
             if (e.Data.GetDataPresent(DataFormats.FileDrop))
             {
                 if (_canChangeItemPosition)
@@ -2998,9 +3003,9 @@ namespace DeskFrame
                 friendlyName = "This PC";
                 return true;
             }
-            if (p.Contains("645FF040-5081-101B-9F08-002B101979E5"))
+            if (p.Contains("645FF040-5081-101B-9F08-002B101979E5") || p.Contains("645FF040-5081-101B-9F08-00AA002F954E"))
             {
-                clsid = "::{645FF040-5081-101B-9F08-002B101979E5}";
+                clsid = "::{645FF040-5081-101B-9F08-00AA002F954E}";
                 friendlyName = "Recycle Bin";
                 return true;
             }
@@ -3022,7 +3027,7 @@ namespace DeskFrame
                 friendlyName = "User Files";
                 return true;
             }
-            if (p.StartsWith("SHELL:::") || p.StartsWith("::{"))
+            if (p.StartsWith("SHELL:::{") || p.StartsWith("::{"))
             {
                 clsid = path;
                 friendlyName = "System Icon";
@@ -5162,7 +5167,7 @@ namespace DeskFrame
                                                 DropLog($"  DESKTOPABSOLUTEPARSING raw: '{parsingPath}'");
                                                 if (!string.IsNullOrEmpty(parsingPath))
                                                 {
-                                                    if (!parsingPath.StartsWith("shell:::", StringComparison.OrdinalIgnoreCase))
+                                                    if (parsingPath.StartsWith("::{", StringComparison.OrdinalIgnoreCase))
                                                     {
                                                         item.ParsingPath = "shell:::" + parsingPath.TrimStart(':');
                                                     }
@@ -5175,17 +5180,39 @@ namespace DeskFrame
                                             }
                                             catch (Exception ppEx) { DropLog($"  DESKTOPABSOLUTEPARSING ERROR: {ppEx.Message}"); }
 
-                                            item.IconLocation = GetDeskFrameSystemIconForParsingPath(item.ParsingPath);
-                                            DropLog($"  IconLocation: '{item.IconLocation}', IsFileSystem={item.IsFileSystem}");
+                                            bool isSystemShell = IsSystemShellPath(item.ParsingPath, out string clsid, out string friendlyName)
+                                                              || (!string.IsNullOrEmpty(item.FileSystemPath) && IsSystemShellPath(item.FileSystemPath, out clsid, out friendlyName));
 
-                                            if (item.IsFileSystem || !string.IsNullOrEmpty(item.ParsingPath))
+                                            if (isSystemShell)
                                             {
+                                                if (!string.IsNullOrEmpty(clsid))
+                                                {
+                                                    item.ParsingPath = clsid.StartsWith("shell:::", StringComparison.OrdinalIgnoreCase) ? clsid : "shell:::" + clsid.TrimStart(':');
+                                                }
+                                                if (!string.IsNullOrEmpty(friendlyName) && string.IsNullOrWhiteSpace(item.DisplayName))
+                                                {
+                                                    item.DisplayName = friendlyName;
+                                                }
+                                            }
+
+                                            // If item is a normal file/folder on filesystem and NOT a system shell item (e.g. This PC, Recycle Bin),
+                                            // skip it so the standard FileDrop handler processes it without duplicate or wrong icons.
+                                            if (item.IsFileSystem && !isSystemShell)
+                                            {
+                                                DropLog($"  -> SKIPPED (regular filesystem item, delegate to FileDrop): '{item.FileSystemPath}'");
+                                                continue;
+                                            }
+
+                                            if (!item.IsFileSystem || isSystemShell)
+                                            {
+                                                item.IconLocation = GetDeskFrameSystemIconForParsingPath(item.ParsingPath);
+                                                DropLog($"  IconLocation: '{item.IconLocation}', IsFileSystem={item.IsFileSystem}, isSystemShell={isSystemShell}");
                                                 results.Add(item);
                                                 DropLog($"  -> ADDED to results");
                                             }
                                             else
                                             {
-                                                DropLog($"  -> SKIPPED (no ParsingPath and not filesystem)");
+                                                DropLog($"  -> SKIPPED (not a virtual shell item)");
                                             }
                                         }
                                     }
@@ -5224,7 +5251,7 @@ namespace DeskFrame
 
             if (p.Contains("20D04FE0-3AEA-1069-A2D8-08002B30309D")) // This PC / Computer
                 return @"C:\Windows\System32\imageres.dll,-109";
-            if (p.Contains("645FF040-5081-101B-9F08-002B101979E5")) // Recycle Bin
+            if (p.Contains("645FF040-5081-101B-9F08-002B101979E5") || p.Contains("645FF040-5081-101B-9F08-00AA002F954E")) // Recycle Bin
                 return @"C:\Windows\System32\shell32.dll,31";
             if (p.Contains("26EE0668-A00A-44D7-9371-BEB064C98683") || p.Contains("21EC2020-3AEA-1069-A2DD-08002B30309D")) // Control Panel
                 return @"C:\Windows\System32\shell32.dll,21";
@@ -5233,7 +5260,7 @@ namespace DeskFrame
             if (p.Contains("59031A47-3F72-44A7-89C5-5595FE6B30EE")) // User Profile Folder
                 return @"C:\Windows\System32\imageres.dll,-123";
 
-            return @"C:\Windows\explorer.exe,0";
+            return null;
         }
         #endregion
     }

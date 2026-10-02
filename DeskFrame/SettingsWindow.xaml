@@ -12,7 +12,7 @@
         Background="#66232323" 
         WindowStyle="None" 
         ResizeMode="NoResize"
-        Height="630" 
+        Height="710" 
         Width="460"
         Closing="FluentWindow_Closing">
     <Grid>
@@ -134,10 +134,11 @@
         <StackPanel HorizontalAlignment="Left" VerticalAlignment="Bottom" Orientation="Horizontal">
             <ui:Image x:Name="KofiButtonImage" 
                       VerticalAlignment="Bottom"
-                      Source="/Icon/support_me_on_kofi_badge_dark.png" 
+                      Source="/Icon/binance.png" 
+                      ToolTip="Donate / Ủng hộ tác giả qua Binance Wallet"
                       RenderOptions.BitmapScalingMode="Fant" 
-                      Height="65"
-                      Margin="8,0,0,10"
+                      Height="52"
+                      Margin="8,0,0,14"
                       UseLayoutRounding="True"
                       SnapsToDevicePixels="True"
                       HorizontalAlignment="Left"

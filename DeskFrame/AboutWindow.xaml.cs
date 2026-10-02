@@ -1,4 +1,4 @@
-﻿using System.Diagnostics;
+using System.Diagnostics;
 using System.Reflection;
 using System.Windows.Media;
 using Wpf.Ui.Controls;
@@ -35,7 +35,7 @@ namespace DeskFrame
         {
             try
             {
-                ProcessStartInfo sInfo = new ProcessStartInfo($"https://github.com/PinchToDebug") { UseShellExecute = true };
+                ProcessStartInfo sInfo = new ProcessStartInfo($"https://github.com/Min9802") { UseShellExecute = true };
                 _ = Process.Start(sInfo);
             }
             catch
